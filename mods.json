@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "bepinex": {
+    "version": "5.4.23.5",
+    "url": "https://github.com/BepInEx/BepInEx/releases/download/v5.4.23.5/BepInEx_win_x64_5.4.23.5.zip",
+    "sha256": ""
+  },
+  "mods": [
+    {
+      "guid": "bfivealive.stolenrealm.modmanager",
+      "name": "Mod Manager",
+      "folder": "ModManager",
+      "version": "0.1.0",
+      "description": "In-game settings editor and updater for every mod here.",
+      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.1.0/ModManager-0.1.0.zip",
+      "sha256": "c4fd975d654574520b574270691a430a0bf457786b734ffa139f7052744d36ad",
+      "recommended": true
+    },
+    {
+      "guid": "bfivealive.stolenrealm.skillweightmod",
+      "name": "Skill Weight Mod",
+      "folder": "SkillWeightMod",
+      "version": "0.2.1",
+      "description": "Weights roguelike skill offers toward what your character already has.",
+      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.1.0/SkillWeightMod-0.2.1.zip",
+      "sha256": "b17637014062ff585c90ef4b5144626b549b085c976a53a32d8eac84337498be",
+      "recommended": true
+    },
+    {
+      "guid": "bfivealive.stolenrealm.cumulativestatsmod",
+      "name": "Cumulative Stats Mod",
+      "folder": "CumulativeStatsMod",
+      "version": "0.1.0",
+      "description": "Toggles the post-battle stats window between the last battle and the whole run.",
+      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.1.0/CumulativeStatsMod-0.1.0.zip",
+      "sha256": "a99170745a1c792d91e8f95e1265bfb0090f1972cc6643dc73de0ca9d6761b88",
+      "recommended": true
+    },
+    {
+      "guid": "bfivealive.stolenrealm.statuseffectsmod",
+      "name": "Status Effects Mod",
+      "folder": "StatusEffectsMod",
+      "version": "0.1.0",
+      "description": "Config-driven edits to status effect duration, potency and stacking.",
+      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.1.0/StatusEffectsMod-0.1.0.zip",
+      "sha256": "7a09d18b3cb3fa2553586a1a78c7d387e8a49b015658129e7d10974d12f05ea0",
+      "recommended": true
+    }
+  ]
+}

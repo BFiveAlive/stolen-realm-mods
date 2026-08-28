@@ -1,0 +1,6935 @@
+{
+ "generated": "tools/taxonomy.py",
+ "skillCount": 379,
+ "broadCategories": [
+  "Damage",
+  "Healing",
+  "Defense",
+  "Control",
+  "Passive",
+  "Ranged",
+  "Melee",
+  "Costs Action Point",
+  "Free Action",
+  "Physical",
+  "Elemental",
+  "Buff",
+  "Ally Target",
+  "Debuff",
+  "Triggered"
+ ],
+ "narrowCategories": [
+  "Weapon Attack",
+  "Self-Harm",
+  "Stacking Self Buff",
+  "Poison",
+  "Bleed",
+  "Heat",
+  "Cold",
+  "Lightning",
+  "Shadow",
+  "Holy",
+  "Stealth",
+  "Crit",
+  "Dodge",
+  "Armor",
+  "Resistance",
+  "Immunity",
+  "Damage Reduction",
+  "Lifesteal & Regen",
+  "Direct Heal",
+  "Character Stats",
+  "Movement Speed",
+  "Teleport",
+  "Knockback",
+  "Elemental AOE",
+  "Physical AOE",
+  "Modifies Weapon",
+  "Auras",
+  "Summon",
+  "Shapeshift",
+  "Stun",
+  "Immobilize",
+  "Blind & Silence",
+  "Retaliation",
+  "Enrage",
+  "Marks",
+  "Damage Amp",
+  "Cooldown",
+  "Mana Economy",
+  "Action Economy"
+ ],
+ "broadCounts": {
+  "Damage": 225,
+  "Healing": 46,
+  "Defense": 65,
+  "Control": 52,
+  "Passive": 170,
+  "Ranged": 122,
+  "Melee": 32,
+  "Costs Action Point": 92,
+  "Free Action": 117,
+  "Physical": 81,
+  "Elemental": 43,
+  "Buff": 67,
+  "Ally Target": 50,
+  "Debuff": 48,
+  "Triggered": 46
+ },
+ "narrowCounts": {
+  "Weapon Attack": 38,
+  "Self-Harm": 6,
+  "Stacking Self Buff": 12,
+  "Poison": 11,
+  "Bleed": 5,
+  "Heat": 22,
+  "Cold": 22,
+  "Lightning": 15,
+  "Shadow": 16,
+  "Holy": 6,
+  "Stealth": 8,
+  "Crit": 14,
+  "Dodge": 12,
+  "Armor": 14,
+  "Resistance": 20,
+  "Immunity": 4,
+  "Damage Reduction": 13,
+  "Lifesteal & Regen": 9,
+  "Direct Heal": 18,
+  "Character Stats": 31,
+  "Movement Speed": 11,
+  "Teleport": 7,
+  "Knockback": 6,
+  "Elemental AOE": 12,
+  "Physical AOE": 11,
+  "Modifies Weapon": 6,
+  "Auras": 7,
+  "Summon": 20,
+  "Shapeshift": 10,
+  "Stun": 19,
+  "Immobilize": 25,
+  "Blind & Silence": 6,
+  "Retaliation": 13,
+  "Enrage": 6,
+  "Marks": 5,
+  "Damage Amp": 61,
+  "Cooldown": 7,
+  "Mana Economy": 11,
+  "Action Economy": 10
+ },
+ "skills": [
+  {
+   "name": "Bash",
+   "tree": "Warrior",
+   "tier": 1,
+   "passive": false,
+   "description": "Deals X weapon damage. Knocks the target back up to 3 hexes.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Control",
+    "Melee",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Weapon Attack",
+    "Knockback"
+   ]
+  },
+  {
+   "name": "Challenger",
+   "tree": "Warrior",
+   "tier": 1,
+   "passive": true,
+   "description": "For every enemy within 1 hex of your character gain 5% to Armor and magic armor.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive"
+   ],
+   "narrow": [
+    "Armor"
+   ]
+  },
+  {
+   "name": "Double Edge",
+   "tree": "Warrior",
+   "tier": 1,
+   "passive": false,
+   "description": "Deals X weapon damage to the target and 15% of the damage back to you.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Melee",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Weapon Attack",
+    "Self-Harm"
+   ]
+  },
+  {
+   "name": "Fracture",
+   "tree": "Warrior",
+   "tier": 1,
+   "passive": false,
+   "description": "Deals X weapon damage. Lowers targets Resistance by 20% for 2 turns.",
+   "dependency": null,
+   "excludes": [
+    "Dispelling Fracture",
+    "Mortal Fracture"
+   ],
+   "broad": [
+    "Damage",
+    "Melee",
+    "Free Action",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Weapon Attack"
+   ]
+  },
+  {
+   "name": "Guardian I",
+   "tree": "Warrior",
+   "tier": 1,
+   "passive": true,
+   "description": "Increase Physical Resistance by 5%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive",
+    "Physical"
+   ],
+   "narrow": [
+    "Resistance"
+   ]
+  },
+  {
+   "name": "Rage",
+   "tree": "Warrior",
+   "tier": 1,
+   "passive": false,
+   "description": "Increases Damage dealt and Max Life by 15%. Increases damage received by 15%.",
+   "dependency": null,
+   "excludes": [
+    "Berserker's Rage",
+    "Tempered Rage"
+   ],
+   "broad": [
+    "Damage",
+    "Healing",
+    "Defense",
+    "Free Action",
+    "Buff"
+   ],
+   "narrow": [
+    "Self-Harm",
+    "Damage Reduction",
+    "Character Stats",
+    "Shapeshift",
+    "Enrage",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Wanderer",
+   "tree": "Warrior",
+   "tier": 1,
+   "passive": true,
+   "description": "Increase movement points by 1.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Movement Speed"
+   ]
+  },
+  {
+   "name": "Warmonger I",
+   "tree": "Warrior",
+   "tier": 1,
+   "passive": true,
+   "description": "Increase all Damage and Healing by 8%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Berserker's Rage",
+   "tree": "Warrior",
+   "tier": 2,
+   "passive": false,
+   "description": "Increases Damage dealt by 25%. Increases Max Life and damage recieved by 15%.",
+   "dependency": "Rage",
+   "excludes": [
+    "Tempered Rage"
+   ],
+   "broad": [
+    "Damage",
+    "Healing",
+    "Defense",
+    "Free Action",
+    "Buff"
+   ],
+   "narrow": [
+    "Self-Harm",
+    "Damage Reduction",
+    "Character Stats",
+    "Shapeshift",
+    "Enrage",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Bloodlet",
+   "tree": "Warrior",
+   "tier": 2,
+   "passive": false,
+   "description": "Sacrifice 15% of your maximum health in exchange for an additonal action this turn. Applies Exhaustion.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Free Action",
+    "Buff"
+   ],
+   "narrow": [
+    "Self-Harm",
+    "Action Economy"
+   ]
+  },
+  {
+   "name": "Charge",
+   "tree": "Warrior",
+   "tier": 2,
+   "passive": false,
+   "description": "Charges to the target and deals X weapon damage to all enemies in your path.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Control",
+    "Melee",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Physical AOE"
+   ]
+  },
+  {
+   "name": "Cleave",
+   "tree": "Warrior",
+   "tier": 2,
+   "passive": false,
+   "description": "Swing in a 180 degree arc striking all foes for X weapon damage.",
+   "dependency": null,
+   "excludes": [
+    "Bleeding Cleave",
+    "Life Cleave"
+   ],
+   "broad": [
+    "Damage",
+    "Melee",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Physical AOE"
+   ]
+  },
+  {
+   "name": "Dispelling Fracture",
+   "tree": "Warrior",
+   "tier": 2,
+   "passive": false,
+   "description": "Deals X weapon damage, removes 1 random benefical status from the target and lowers the target's Resistance by 20% for 2 turns.",
+   "dependency": "Fracture",
+   "excludes": [
+    "Mortal Fracture"
+   ],
+   "broad": [
+    "Damage",
+    "Melee",
+    "Free Action",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Weapon Attack"
+   ]
+  },
+  {
+   "name": "Guardian II",
+   "tree": "Warrior",
+   "tier": 2,
+   "passive": true,
+   "description": "Increase Physical Resistance by an additional 10%.",
+   "dependency": "Guardian I",
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive",
+    "Physical"
+   ],
+   "narrow": [
+    "Resistance"
+   ]
+  },
+  {
+   "name": "Into the Fray",
+   "tree": "Warrior",
+   "tier": 2,
+   "passive": true,
+   "description": "For every enemy within 3 hexes of your character gain 3% increased Damage and 3% Maximum Health.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Healing",
+    "Passive"
+   ],
+   "narrow": [
+    "Character Stats",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Mortal Fracture",
+   "tree": "Warrior",
+   "tier": 2,
+   "passive": false,
+   "description": "Deals X weapon damage and lowers target's Resistance by 20% and Healing received by 50% for 2 turns.",
+   "dependency": "Fracture",
+   "excludes": [
+    "Dispelling Fracture"
+   ],
+   "broad": [
+    "Damage",
+    "Melee",
+    "Free Action",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Weapon Attack"
+   ]
+  },
+  {
+   "name": "Opportunist",
+   "tree": "Warrior",
+   "tier": 2,
+   "passive": true,
+   "description": "Increases damage of opportunity attacks and counter attacks by 25%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Retaliation"
+   ]
+  },
+  {
+   "name": "Tempered Rage",
+   "tree": "Warrior",
+   "tier": 2,
+   "passive": false,
+   "description": "Increases Damage, Armor, and Magic Armor by 15%.",
+   "dependency": "Rage",
+   "excludes": [
+    "Berserker's Rage"
+   ],
+   "broad": [
+    "Damage",
+    "Defense",
+    "Free Action",
+    "Buff"
+   ],
+   "narrow": [
+    "Armor",
+    "Shapeshift",
+    "Enrage",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Warmonger II",
+   "tree": "Warrior",
+   "tier": 2,
+   "passive": true,
+   "description": "Increase all Damage and Healing by 12%.",
+   "dependency": "Warmonger I",
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Battle Ready",
+   "tree": "Warrior",
+   "tier": 3,
+   "passive": true,
+   "description": "1% of your Armor value is added to your character as Additional Weapon Damage. Current Bonus: X",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Modifies Weapon",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Beserker's Blood",
+   "tree": "Warrior",
+   "tier": 3,
+   "passive": true,
+   "description": "For every 1% of health missing, gain 1% increased damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Bleeding Cleave",
+   "tree": "Warrior",
+   "tier": 3,
+   "passive": false,
+   "description": "Swing in a 180 degree arc striking all foes for X weapon damage. Applies 2 stacks of Bleeding on all targets hit.",
+   "dependency": "Cleave",
+   "excludes": [
+    "Life Cleave"
+   ],
+   "broad": [
+    "Damage",
+    "Defense",
+    "Melee",
+    "Free Action",
+    "Physical"
+   ],
+   "narrow": [
+    "Bleed",
+    "Resistance",
+    "Physical AOE"
+   ]
+  },
+  {
+   "name": "Dual-Wield Mastery",
+   "tree": "Warrior",
+   "tier": 3,
+   "passive": true,
+   "description": "While dual-wielding, dodge chance increased by 5%, critical hit chance increased by 5%, and critical hit damage is increased by 20%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Defense",
+    "Passive"
+   ],
+   "narrow": [
+    "Crit",
+    "Dodge"
+   ]
+  },
+  {
+   "name": "Howl",
+   "tree": "Warrior",
+   "tier": 3,
+   "passive": false,
+   "description": "Deals X physical damage. Enemies within 2 hexes deal 20% less damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Control",
+    "Free Action"
+   ],
+   "narrow": [
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Life Cleave",
+   "tree": "Warrior",
+   "tier": 3,
+   "passive": false,
+   "description": "Swing in a 180 degree arc striking all foes for X weapon damage. Lifesteals for 10% per target hit. Life Steal heals you for a percentage of your max health each time you hit. Reduced for area of effect and no ap cost abilities.",
+   "dependency": "Cleave",
+   "excludes": [
+    "Bleeding Cleave"
+   ],
+   "broad": [
+    "Damage",
+    "Melee",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Physical AOE"
+   ]
+  },
+  {
+   "name": "Shield Mastery",
+   "tree": "Warrior",
+   "tier": 3,
+   "passive": true,
+   "description": "Increases All Stats from shields by 50%",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive"
+   ],
+   "narrow": [
+    "Armor"
+   ]
+  },
+  {
+   "name": "Slam",
+   "tree": "Warrior",
+   "tier": 3,
+   "passive": false,
+   "description": "Deals X weapon damage to all enemies within a line.",
+   "dependency": null,
+   "excludes": [
+    "Crushing Slam",
+    "Stunning Slam"
+   ],
+   "broad": [
+    "Damage",
+    "Melee",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Physical AOE"
+   ]
+  },
+  {
+   "name": "Two-Handed Mastery",
+   "tree": "Warrior",
+   "tier": 3,
+   "passive": true,
+   "description": "While a two handed weapon is equipped all damage is increased by 20%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Warrior's Boon",
+   "tree": "Warrior",
+   "tier": 3,
+   "passive": false,
+   "description": "Heals 25% of your maximum health and removes all negative statuses. Can be used when Disabled.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Healing",
+    "Free Action",
+    "Buff"
+   ],
+   "narrow": [
+    "Direct Heal"
+   ]
+  },
+  {
+   "name": "Blood Drinker",
+   "tree": "Warrior",
+   "tier": 4,
+   "passive": true,
+   "description": "Increases basic attack damage by 50%. Basic attacks now Life steal for 5%. Life Steal heals you for a percentage of your max health each time you hit. Reduced for area of effect and no ap cost abilities.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Healing",
+    "Passive"
+   ],
+   "narrow": [
+    "Lifesteal & Regen",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Bone Collector",
+   "tree": "Warrior",
+   "tier": 4,
+   "passive": true,
+   "description": "Every enemy slain grants 6% maximum health and Increased Damage. Lasts the duration of the battle. Stacks up to 5 times.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Healing",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Stacking Self Buff",
+    "Character Stats",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Crushing Slam",
+   "tree": "Warrior",
+   "tier": 4,
+   "passive": false,
+   "description": "Deals X weapon damage to all enemies within a line.",
+   "dependency": "Slam",
+   "excludes": [
+    "Stunning Slam"
+   ],
+   "broad": [
+    "Damage",
+    "Melee",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Physical AOE"
+   ]
+  },
+  {
+   "name": "Executioner",
+   "tree": "Warrior",
+   "tier": 4,
+   "passive": true,
+   "description": "Every enemy slain on your turn grants 1 additonal AP. Can only grant up to 1 additional AP per turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Action Economy"
+   ]
+  },
+  {
+   "name": "Stunning Slam",
+   "tree": "Warrior",
+   "tier": 4,
+   "passive": false,
+   "description": "Deals X weapon damage and applies Stunned to all enemies within a line for 1 turn.",
+   "dependency": "Slam",
+   "excludes": [
+    "Crushing Slam"
+   ],
+   "broad": [
+    "Damage",
+    "Control",
+    "Melee",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Physical AOE",
+    "Stun",
+    "Immobilize"
+   ]
+  },
+  {
+   "name": "Vitality Break",
+   "tree": "Warrior",
+   "tier": 4,
+   "passive": false,
+   "description": "Consumes 50% of your current health to deal X weapon damage. Damage is increased by how much health is consumed.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Costs Action Point"
+   ],
+   "narrow": [
+    "Self-Harm"
+   ]
+  },
+  {
+   "name": "Colossus",
+   "tree": "Warrior",
+   "tier": 5,
+   "passive": true,
+   "description": "Damage you deal splashes to enemies within 1 hex for 50% of the damage dealt.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive"
+   ],
+   "narrow": [
+    "Damage Reduction"
+   ]
+  },
+  {
+   "name": "Indestructible",
+   "tree": "Warrior",
+   "tier": 5,
+   "passive": true,
+   "description": "Getting hit increases armor, magic armor, and return damage by 10% per stack. Stacks 10 times.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Stacking Self Buff",
+    "Armor"
+   ]
+  },
+  {
+   "name": "Sunder",
+   "tree": "Warrior",
+   "tier": 5,
+   "passive": false,
+   "description": "Deals X weapon damage. Ignores all armor and resists. Cannot be dodged. Life Steals for 25%. Life Steal heals you for a percentage of your max health each time you hit. Reduced for area of effect and no ap cost abilities.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Melee",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Weapon Attack"
+   ]
+  },
+  {
+   "name": "Unyielding Contender",
+   "tree": "Warrior",
+   "tier": 5,
+   "passive": false,
+   "description": "Grants 50% increased Armor, Magic Armor, and Max Health for 2 turns. Grants Enrage. Usable while stunned.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Healing",
+    "Defense",
+    "Free Action",
+    "Buff"
+   ],
+   "narrow": [
+    "Cold",
+    "Armor",
+    "Immunity",
+    "Character Stats",
+    "Stun",
+    "Immobilize",
+    "Enrage"
+   ]
+  },
+  {
+   "name": "Ambush I",
+   "tree": "Thief",
+   "tier": 1,
+   "passive": true,
+   "description": "Deal 16% increased damage when an enemy has no allies within 3 hexes.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Stealth"
+   ]
+  },
+  {
+   "name": "Cripple",
+   "tree": "Thief",
+   "tier": 1,
+   "passive": false,
+   "description": "Deals X weapon damage. Applies Slow for 1 turn.",
+   "dependency": null,
+   "excludes": [
+    "Gouge",
+    "Maim"
+   ],
+   "broad": [
+    "Damage",
+    "Control",
+    "Melee",
+    "Free Action",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Weapon Attack",
+    "Movement Speed",
+    "Immobilize"
+   ]
+  },
+  {
+   "name": "Dagger Throw",
+   "tree": "Thief",
+   "tier": 1,
+   "passive": false,
+   "description": "Throw a dagger dealing X weapon damage.",
+   "dependency": null,
+   "excludes": [
+    "Deadly Dagger",
+    "Poisoned Dagger"
+   ],
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Physical"
+   ],
+   "narrow": [
+    "Weapon Attack"
+   ]
+  },
+  {
+   "name": "Death Dealer I",
+   "tree": "Thief",
+   "tier": 1,
+   "passive": true,
+   "description": "Increase Critical Hit Damage and Healing by 16%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Crit"
+   ]
+  },
+  {
+   "name": "Escape",
+   "tree": "Thief",
+   "tier": 1,
+   "passive": false,
+   "description": "Teleport to the target area. Unaffected by increased range modifiers.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Free Action"
+   ],
+   "narrow": [
+    "Teleport"
+   ]
+  },
+  {
+   "name": "Fencer's Finesse I",
+   "tree": "Thief",
+   "tier": 1,
+   "passive": true,
+   "description": "Increases dodge chance by 5%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive"
+   ],
+   "narrow": [
+    "Dodge"
+   ]
+  },
+  {
+   "name": "Poison Weapon",
+   "tree": "Thief",
+   "tier": 1,
+   "passive": false,
+   "description": "Attacks now apply 1 stack of Poisoned.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Free Action",
+    "Buff"
+   ],
+   "narrow": [
+    "Poison",
+    "Modifies Weapon"
+   ]
+  },
+  {
+   "name": "Swiftness",
+   "tree": "Thief",
+   "tier": 1,
+   "passive": true,
+   "description": "Increases your movement points by 1.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Movement Speed"
+   ]
+  },
+  {
+   "name": "Ambush II",
+   "tree": "Thief",
+   "tier": 2,
+   "passive": true,
+   "description": "Deal an additional 24% increased damage when an enemy has no allies within 3 hexes.",
+   "dependency": "Ambush I",
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Stealth"
+   ]
+  },
+  {
+   "name": "Deadly Dagger",
+   "tree": "Thief",
+   "tier": 2,
+   "passive": false,
+   "description": "Throw a dagger dealing X weapon damage. Deals 50% additional critical hit damage.",
+   "dependency": "Dagger Throw",
+   "excludes": [
+    "Poisoned Dagger"
+   ],
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Physical"
+   ],
+   "narrow": [
+    "Weapon Attack"
+   ]
+  },
+  {
+   "name": "Death Dealer II",
+   "tree": "Thief",
+   "tier": 2,
+   "passive": true,
+   "description": "Increase Critical Hit Damage and Healing by an additional 24%.",
+   "dependency": "Death Dealer I",
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Crit"
+   ]
+  },
+  {
+   "name": "Evasion",
+   "tree": "Thief",
+   "tier": 2,
+   "passive": false,
+   "description": "Gain 100% dodge chance for the next attack.",
+   "dependency": null,
+   "excludes": [
+    "Enduring Evasion",
+    "Uncanny Evasion"
+   ],
+   "broad": [
+    "Defense",
+    "Free Action",
+    "Buff"
+   ],
+   "narrow": [
+    "Dodge"
+   ]
+  },
+  {
+   "name": "Fencer's Finesse II",
+   "tree": "Thief",
+   "tier": 2,
+   "passive": true,
+   "description": "Increases dodge chance by an additional 8%.",
+   "dependency": "Fencer's Finesse I",
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive"
+   ],
+   "narrow": [
+    "Dodge"
+   ]
+  },
+  {
+   "name": "Gouge",
+   "tree": "Thief",
+   "tier": 2,
+   "passive": false,
+   "description": "Deals X weapon damage. Applies 2 stacks of Bleeding.",
+   "dependency": "Cripple",
+   "excludes": [
+    "Maim"
+   ],
+   "broad": [
+    "Damage",
+    "Melee",
+    "Free Action",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Weapon Attack",
+    "Bleed"
+   ]
+  },
+  {
+   "name": "Hide In Shadows",
+   "tree": "Thief",
+   "tier": 2,
+   "passive": false,
+   "description": "Grants Stealth for 2 turns.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Free Action",
+    "Buff"
+   ],
+   "narrow": [
+    "Stealth"
+   ]
+  },
+  {
+   "name": "Maim",
+   "tree": "Thief",
+   "tier": 2,
+   "passive": false,
+   "description": "Deals X weapon damage. Applies Disabled for 1 turn.",
+   "dependency": "Cripple",
+   "excludes": [
+    "Gouge"
+   ],
+   "broad": [
+    "Damage",
+    "Control",
+    "Melee",
+    "Free Action",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Weapon Attack",
+    "Stun"
+   ]
+  },
+  {
+   "name": "Poisoned Dagger",
+   "tree": "Thief",
+   "tier": 2,
+   "passive": false,
+   "description": "Throw a poisoned dagger dealing X weapon damage. Applies 2 stacks of Poisoned.",
+   "dependency": "Dagger Throw",
+   "excludes": [
+    "Deadly Dagger"
+   ],
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Weapon Attack",
+    "Poison"
+   ]
+  },
+  {
+   "name": "Shroud",
+   "tree": "Thief",
+   "tier": 2,
+   "passive": true,
+   "description": "Applies Stealth at the start of each battle.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Stealth"
+   ]
+  },
+  {
+   "name": "En Garde",
+   "tree": "Thief",
+   "tier": 3,
+   "passive": true,
+   "description": "Increases your maximum amount of Counter Attacks per turn by 2.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Retaliation"
+   ]
+  },
+  {
+   "name": "Enduring Evasion",
+   "tree": "Thief",
+   "tier": 3,
+   "passive": false,
+   "description": "Gain 100% dodge chance for the next 2 attacks.",
+   "dependency": "Evasion",
+   "excludes": [
+    "Uncanny Evasion"
+   ],
+   "broad": [
+    "Defense",
+    "Free Action",
+    "Buff"
+   ],
+   "narrow": [
+    "Dodge"
+   ]
+  },
+  {
+   "name": "Fade",
+   "tree": "Thief",
+   "tier": 3,
+   "passive": true,
+   "description": "Whenever an enemy dies, you have a 50% chance to gain Stealth for 1 turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Stealth"
+   ]
+  },
+  {
+   "name": "Fight Dirty",
+   "tree": "Thief",
+   "tier": 3,
+   "passive": true,
+   "description": "Your attacks apply 2 stacks of Poisoned.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Healing",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Poison",
+    "Direct Heal"
+   ]
+  },
+  {
+   "name": "Garrote",
+   "tree": "Thief",
+   "tier": 3,
+   "passive": false,
+   "description": "Deals X weapon damage. Applies Disabled to the target for 1 turn and applies 3 stacks of Bleeding.",
+   "dependency": null,
+   "excludes": [
+    "Gore",
+    "Rupture"
+   ],
+   "broad": [
+    "Damage",
+    "Control",
+    "Melee",
+    "Free Action",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Weapon Attack",
+    "Bleed",
+    "Stun"
+   ]
+  },
+  {
+   "name": "Hidden Blade",
+   "tree": "Thief",
+   "tier": 3,
+   "passive": true,
+   "description": "Increases Critical Hit Damage for your basic attack by 75%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Crit"
+   ]
+  },
+  {
+   "name": "Steal Action",
+   "tree": "Thief",
+   "tier": 3,
+   "passive": false,
+   "description": "Steals the target's action granting 1 additional action this turn. Applies Disabled to the target for 1 turn. Applies Exhaustion.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Control",
+    "Melee",
+    "Free Action",
+    "Buff",
+    "Debuff"
+   ],
+   "narrow": [
+    "Stun",
+    "Action Economy"
+   ]
+  },
+  {
+   "name": "Steal Status",
+   "tree": "Thief",
+   "tier": 3,
+   "passive": false,
+   "description": "Steals a random positive status from the target.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Ranged",
+    "Free Action",
+    "Ally Target"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Uncanny Evasion",
+   "tree": "Thief",
+   "tier": 3,
+   "passive": false,
+   "description": "Gain 100% dodge chance for the next attack. Increases Counter Attack Damage by 50% for 1 turn.",
+   "dependency": "Evasion",
+   "excludes": [
+    "Enduring Evasion"
+   ],
+   "broad": [
+    "Damage",
+    "Defense",
+    "Free Action",
+    "Buff"
+   ],
+   "narrow": [
+    "Dodge",
+    "Retaliation"
+   ]
+  },
+  {
+   "name": "Calculated Risk",
+   "tree": "Thief",
+   "tier": 4,
+   "passive": true,
+   "description": "When you are hit you have a 100% chance to cast evasion. 1 turn cooldown.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Dodge"
+   ]
+  },
+  {
+   "name": "Contaminated Wound",
+   "tree": "Thief",
+   "tier": 4,
+   "passive": true,
+   "description": "Increases the duration of Poisoned and Bleeding effects you've applied by 2 turns.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Poison"
+   ]
+  },
+  {
+   "name": "Gore",
+   "tree": "Thief",
+   "tier": 4,
+   "passive": false,
+   "description": "Deals X weapon damage. Applies Disabled for 1 turn.",
+   "dependency": "Garrote",
+   "excludes": [
+    "Rupture"
+   ],
+   "broad": [
+    "Damage",
+    "Control",
+    "Melee",
+    "Free Action",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Weapon Attack",
+    "Stun"
+   ]
+  },
+  {
+   "name": "Master Assassin",
+   "tree": "Thief",
+   "tier": 4,
+   "passive": true,
+   "description": "Always deal the maximum damage within a damage range.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Stealth"
+   ]
+  },
+  {
+   "name": "Rupture",
+   "tree": "Thief",
+   "tier": 4,
+   "passive": false,
+   "description": "Deals X weapon damage. Applies Disabled for 1 turn and applies 6 stacks of Bleeding.",
+   "dependency": "Garrote",
+   "excludes": [
+    "Gore"
+   ],
+   "broad": [
+    "Damage",
+    "Control",
+    "Melee",
+    "Free Action",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Weapon Attack",
+    "Bleed",
+    "Stun"
+   ]
+  },
+  {
+   "name": "Shadow Walk",
+   "tree": "Thief",
+   "tier": 4,
+   "passive": false,
+   "description": "Teleport through the shadows. Applies Stealth for this turn. Unaffected by increased range modifiers.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Free Action"
+   ],
+   "narrow": [
+    "Stealth",
+    "Teleport"
+   ]
+  },
+  {
+   "name": "Smoke Bomb",
+   "tree": "Thief",
+   "tier": 4,
+   "passive": false,
+   "description": "Increases dodge chance by 50% for all characters in smoke.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Control",
+    "Ranged",
+    "Free Action"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Deathblow",
+   "tree": "Thief",
+   "tier": 5,
+   "passive": false,
+   "description": "Deals X weapon damage. Critical hits deal an additional 200% Critical Hit Damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Melee",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Weapon Attack"
+   ]
+  },
+  {
+   "name": "Sleight of Hand",
+   "tree": "Thief",
+   "tier": 5,
+   "passive": false,
+   "description": "Steal all of the target's beneficial statuses while giving the target all your negative statuses.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Melee",
+    "Free Action"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Soft Step",
+   "tree": "Thief",
+   "tier": 5,
+   "passive": true,
+   "description": "Moving 5 hexes in a row grants Stealth for your current turn. Your character no longer takes attacks of opportunity.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Stealth",
+    "Retaliation"
+   ]
+  },
+  {
+   "name": "Tricks of the Trade",
+   "tree": "Thief",
+   "tier": 5,
+   "passive": true,
+   "description": "Reduces the cooldown of all abilities by 1.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Cooldown"
+   ]
+  },
+  {
+   "name": "Beast Master I",
+   "tree": "Ranger",
+   "tier": 1,
+   "passive": true,
+   "description": "Summons deal 10% more damage and have 10% more health.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Summon"
+   ]
+  },
+  {
+   "name": "Crippling Shot",
+   "tree": "Ranger",
+   "tier": 1,
+   "passive": false,
+   "description": "Deals X weapon damage. Applies Slow.",
+   "dependency": null,
+   "excludes": [
+    "Bleeding Shot",
+    "Pinning Shot"
+   ],
+   "broad": [
+    "Damage",
+    "Control",
+    "Ranged",
+    "Free Action",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Weapon Attack",
+    "Movement Speed",
+    "Immobilize"
+   ]
+  },
+  {
+   "name": "Eagle Eye",
+   "tree": "Ranger",
+   "tier": 1,
+   "passive": true,
+   "description": "Increase the range of all ranged skills by 1 hex.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Huntsman I",
+   "tree": "Ranger",
+   "tier": 1,
+   "passive": true,
+   "description": "Physical damage increased by X.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive",
+    "Physical"
+   ],
+   "narrow": [
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Rally",
+   "tree": "Ranger",
+   "tier": 1,
+   "passive": false,
+   "description": "Increases movement of all allies within 4 hexes by 3.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Free Action",
+    "Buff"
+   ],
+   "narrow": [
+    "Movement Speed",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Summon Raven",
+   "tree": "Ranger",
+   "tier": 1,
+   "passive": false,
+   "description": "Summon a Raven to fight your enemies.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Ranged",
+    "Costs Action Point"
+   ],
+   "narrow": [
+    "Summon"
+   ]
+  },
+  {
+   "name": "Survivalist I",
+   "tree": "Ranger",
+   "tier": 1,
+   "passive": true,
+   "description": "Increases all resistance and dodge chance by 3%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive",
+    "Physical"
+   ],
+   "narrow": [
+    "Dodge",
+    "Resistance"
+   ]
+  },
+  {
+   "name": "Tracker's Mark",
+   "tree": "Ranger",
+   "tier": 1,
+   "passive": false,
+   "description": "Gain 15% increased damage and 8% critical hit chance on the target. If the target dies while Tracker's Mark is active, the cooldown is reset.",
+   "dependency": null,
+   "excludes": [
+    "Bounty Hunter's Mark",
+    "Stalker's Mark"
+   ],
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Debuff"
+   ],
+   "narrow": [
+    "Crit",
+    "Marks"
+   ]
+  },
+  {
+   "name": "Tranquilizing Shot",
+   "tree": "Ranger",
+   "tier": 1,
+   "passive": false,
+   "description": "Tranquilizes the target applying Sleep for 2 turns.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Control",
+    "Ranged",
+    "Free Action",
+    "Debuff"
+   ],
+   "narrow": [
+    "Stun",
+    "Immobilize"
+   ]
+  },
+  {
+   "name": "Beast Master II",
+   "tree": "Ranger",
+   "tier": 2,
+   "passive": true,
+   "description": "Summons deal an additional 15% more damage and have an additional 15% more health.",
+   "dependency": "Beast Master I",
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Summon"
+   ]
+  },
+  {
+   "name": "Bleeding Shot",
+   "tree": "Ranger",
+   "tier": 2,
+   "passive": false,
+   "description": "Deals X weapon damage. Applies 2 stacks of Bleeding.",
+   "dependency": "Crippling Shot",
+   "excludes": [
+    "Pinning Shot"
+   ],
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Weapon Attack",
+    "Bleed"
+   ]
+  },
+  {
+   "name": "Bounty Hunter's Mark",
+   "tree": "Ranger",
+   "tier": 2,
+   "passive": false,
+   "description": "Gain 15% increased damage and 8% critical hit chance against the target. If the target dies while Bounty Hunter's Mark is active, all cooldowns are reduced by 1.",
+   "dependency": "Tracker's Mark",
+   "excludes": [
+    "Stalker's Mark"
+   ],
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Debuff"
+   ],
+   "narrow": [
+    "Crit",
+    "Marks"
+   ]
+  },
+  {
+   "name": "Disengage",
+   "tree": "Ranger",
+   "tier": 2,
+   "passive": true,
+   "description": "You can move 1 additional hex each turn and no longer take opportunity attacks.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive"
+   ],
+   "narrow": [
+    "Movement Speed",
+    "Retaliation"
+   ]
+  },
+  {
+   "name": "Huntsman II",
+   "tree": "Ranger",
+   "tier": 2,
+   "passive": true,
+   "description": "Physical damage increased by X.",
+   "dependency": "Huntsman I",
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive",
+    "Physical"
+   ],
+   "narrow": [
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Pinning Shot",
+   "tree": "Ranger",
+   "tier": 2,
+   "passive": false,
+   "description": "Deals X weapon damage. Applies Immobilized.",
+   "dependency": "Crippling Shot",
+   "excludes": [
+    "Bleeding Shot"
+   ],
+   "broad": [
+    "Damage",
+    "Control",
+    "Ranged",
+    "Free Action",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Weapon Attack",
+    "Immobilize"
+   ]
+  },
+  {
+   "name": "Precision I",
+   "tree": "Ranger",
+   "tier": 2,
+   "passive": true,
+   "description": "Increase critical hit chance by 4%. Increase critical hit damage by 16%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Crit"
+   ]
+  },
+  {
+   "name": "Relocate",
+   "tree": "Ranger",
+   "tier": 2,
+   "passive": false,
+   "description": "Jump to the target area. Unaffected by increased range modifiers.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Free Action"
+   ],
+   "narrow": [
+    "Teleport"
+   ]
+  },
+  {
+   "name": "Stalker's Mark",
+   "tree": "Ranger",
+   "tier": 2,
+   "passive": false,
+   "description": "Gain 25% increased damage and 12% critical hit chance against the target. If the target dies while Stalker's Mark is active, the cooldown is reset.",
+   "dependency": "Tracker's Mark",
+   "excludes": [
+    "Bounty Hunter's Mark"
+   ],
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Debuff"
+   ],
+   "narrow": [
+    "Crit",
+    "Marks"
+   ]
+  },
+  {
+   "name": "Survivalist II",
+   "tree": "Ranger",
+   "tier": 2,
+   "passive": true,
+   "description": "Increases all resistance and dodge chance by an additional 5%.",
+   "dependency": "Survivalist I",
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive",
+    "Physical"
+   ],
+   "narrow": [
+    "Dodge",
+    "Resistance"
+   ]
+  },
+  {
+   "name": "Blasting Shot",
+   "tree": "Ranger",
+   "tier": 3,
+   "passive": false,
+   "description": "Deals X weapon damage to all targets in area. Targets are knocked back 3 hexes.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Control",
+    "Ranged",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Weapon Attack",
+    "Knockback"
+   ]
+  },
+  {
+   "name": "Long Shot",
+   "tree": "Ranger",
+   "tier": 3,
+   "passive": false,
+   "description": "Deals X weapon damage. Every hex between you and your target increases the damage of by 10%.",
+   "dependency": null,
+   "excludes": [
+    "Called Shot",
+    "Sniper Shot"
+   ],
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Weapon Attack"
+   ]
+  },
+  {
+   "name": "Patient Hunter",
+   "tree": "Ranger",
+   "tier": 3,
+   "passive": true,
+   "description": "Patient Hunter gives 10% increased damage and 1 skill range per stack. A stack is applied at the end of each turn. Making any movement removes all stacks of Patient Hunter. Stacks up to 5 times.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Stacking Self Buff",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Precision II",
+   "tree": "Ranger",
+   "tier": 3,
+   "passive": true,
+   "description": "Increase critical hit chance by an additional 6%. Increase critical hit damage by an additional 24%.",
+   "dependency": "Precision I",
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Crit"
+   ]
+  },
+  {
+   "name": "Quick Hands",
+   "tree": "Ranger",
+   "tier": 3,
+   "passive": true,
+   "description": "Your basic attack has a 50% chance to strike twice. Can only trigger once per turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Ranger's Gift I",
+   "tree": "Ranger",
+   "tier": 3,
+   "passive": true,
+   "description": "Every hex between you and your target increases damage dealt by 2%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Summon Wolf",
+   "tree": "Ranger",
+   "tier": 3,
+   "passive": false,
+   "description": "Summon a wolf to fight your enemies.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Summon"
+   ]
+  },
+  {
+   "name": "Volley",
+   "tree": "Ranger",
+   "tier": 3,
+   "passive": false,
+   "description": "Shoot up to 5 enemies near the target area dealing X weapon damage per target. The arrow can chain to targets within 3 hexes of the last target hit.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Weapon Attack"
+   ]
+  },
+  {
+   "name": "Called Shot",
+   "tree": "Ranger",
+   "tier": 4,
+   "passive": false,
+   "description": "Deals X physical damage. Every hex between you and your target increases the damage of by 10%. Called Shot cannot be dodged or blocked.",
+   "dependency": "Long Shot",
+   "excludes": [
+    "Sniper Shot"
+   ],
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Weapon Attack"
+   ]
+  },
+  {
+   "name": "Dispelling Shot",
+   "tree": "Ranger",
+   "tier": 4,
+   "passive": false,
+   "description": "Deals X weapon damage. Removes 1 random benefical status from the target.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Physical"
+   ],
+   "narrow": [
+    "Weapon Attack"
+   ]
+  },
+  {
+   "name": "Endless Quiver",
+   "tree": "Ranger",
+   "tier": 4,
+   "passive": true,
+   "description": "Reduces all Ranger cooldowns by 1.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Cooldown"
+   ]
+  },
+  {
+   "name": "Piercing Shot",
+   "tree": "Ranger",
+   "tier": 4,
+   "passive": false,
+   "description": "Deals X weapon damage in a line.",
+   "dependency": null,
+   "excludes": [
+    "Branching Shot",
+    "Force Shot"
+   ],
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Physical AOE"
+   ]
+  },
+  {
+   "name": "Quick Draw",
+   "tree": "Ranger",
+   "tier": 4,
+   "passive": false,
+   "description": "Your next 3 basic attacks have no AP cost. Applies Exhaustion.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Costs Action Point",
+    "Physical",
+    "Buff"
+   ],
+   "narrow": [
+    "Action Economy"
+   ]
+  },
+  {
+   "name": "Ranger's Gift II",
+   "tree": "Ranger",
+   "tier": 4,
+   "passive": true,
+   "description": "Every hex between you and your target increases damage dealt by an additional 3%.",
+   "dependency": "Ranger's Gift I",
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Sniper Shot",
+   "tree": "Ranger",
+   "tier": 4,
+   "passive": false,
+   "description": "Deals X weapon damage. Every hex between you and your target increases the damage of by 15%.",
+   "dependency": "Long Shot",
+   "excludes": [
+    "Called Shot"
+   ],
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Weapon Attack"
+   ]
+  },
+  {
+   "name": "Take Cover",
+   "tree": "Ranger",
+   "tier": 4,
+   "passive": true,
+   "description": "Damage you take from enemies further than 2 hexes from you is reduced by 35%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive"
+   ],
+   "narrow": [
+    "Damage Reduction"
+   ]
+  },
+  {
+   "name": "Animal Companion Grizzly",
+   "tree": "Ranger",
+   "tier": 5,
+   "passive": false,
+   "description": "Summon a grizzly to fight your enemies.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Summon"
+   ]
+  },
+  {
+   "name": "Branching Shot",
+   "tree": "Ranger",
+   "tier": 5,
+   "passive": false,
+   "description": "Deals X weapon damage. Bounces to enemies within 3 hexes. Each bounce increases its damage by 50%.",
+   "dependency": "Piercing Shot",
+   "excludes": [
+    "Force Shot"
+   ],
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Weapon Attack"
+   ]
+  },
+  {
+   "name": "Cupid Shot",
+   "tree": "Ranger",
+   "tier": 5,
+   "passive": false,
+   "description": "Charm the enemy target for 1 turn. Cannot target bosses.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Marks"
+   ]
+  },
+  {
+   "name": "Force Shot",
+   "tree": "Ranger",
+   "tier": 5,
+   "passive": false,
+   "description": "Deals X weapon damage in a line and knocks targets back up to 4 hexes. Any enemy hit by the target also receives X damage.",
+   "dependency": "Piercing Shot",
+   "excludes": [
+    "Branching Shot"
+   ],
+   "broad": [
+    "Damage",
+    "Control",
+    "Ranged",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Knockback",
+    "Physical AOE"
+   ]
+  },
+  {
+   "name": "Marked Prey",
+   "tree": "Ranger",
+   "tier": 5,
+   "passive": true,
+   "description": "Attacks now apply Marked Prey. All stacks are removed at the end of your turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Damage Reduction"
+   ]
+  },
+  {
+   "name": "Mythic Reach",
+   "tree": "Ranger",
+   "tier": 5,
+   "passive": true,
+   "description": "All ranged abilities get an additional 5 hex range.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Slaying Shot",
+   "tree": "Ranger",
+   "tier": 5,
+   "passive": false,
+   "description": "Deals X weapon damage. Ignores all armor and resists. Cannot be dodged.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Weapon Attack"
+   ]
+  },
+  {
+   "name": "Chi Strike",
+   "tree": "Monk",
+   "tier": 1,
+   "passive": false,
+   "description": "Strike an enemy dealing X weapon damage. Reduces the targets damage dealt by 20% for 1 turn.",
+   "dependency": null,
+   "excludes": [
+    "Focused Strike",
+    "Paralyzing Strike"
+   ],
+   "broad": [
+    "Damage",
+    "Melee",
+    "Costs Action Point",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Weapon Attack",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Contemplation I",
+   "tree": "Monk",
+   "tier": 1,
+   "passive": true,
+   "description": "Max Mana increased by 10%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Character Stats",
+    "Mana Economy"
+   ]
+  },
+  {
+   "name": "Endurance I",
+   "tree": "Monk",
+   "tier": 1,
+   "passive": true,
+   "description": "Max Health increased by 10%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Healing",
+    "Passive"
+   ],
+   "narrow": [
+    "Character Stats"
+   ]
+  },
+  {
+   "name": "Front Kick",
+   "tree": "Monk",
+   "tier": 1,
+   "passive": false,
+   "description": "Kicks the target dealing X physical damage and knocking the target back up to 3 hexes. Any enemy hit by the target also receives X damage.",
+   "dependency": null,
+   "excludes": [
+    "Force Kick",
+    "Stunning Kick"
+   ],
+   "broad": [
+    "Damage",
+    "Control",
+    "Melee",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Weapon Attack",
+    "Knockback"
+   ]
+  },
+  {
+   "name": "Incapacitate",
+   "tree": "Monk",
+   "tier": 1,
+   "passive": false,
+   "description": "Incapacitates the target applying Sleep for 2 turns.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Control",
+    "Free Action",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Stun",
+    "Immobilize"
+   ]
+  },
+  {
+   "name": "Masochism I",
+   "tree": "Monk",
+   "tier": 1,
+   "passive": true,
+   "description": "Gain a stack of Masochism each time you take damage. Each stack increases the damage/healing you deal by 2%. Lasts 1 turn.",
+   "dependency": null,
+   "excludes": [
+    "Masochism II"
+   ],
+   "broad": [
+    "Damage",
+    "Passive",
+    "Physical",
+    "Triggered"
+   ],
+   "narrow": [
+    "Stacking Self Buff",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Momentum I",
+   "tree": "Monk",
+   "tier": 1,
+   "passive": true,
+   "description": "Each hex moved grants a stack of Momentum increasing the damage or healing of your next ability by 2%.",
+   "dependency": null,
+   "excludes": [
+    "Momentum II"
+   ],
+   "broad": [
+    "Damage",
+    "Passive",
+    "Physical",
+    "Triggered"
+   ],
+   "narrow": [
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Contemplation II",
+   "tree": "Monk",
+   "tier": 2,
+   "passive": true,
+   "description": "Max Mana increased by an additional 15%.",
+   "dependency": "Contemplation I",
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Character Stats",
+    "Mana Economy"
+   ]
+  },
+  {
+   "name": "Endurance II",
+   "tree": "Monk",
+   "tier": 2,
+   "passive": true,
+   "description": "Max Health increased by an additional 15%.",
+   "dependency": "Endurance I",
+   "excludes": null,
+   "broad": [
+    "Healing",
+    "Passive"
+   ],
+   "narrow": [
+    "Character Stats"
+   ]
+  },
+  {
+   "name": "Focused Strike",
+   "tree": "Monk",
+   "tier": 2,
+   "passive": false,
+   "description": "Strike an enemy dealing X weapon damage. Applies a debuff that increases the damage this target takes from all sources for 2 turns by 20%.",
+   "dependency": "Chi Strike",
+   "excludes": [
+    "Paralyzing Strike"
+   ],
+   "broad": [
+    "Damage",
+    "Melee",
+    "Costs Action Point",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Weapon Attack",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Force Kick",
+   "tree": "Monk",
+   "tier": 2,
+   "passive": false,
+   "description": "Kicks the target dealing X physical damage and knocking the target back up to 5 hexes. Any enemy hit by the target also receives X physical damage.",
+   "dependency": "Front Kick",
+   "excludes": [
+    "Stunning Kick"
+   ],
+   "broad": [
+    "Damage",
+    "Control",
+    "Melee",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Weapon Attack",
+    "Knockback"
+   ]
+  },
+  {
+   "name": "Masochism II",
+   "tree": "Monk",
+   "tier": 2,
+   "passive": true,
+   "description": "Gain a stack of Masochism each time you take damage. Each stack increases the damage/healing you deal by an additional 3%. Lasts 1 turn.",
+   "dependency": "Masochism I",
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive",
+    "Physical",
+    "Triggered"
+   ],
+   "narrow": [
+    "Stacking Self Buff",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Momentum II",
+   "tree": "Monk",
+   "tier": 2,
+   "passive": true,
+   "description": "Each hex moved grants a stack of Momentum increasing the damage or healing of your next ability by an additional 3%.",
+   "dependency": "Momentum I",
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive",
+    "Physical",
+    "Triggered"
+   ],
+   "narrow": [
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Pain Suppression",
+   "tree": "Monk",
+   "tier": 2,
+   "passive": false,
+   "description": "The target's Damage Reduction is increased by 50% for 1 turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Healing",
+    "Defense",
+    "Free Action",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Damage Reduction"
+   ]
+  },
+  {
+   "name": "Paralyzing Strike",
+   "tree": "Monk",
+   "tier": 2,
+   "passive": false,
+   "description": "Strike an enemy dealing X weapon damage. Stuns the target for 1 turn.",
+   "dependency": "Chi Strike",
+   "excludes": [
+    "Focused Strike"
+   ],
+   "broad": [
+    "Damage",
+    "Control",
+    "Melee",
+    "Costs Action Point",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Weapon Attack",
+    "Stun",
+    "Immobilize"
+   ]
+  },
+  {
+   "name": "Stunning Kick",
+   "tree": "Monk",
+   "tier": 2,
+   "passive": false,
+   "description": "Kicks the target dealing X physical damage and stunning them for 1 turn.",
+   "dependency": "Front Kick",
+   "excludes": [
+    "Force Kick"
+   ],
+   "broad": [
+    "Damage",
+    "Control",
+    "Melee",
+    "Costs Action Point",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Weapon Attack",
+    "Stun",
+    "Immobilize"
+   ]
+  },
+  {
+   "name": "Combo Breaker",
+   "tree": "Monk",
+   "tier": 3,
+   "passive": true,
+   "description": "Basic attacks grant Combo Breaker. Combo Breaker gives your next non basic attack ability 10% damage and healing per stack. Stacks are consumed on use.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Stacking Self Buff",
+    "Damage Amp",
+    "Mana Economy"
+   ]
+  },
+  {
+   "name": "Dashing Strikes",
+   "tree": "Monk",
+   "tier": 3,
+   "passive": false,
+   "description": "Dash to an enemy dealing X weapon damage then quickly dash to an enemy within 2 hexes to strike again. Strikes up to 4 times.",
+   "dependency": null,
+   "excludes": [
+    "Dodging Strikes",
+    "Power Strikes"
+   ],
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Weapon Attack"
+   ]
+  },
+  {
+   "name": "Falcon Dash",
+   "tree": "Monk",
+   "tier": 3,
+   "passive": false,
+   "description": "Dash to the target area and dealing X weapon damage to affected area.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Control",
+    "Free Action",
+    "Physical"
+   ],
+   "narrow": [
+    "Physical AOE"
+   ]
+  },
+  {
+   "name": "Meditation",
+   "tree": "Monk",
+   "tier": 3,
+   "passive": false,
+   "description": "Put the target ally into a meditative state restoring 20% of max health and mana.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Healing",
+    "Ranged",
+    "Free Action",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Direct Heal"
+   ]
+  },
+  {
+   "name": "Sweeping Kick",
+   "tree": "Monk",
+   "tier": 3,
+   "passive": false,
+   "description": "Deal X physical damage to all enemies within 1 hex. Knocks back all enemies up to 3 hexes. Targets are crippled for 1 turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Control",
+    "Costs Action Point",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Weapon Attack",
+    "Movement Speed",
+    "Knockback",
+    "Immobilize"
+   ]
+  },
+  {
+   "name": "Weapon of Choice",
+   "tree": "Monk",
+   "tier": 3,
+   "passive": true,
+   "description": "3% of your total attribute value is added to your character as Additional Weapon Damage. Current Bonus: X",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Modifies Weapon",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Willpower",
+   "tree": "Monk",
+   "tier": 3,
+   "passive": true,
+   "description": "Every 10% of your max health you are missing increases damage reduction by 4%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive"
+   ],
+   "narrow": [
+    "Damage Reduction"
+   ]
+  },
+  {
+   "name": "Body and Soul",
+   "tree": "Monk",
+   "tier": 4,
+   "passive": true,
+   "description": "Intelligence now gives 5 Magic Armor per point and Vitality now gives 5 Armor per point.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive"
+   ],
+   "narrow": [
+    "Armor"
+   ]
+  },
+  {
+   "name": "Crash and Flow",
+   "tree": "Monk",
+   "tier": 4,
+   "passive": true,
+   "description": "Dodging an attack increases your damage dealt by 10%. Stacks 5. Lasts 1 turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Stacking Self Buff",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Cyclone Kick",
+   "tree": "Monk",
+   "tier": 4,
+   "passive": false,
+   "description": "Deals X physical damage. Pulls enemies within 4 hexes towards you. Targets are crippled for 1 turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Control",
+    "Costs Action Point",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Weapon Attack",
+    "Movement Speed",
+    "Immobilize"
+   ]
+  },
+  {
+   "name": "Dodging Strikes",
+   "tree": "Monk",
+   "tier": 4,
+   "passive": false,
+   "description": "Dash to an enemy dealing X weapon damage then quickly dash to an enemy within 2 hexes to strike again. Strikes up to 4 times. Each time you strike a target it increases your dodge chance by 8%. Lasts 2 turns.",
+   "dependency": "Dashing Strikes",
+   "excludes": [
+    "Power Strikes"
+   ],
+   "broad": [
+    "Damage",
+    "Costs Action Point",
+    "Physical",
+    "Buff"
+   ],
+   "narrow": [
+    "Weapon Attack"
+   ]
+  },
+  {
+   "name": "Power Strikes",
+   "tree": "Monk",
+   "tier": 4,
+   "passive": false,
+   "description": "Dash to an enemy dealing X weapon damage then quickly dash to an enemy within 2 hexes to strike again. Strikes up to 4 times. Each time you hit increases the damage of Power Strikes by 50%.",
+   "dependency": "Dashing Strikes",
+   "excludes": [
+    "Dodging Strikes"
+   ],
+   "broad": [
+    "Damage",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": [
+    "Weapon Attack"
+   ]
+  },
+  {
+   "name": "Soul Cleanse",
+   "tree": "Monk",
+   "tier": 4,
+   "passive": false,
+   "description": "Removes all negative status effects from target ally. Each status effect removed heals the target for 10% of their max health. Can be used when Disabled.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Healing",
+    "Free Action",
+    "Physical",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Direct Heal"
+   ]
+  },
+  {
+   "name": "Speed",
+   "tree": "Monk",
+   "tier": 4,
+   "passive": true,
+   "description": "Increases Dexterity and Reflex by 15%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Character Stats"
+   ]
+  },
+  {
+   "name": "Strength",
+   "tree": "Monk",
+   "tier": 4,
+   "passive": true,
+   "description": "Increases Might and Vitality by 15%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Character Stats"
+   ]
+  },
+  {
+   "name": "Many Sided Strike",
+   "tree": "Monk",
+   "tier": 5,
+   "passive": false,
+   "description": "Hit enemies in the target area 5x randomly. Deals X weapon damage per hit.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "One Punch Monk",
+   "tree": "Monk",
+   "tier": 5,
+   "passive": true,
+   "description": "The first damaging or healing ability you use on your turn it is has its effectiveness tripled, after which you are unable use any more damaging or healing abilities that turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Perfected Soul",
+   "tree": "Monk",
+   "tier": 5,
+   "passive": true,
+   "description": "Increases all attributes by X. In addition, 10% of your highest attribute value is added to all other attributes. Current Bonus: X",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Character Stats"
+   ]
+  },
+  {
+   "name": "Quaking Fist",
+   "tree": "Monk",
+   "tier": 5,
+   "passive": false,
+   "description": "Deals X physical damage to all foes within 3 hexes.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Costs Action Point",
+    "Physical"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Blind",
+   "tree": "Shadow",
+   "tier": 1,
+   "passive": false,
+   "description": "Deals X shadow damage. Applies Blind for 1 turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Control",
+    "Ranged",
+    "Costs Action Point",
+    "Debuff"
+   ],
+   "narrow": [
+    "Shadow",
+    "Blind & Silence"
+   ]
+  },
+  {
+   "name": "Call of the Grave",
+   "tree": "Shadow",
+   "tier": 1,
+   "passive": true,
+   "description": "Deal 20% additional damage to enemies below 50% health.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Ghost Armor",
+   "tree": "Shadow",
+   "tier": 1,
+   "passive": false,
+   "description": "Completely negates the next attack. Lasts until hit.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Ranged",
+    "Free Action",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Armor"
+   ]
+  },
+  {
+   "name": "Necromancer I",
+   "tree": "Shadow",
+   "tier": 1,
+   "passive": true,
+   "description": "Summons deal 10% more damage and have 10% more health.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Summon"
+   ]
+  },
+  {
+   "name": "Raise Skeletal Archer",
+   "tree": "Shadow",
+   "tier": 1,
+   "passive": false,
+   "description": "Summon a skeletal archer to fight by your side.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Ranged",
+    "Costs Action Point"
+   ],
+   "narrow": [
+    "Summon"
+   ]
+  },
+  {
+   "name": "Tainted Touch",
+   "tree": "Shadow",
+   "tier": 1,
+   "passive": false,
+   "description": "Reaches out to the target with dark energy dealing X shadow damage. Life Steals for 12%. Life Steal heals you for a percentage of your max health each time you hit. Reduced for area of effect and no ap cost abilities.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Melee",
+    "Costs Action Point"
+   ],
+   "narrow": [
+    "Shadow"
+   ]
+  },
+  {
+   "name": "Curse",
+   "tree": "Shadow",
+   "tier": 2,
+   "passive": false,
+   "description": "Curse the target lowering All resistances by 20% and Healing Received by 50%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Shadow"
+   ]
+  },
+  {
+   "name": "Dark Pact",
+   "tree": "Shadow",
+   "tier": 2,
+   "passive": true,
+   "description": "Increase the effectiveness of your damage and healing skills by 30%. Maximum health reduced by 20%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Healing",
+    "Passive"
+   ],
+   "narrow": [
+    "Self-Harm",
+    "Character Stats",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Haunt",
+   "tree": "Shadow",
+   "tier": 2,
+   "passive": false,
+   "description": "Deals X shadow damage to the target every turn for 3 turns. Life Steals for 6%. Life Steal heals you for a percentage of your max health each time you hit. Reduced for area of effect and no ap cost abilities.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Debuff"
+   ],
+   "narrow": [
+    "Shadow"
+   ]
+  },
+  {
+   "name": "Necromancer II",
+   "tree": "Shadow",
+   "tier": 2,
+   "passive": true,
+   "description": "Summons deal an additional 15% more damage and have an additional 15% more health.",
+   "dependency": "Necromancer I",
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Summon"
+   ]
+  },
+  {
+   "name": "Poison Cloud",
+   "tree": "Shadow",
+   "tier": 2,
+   "passive": false,
+   "description": "The caster creates an poison gas cloud applies 4 stacks of Poisoned within 2 hexes of the selected target.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Debuff"
+   ],
+   "narrow": [
+    "Poison",
+    "Shadow"
+   ]
+  },
+  {
+   "name": "Spectral Chains",
+   "tree": "Shadow",
+   "tier": 2,
+   "passive": false,
+   "description": "Deals X shadow damage and applies Immobilized for 1 turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Control",
+    "Ranged",
+    "Free Action",
+    "Debuff"
+   ],
+   "narrow": [
+    "Shadow",
+    "Immobilize"
+   ]
+  },
+  {
+   "name": "Thirst I",
+   "tree": "Shadow",
+   "tier": 2,
+   "passive": true,
+   "description": "Increases Life Steal by 4%. Life Steal heals you for a percentage of your max health each time you hit. Reduced for area of effect and no ap cost abilities.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Healing",
+    "Passive"
+   ],
+   "narrow": [
+    "Lifesteal & Regen"
+   ]
+  },
+  {
+   "name": "Vengeful Shadows",
+   "tree": "Shadow",
+   "tier": 2,
+   "passive": true,
+   "description": "Grants X Return Shadow Damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Shadow",
+    "Retaliation"
+   ]
+  },
+  {
+   "name": "Consumption",
+   "tree": "Shadow",
+   "tier": 3,
+   "passive": false,
+   "description": "Devour the life force of all enemies within 2 hexes dealing X Shadow Damage and giving you 10% Maximum Health for each enemy effected.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Healing",
+    "Ranged",
+    "Free Action",
+    "Buff"
+   ],
+   "narrow": [
+    "Shadow",
+    "Lifesteal & Regen",
+    "Character Stats"
+   ]
+  },
+  {
+   "name": "Hunger",
+   "tree": "Shadow",
+   "tier": 3,
+   "passive": true,
+   "description": "Grants 10% mana steal. Sacrifices 10% maximum health per turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Mana Drain",
+   "tree": "Shadow",
+   "tier": 3,
+   "passive": false,
+   "description": "Removes 20% of the target's max mana and restores 20% of the caster's max mana.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Raise Skeletal Warrior",
+   "tree": "Shadow",
+   "tier": 3,
+   "passive": false,
+   "description": "Summon a skeletal warrior to fight by your side.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Ranged",
+    "Costs Action Point"
+   ],
+   "narrow": [
+    "Summon"
+   ]
+  },
+  {
+   "name": "Reaper's Toll",
+   "tree": "Shadow",
+   "tier": 3,
+   "passive": true,
+   "description": "Every enemy that dies heals you for 10% of your maximum health.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Healing",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Soul Crush",
+   "tree": "Shadow",
+   "tier": 3,
+   "passive": false,
+   "description": "Crush the target's soul dealing X Shadow Damage increased by your Max Health.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point"
+   ],
+   "narrow": [
+    "Shadow"
+   ]
+  },
+  {
+   "name": "Thirst II",
+   "tree": "Shadow",
+   "tier": 3,
+   "passive": true,
+   "description": "Increases Life Steal by 6%. Life Steal heals you for a percentage of your max health each time you hit. Reduced for area of effect and no ap cost abilities.",
+   "dependency": "Thirst I",
+   "excludes": null,
+   "broad": [
+    "Healing",
+    "Passive"
+   ],
+   "narrow": [
+    "Lifesteal & Regen"
+   ]
+  },
+  {
+   "name": "Dark Ritual",
+   "tree": "Shadow",
+   "tier": 4,
+   "passive": false,
+   "description": "Target cannot drop below 1 hp while active.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Ranged",
+    "Free Action",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Shadow"
+   ]
+  },
+  {
+   "name": "Exorcism",
+   "tree": "Shadow",
+   "tier": 4,
+   "passive": false,
+   "description": "Deals X shadow damage and removes a random benefical status from the target. If a status is removed, the target suffers an additional X shadow damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action"
+   ],
+   "narrow": [
+    "Shadow"
+   ]
+  },
+  {
+   "name": "Leech Dexterity",
+   "tree": "Shadow",
+   "tier": 4,
+   "passive": true,
+   "description": "Damage caused steals X points of Dexterity. Lasts the entire battle. Stacks up to 10 times.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Stacking Self Buff",
+    "Character Stats"
+   ]
+  },
+  {
+   "name": "Leech Intelligence",
+   "tree": "Shadow",
+   "tier": 4,
+   "passive": true,
+   "description": "Damage caused steals X points of Intelligence. Lasts the entire battle. Stacks up to 10 times.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Stacking Self Buff",
+    "Character Stats"
+   ]
+  },
+  {
+   "name": "Leech Might",
+   "tree": "Shadow",
+   "tier": 4,
+   "passive": true,
+   "description": "Damage caused steals X points of Might. Lasts the entire battle. Stacks up to 10 times.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Stacking Self Buff",
+    "Character Stats"
+   ]
+  },
+  {
+   "name": "Soul Link",
+   "tree": "Shadow",
+   "tier": 4,
+   "passive": false,
+   "description": "All damage and healing dealt to one target is also dealt to the linked target.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Buff",
+    "Ally Target",
+    "Debuff"
+   ],
+   "narrow": [
+    "Shadow",
+    "Marks"
+   ]
+  },
+  {
+   "name": "Vampiric Aura",
+   "tree": "Shadow",
+   "tier": 4,
+   "passive": false,
+   "description": "Allies within Vampiric Aura Life Steal for 5%. Life Steal heals you for a percentage of your max health each time you hit. Reduced for area of effect and no ap cost abilities.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Healing",
+    "Free Action",
+    "Buff"
+   ],
+   "narrow": [
+    "Lifesteal & Regen",
+    "Auras"
+   ]
+  },
+  {
+   "name": "Child of the Abyss",
+   "tree": "Shadow",
+   "tier": 5,
+   "passive": true,
+   "description": "Increasese Max Health by 100%. Can no longer be healed by any means other than life steal.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Healing",
+    "Passive"
+   ],
+   "narrow": [
+    "Lifesteal & Regen",
+    "Character Stats"
+   ]
+  },
+  {
+   "name": "Endless Night",
+   "tree": "Shadow",
+   "tier": 5,
+   "passive": true,
+   "description": "Gain 2% of your maximum health as Additional Shadow Damage. Current Shadow Damage Increase: X.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Shadow",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Lich Lord",
+   "tree": "Shadow",
+   "tier": 5,
+   "passive": true,
+   "description": "Removes the AP cost from all summoning skills.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Action Economy"
+   ]
+  },
+  {
+   "name": "Raise Skeletal Mage",
+   "tree": "Shadow",
+   "tier": 5,
+   "passive": false,
+   "description": "Summon a skeletal mage to fight by your side.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Ranged",
+    "Costs Action Point"
+   ],
+   "narrow": [
+    "Summon"
+   ]
+  },
+  {
+   "name": "Reaper's Scythe",
+   "tree": "Shadow",
+   "tier": 5,
+   "passive": false,
+   "description": "Deals X shadow damage for every 10% health missing from the target.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point"
+   ],
+   "narrow": [
+    "Shadow"
+   ]
+  },
+  {
+   "name": "Soul Exchange",
+   "tree": "Shadow",
+   "tier": 5,
+   "passive": false,
+   "description": "Swaps the life force of both you and a target, dealing X Shadow Damage based on your missing Health. Lifesteals 100%. Life Steal heals you for a percentage of your max health each time you hit. Reduced for area of effect abilities.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Ally Target"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Chaos Crash",
+   "tree": "Chaos",
+   "tier": 1,
+   "passive": false,
+   "description": "Hurls a bolt of chaos dealing damage to a single target. Every damage type has a 50% chance to deal X damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Physical",
+    "Elemental"
+   ],
+   "narrow": [
+    "Heat"
+   ]
+  },
+  {
+   "name": "Chaos Curse",
+   "tree": "Chaos",
+   "tier": 1,
+   "passive": false,
+   "description": "Curses the target to take damage. Each element has a 50% chance to deal X damage every turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Elemental",
+    "Debuff"
+   ],
+   "narrow": [
+    "Heat",
+    "Shadow"
+   ]
+  },
+  {
+   "name": "Disruption I",
+   "tree": "Chaos",
+   "tier": 1,
+   "passive": true,
+   "description": "4% chance to negate all damage when taking damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive"
+   ],
+   "narrow": [
+    "Dodge"
+   ]
+  },
+  {
+   "name": "Omnism I",
+   "tree": "Chaos",
+   "tier": 1,
+   "passive": true,
+   "description": "Increases the effectiveness of shrines by 8%.",
+   "dependency": null,
+   "excludes": [
+    "Omnism II"
+   ],
+   "broad": [
+    "Passive"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Sustenance I",
+   "tree": "Chaos",
+   "tier": 1,
+   "passive": true,
+   "description": "Consuming any Globule heals you for 8% of max life and mana.",
+   "dependency": null,
+   "excludes": [
+    "Sustenance II"
+   ],
+   "broad": [
+    "Damage",
+    "Healing",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Switcheroo",
+   "tree": "Chaos",
+   "tier": 1,
+   "passive": false,
+   "description": "Swap places with an Enemy, Ally, or Object.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Ranged",
+    "Free Action",
+    "Ally Target"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Telekinesis",
+   "tree": "Chaos",
+   "tier": 1,
+   "passive": false,
+   "description": "Moves any Object within 8 hexes.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Elemental"
+   ],
+   "narrow": [
+    "Teleport"
+   ]
+  },
+  {
+   "name": "Chaos Cut",
+   "tree": "Chaos",
+   "tier": 2,
+   "passive": false,
+   "description": "Summons a whirling blade of chaos in a line. Every damage type has a 50% chance to deal X damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Physical",
+    "Elemental"
+   ],
+   "narrow": [
+    "Lightning",
+    "Elemental AOE",
+    "Physical AOE"
+   ]
+  },
+  {
+   "name": "Displacement",
+   "tree": "Chaos",
+   "tier": 2,
+   "passive": true,
+   "description": "Teleport randomly when taking damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Disruption II",
+   "tree": "Chaos",
+   "tier": 2,
+   "passive": true,
+   "description": "6% chance to negate all damage when taking damage.",
+   "dependency": "Disruption I",
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive"
+   ],
+   "narrow": [
+    "Dodge"
+   ]
+  },
+  {
+   "name": "Helping",
+   "tree": "Chaos",
+   "tier": 2,
+   "passive": false,
+   "description": "Offer your chaotic assistance to the target ally. Results may vary greatly...",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Healing",
+    "Defense",
+    "Control",
+    "Ranged",
+    "Free Action",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Armor",
+    "Immunity",
+    "Direct Heal",
+    "Blind & Silence",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Hurting",
+   "tree": "Chaos",
+   "tier": 2,
+   "passive": false,
+   "description": "Chaotically harm the target enemy. Results may vary greatly...",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Control",
+    "Ranged",
+    "Free Action",
+    "Debuff"
+   ],
+   "narrow": [
+    "Shapeshift",
+    "Stun",
+    "Immobilize",
+    "Blind & Silence",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Magic Hat I",
+   "tree": "Chaos",
+   "tier": 2,
+   "passive": false,
+   "description": "Produce a random barrel on the target hex.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Control",
+    "Ranged",
+    "Free Action",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Omnism II",
+   "tree": "Chaos",
+   "tier": 2,
+   "passive": true,
+   "description": "Increases the effectiveness of shrines by an additional 12%.",
+   "dependency": "Omnism I",
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Sustenance II",
+   "tree": "Chaos",
+   "tier": 2,
+   "passive": true,
+   "description": "Consuming any Globule heals you for 12% of max life and mana.",
+   "dependency": "Sustenance I",
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Healing",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Affinity",
+   "tree": "Chaos",
+   "tier": 3,
+   "passive": true,
+   "description": "Each time you deal damage or healing with a specific element gain a stacking buff that increases your damage or healing with that element by 2%. Stacks. Lasts the duration of battle.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Stacking Self Buff",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Aid",
+   "tree": "Chaos",
+   "tier": 3,
+   "passive": true,
+   "description": "Healing an ally has a 10% chance to apply Helping.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Defense",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Armor",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Chaos Cloud",
+   "tree": "Chaos",
+   "tier": 3,
+   "passive": false,
+   "description": "Summons a cloud of chaos that strikes 3 times. At every strike each damage type has a 50% chance to deal X damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Physical",
+    "Elemental"
+   ],
+   "narrow": [
+    "Heat"
+   ]
+  },
+  {
+   "name": "Disperse",
+   "tree": "Chaos",
+   "tier": 3,
+   "passive": false,
+   "description": "Teleports all enemies within 3 hexes of you to any random hex 4 to 8 hexes from you. Applies a 1 turn slow.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Physical",
+    "Elemental",
+    "Buff"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Harm",
+   "tree": "Chaos",
+   "tier": 3,
+   "passive": true,
+   "description": "Damaging an Enemy has a 10% chance to apply Hurting.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Defense",
+    "Control",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Damage Reduction",
+    "Stun",
+    "Immobilize",
+    "Blind & Silence",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Magic Hat II",
+   "tree": "Chaos",
+   "tier": 3,
+   "passive": false,
+   "description": "Produce a random Shrine on the target hex. The shrine is destructable and moveable.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Control",
+    "Ranged",
+    "Free Action",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Variety I",
+   "tree": "Chaos",
+   "tier": 3,
+   "passive": true,
+   "description": "Each turn gain two random buffs that increase the damage of a random element by 40% this turn.",
+   "dependency": null,
+   "excludes": [
+    "Variety II"
+   ],
+   "broad": [
+    "Damage",
+    "Healing",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Cold",
+    "Direct Heal",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Benevolence",
+   "tree": "Chaos",
+   "tier": 4,
+   "passive": false,
+   "description": "Applies Helping to all allies.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Healing",
+    "Defense",
+    "Costs Action Point",
+    "Buff"
+   ],
+   "narrow": [
+    "Armor",
+    "Immunity",
+    "Direct Heal",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Fabricate",
+   "tree": "Chaos",
+   "tier": 4,
+   "passive": true,
+   "description": "When you consume a globule you have a 50% chance to spawn a random globule within a 6 hex area of you.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Magic Hat III",
+   "tree": "Chaos",
+   "tier": 4,
+   "passive": false,
+   "description": "Produce a random Globule on the target hex.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Control",
+    "Ranged",
+    "Free Action",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Malevolence",
+   "tree": "Chaos",
+   "tier": 4,
+   "passive": false,
+   "description": "Applies Hurting to all enemies.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Defense",
+    "Control",
+    "Costs Action Point",
+    "Buff"
+   ],
+   "narrow": [
+    "Damage Reduction",
+    "Shapeshift",
+    "Stun",
+    "Immobilize",
+    "Blind & Silence",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Touch of Chaos",
+   "tree": "Chaos",
+   "tier": 4,
+   "passive": false,
+   "description": "Enchant an ally with a random Chaos Modifier.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Healing",
+    "Defense",
+    "Control",
+    "Ranged",
+    "Free Action",
+    "Physical",
+    "Elemental",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Poison",
+    "Cold",
+    "Shadow",
+    "Dodge",
+    "Resistance",
+    "Damage Reduction",
+    "Lifesteal & Regen",
+    "Character Stats",
+    "Movement Speed",
+    "Teleport",
+    "Shapeshift",
+    "Retaliation",
+    "Enrage",
+    "Damage Amp",
+    "Action Economy"
+   ]
+  },
+  {
+   "name": "Variety II",
+   "tree": "Chaos",
+   "tier": 4,
+   "passive": true,
+   "description": "Each turn gain two random buffs that increase the damage of a specfic element by 60% this turn.",
+   "dependency": "Variety I",
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Healing",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Cold",
+    "Direct Heal",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Chaos Crush",
+   "tree": "Chaos",
+   "tier": 5,
+   "passive": false,
+   "description": "Call down chaos to crush your enemies. Deals between X and X damage within 2 hexes. Always hits with all damage types.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Physical",
+    "Elemental"
+   ],
+   "narrow": [
+    "Heat"
+   ]
+  },
+  {
+   "name": "Perturb",
+   "tree": "Chaos",
+   "tier": 5,
+   "passive": true,
+   "description": "Each time a damage or healing skill is cast, it recieves a random effectiveness modifier from 50% up to 250%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Heat"
+   ]
+  },
+  {
+   "name": "Replicate",
+   "tree": "Chaos",
+   "tier": 5,
+   "passive": false,
+   "description": "Creates a clone of yourself that can cast your abilities. The Replicate Clone explodes for damage on death, each element has a 50% chance to deal X damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point"
+   ],
+   "narrow": [
+    "Teleport"
+   ]
+  },
+  {
+   "name": "Reverberate",
+   "tree": "Chaos",
+   "tier": 5,
+   "passive": true,
+   "description": "When you take a Free Action or Action you have a 33% chance explode in chaos dealing all types of damage and healing.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Healing",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Burning Reach",
+   "tree": "Fire",
+   "tier": 1,
+   "passive": true,
+   "description": "Increase the range of all non-melee abilites by 1 hex.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Fire Borne",
+   "tree": "Fire",
+   "tier": 1,
+   "passive": true,
+   "description": "Increases fire resistance by 10%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive"
+   ],
+   "narrow": [
+    "Resistance"
+   ]
+  },
+  {
+   "name": "Fire Shield",
+   "tree": "Fire",
+   "tier": 1,
+   "passive": false,
+   "description": "Wreaths the target in flame granting 10% fire resistance. Attackers take X fire damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Defense",
+    "Ranged",
+    "Free Action",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Heat",
+    "Resistance",
+    "Retaliation"
+   ]
+  },
+  {
+   "name": "Fireblast",
+   "tree": "Fire",
+   "tier": 1,
+   "passive": false,
+   "description": "Hurls a bolt of fire dealing X fire damage to a single target.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Elemental"
+   ],
+   "narrow": [
+    "Heat"
+   ]
+  },
+  {
+   "name": "Hot Head I",
+   "tree": "Fire",
+   "tier": 1,
+   "passive": true,
+   "description": "Increase all Damage and Healing by 8%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Immolate",
+   "tree": "Fire",
+   "tier": 1,
+   "passive": false,
+   "description": "Burns the target for X fire damage each turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Elemental",
+    "Debuff"
+   ],
+   "narrow": [
+    "Heat"
+   ]
+  },
+  {
+   "name": "Burning Ground",
+   "tree": "Fire",
+   "tier": 2,
+   "passive": false,
+   "description": "Ignite an area in flames. Enemies take X fire damage each turn they remain on burning ground.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Elemental",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Heat"
+   ]
+  },
+  {
+   "name": "Cauterize",
+   "tree": "Fire",
+   "tier": 2,
+   "passive": false,
+   "description": "Removes all negative statuses from friendly target but inflicts 10% of target's maximum health as fire damage. Can be used when Disabled.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Enchant Fire",
+   "tree": "Fire",
+   "tier": 2,
+   "passive": false,
+   "description": "Enchants the target's weapon to add X fire damage to attacks.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Elemental",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Heat",
+    "Modifies Weapon"
+   ]
+  },
+  {
+   "name": "Fire Starter",
+   "tree": "Fire",
+   "tier": 2,
+   "passive": true,
+   "description": "All enemies now start the battle with 4 stacks of Heat.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Resistance"
+   ]
+  },
+  {
+   "name": "Fireball",
+   "tree": "Fire",
+   "tier": 2,
+   "passive": false,
+   "description": "Hurls a ball of flame dealing X fire damage to all targets in range.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Elemental"
+   ],
+   "narrow": [
+    "Heat",
+    "Elemental AOE"
+   ]
+  },
+  {
+   "name": "Hot Head II",
+   "tree": "Fire",
+   "tier": 2,
+   "passive": true,
+   "description": "Increases Damage and Healing by an additional 12%.",
+   "dependency": "Hot Head I",
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Aura of Flame",
+   "tree": "Fire",
+   "tier": 3,
+   "passive": false,
+   "description": "Continually deals X fire damage to enemies within 3 hexes of your character.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Free Action",
+    "Elemental",
+    "Buff"
+   ],
+   "narrow": [
+    "Heat",
+    "Auras"
+   ]
+  },
+  {
+   "name": "Detonate",
+   "tree": "Fire",
+   "tier": 3,
+   "passive": false,
+   "description": "Deals X fire damage to all foes within 2 hexes of your character.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Costs Action Point",
+    "Elemental"
+   ],
+   "narrow": [
+    "Heat",
+    "Elemental AOE"
+   ]
+  },
+  {
+   "name": "Fuel for the Flames I",
+   "tree": "Fire",
+   "tier": 3,
+   "passive": true,
+   "description": "Increase the mana cost of all skills by 20% and increase the power of mana using skills by 40%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Damage Amp",
+    "Mana Economy"
+   ]
+  },
+  {
+   "name": "Haste",
+   "tree": "Fire",
+   "tier": 3,
+   "passive": false,
+   "description": "Target gains an additional action this turn. Applies Exhaustion.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Ranged",
+    "Free Action",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Action Economy"
+   ]
+  },
+  {
+   "name": "Kindling",
+   "tree": "Fire",
+   "tier": 3,
+   "passive": true,
+   "description": "Gain an additional action the first turn of battle. Applies Exhaustion.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Action Economy"
+   ]
+  },
+  {
+   "name": "Lasting Flame",
+   "tree": "Fire",
+   "tier": 3,
+   "passive": true,
+   "description": "Heat lasts 2 addtional turns.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Heat"
+   ]
+  },
+  {
+   "name": "Rune of Exploding",
+   "tree": "Fire",
+   "tier": 3,
+   "passive": false,
+   "description": "Place a rune on the selected hex. After 1 turn, it detonates dealing X fire damage to all enemies within 1 hex.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Elemental",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Heat",
+    "Elemental AOE"
+   ]
+  },
+  {
+   "name": "Fever",
+   "tree": "Fire",
+   "tier": 4,
+   "passive": true,
+   "description": "Mana costs are now paid in Health instead.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Mana Economy"
+   ]
+  },
+  {
+   "name": "Fissure",
+   "tree": "Fire",
+   "tier": 4,
+   "passive": false,
+   "description": "Open the earth in a line spawning deadly fissures that deal X fire damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Costs Action Point",
+    "Elemental"
+   ],
+   "narrow": [
+    "Heat",
+    "Elemental AOE"
+   ]
+  },
+  {
+   "name": "Flash Fire",
+   "tree": "Fire",
+   "tier": 4,
+   "passive": true,
+   "description": "Reduces the cooldown of all fire spells by 1.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Heat",
+    "Cooldown"
+   ]
+  },
+  {
+   "name": "Fuel for the Flames II",
+   "tree": "Fire",
+   "tier": 4,
+   "passive": true,
+   "description": "Increase the mana cost of all skills by an additional 30% and increase the power of mana using skills by an additional 60%.",
+   "dependency": "Fuel for the Flames I",
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Damage Amp",
+    "Mana Economy"
+   ]
+  },
+  {
+   "name": "Meteor",
+   "tree": "Fire",
+   "tier": 4,
+   "passive": false,
+   "description": "Call down a ball of fire to smash your enemies. Deals X fire damage within 2 hexes. Fire remains on the impacted area dealing X fire damage per turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Elemental"
+   ],
+   "narrow": [
+    "Heat"
+   ]
+  },
+  {
+   "name": "Overwhelming Power",
+   "tree": "Fire",
+   "tier": 4,
+   "passive": false,
+   "description": "Increases the damage of your next damaging action by 100%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Free Action",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Avatar of Flame",
+   "tree": "Fire",
+   "tier": 5,
+   "passive": true,
+   "description": "Each stack of heat now applies X fire damage to the target per turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Heat"
+   ]
+  },
+  {
+   "name": "Fire Storm",
+   "tree": "Fire",
+   "tier": 5,
+   "passive": false,
+   "description": "Hurls fire balls at 3 different targets dealing X fire damage within 2 hexes of each target.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Elemental"
+   ],
+   "narrow": [
+    "Heat"
+   ]
+  },
+  {
+   "name": "Flame Lash",
+   "tree": "Fire",
+   "tier": 5,
+   "passive": true,
+   "description": "Your fire spells deal 10% more damage per stack of heat on targets.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Heat"
+   ]
+  },
+  {
+   "name": "Mass Haste",
+   "tree": "Fire",
+   "tier": 5,
+   "passive": false,
+   "description": "All allies gain an additional action this turn. Applies Exhaustion.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Free Action",
+    "Buff"
+   ],
+   "narrow": [
+    "Action Economy"
+   ]
+  },
+  {
+   "name": "Meteor Shower",
+   "tree": "Fire",
+   "tier": 5,
+   "passive": false,
+   "description": "Summon a rain of meteors to bombard enemies within 4 hexes of the target location. Deals X fire damage 3 times.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Elemental"
+   ],
+   "narrow": [
+    "Heat"
+   ]
+  },
+  {
+   "name": "Chilling Strike",
+   "tree": "Cold",
+   "tier": 1,
+   "passive": false,
+   "description": "The caster's hand becomes imbued with frost thrusting it at the target dealing X cold damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Melee",
+    "Costs Action Point",
+    "Elemental"
+   ],
+   "narrow": [
+    "Cold"
+   ]
+  },
+  {
+   "name": "Crystalize I",
+   "tree": "Cold",
+   "tier": 1,
+   "passive": true,
+   "description": "Increases Physical Resistance by 5%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive",
+    "Physical"
+   ],
+   "narrow": [
+    "Resistance"
+   ]
+  },
+  {
+   "name": "Freeze Earth",
+   "tree": "Cold",
+   "tier": 1,
+   "passive": false,
+   "description": "Freezes the ground in the target area applying 1 stack of Chilled to enemies that enter.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Control",
+    "Ranged",
+    "Free Action",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Immobilize"
+   ]
+  },
+  {
+   "name": "Frost Armor",
+   "tree": "Cold",
+   "tier": 1,
+   "passive": false,
+   "description": "Envelopes the caster in frost granting 10% Cold Resistance. Attackers take X cold damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Defense",
+    "Ranged",
+    "Free Action",
+    "Elemental",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Cold",
+    "Armor",
+    "Resistance"
+   ]
+  },
+  {
+   "name": "Frost Borne",
+   "tree": "Cold",
+   "tier": 1,
+   "passive": true,
+   "description": "Increases cold resistance by 10%",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive"
+   ],
+   "narrow": [
+    "Resistance"
+   ]
+  },
+  {
+   "name": "Frost Shard",
+   "tree": "Cold",
+   "tier": 1,
+   "passive": false,
+   "description": "Impale your target on a shard of ice dealing X cold damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Elemental"
+   ],
+   "narrow": [
+    "Cold"
+   ]
+  },
+  {
+   "name": "Frostbite I",
+   "tree": "Cold",
+   "tier": 1,
+   "passive": true,
+   "description": "Your stacks of chilled now reduce the targets damage by 2%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive"
+   ],
+   "narrow": [
+    "Cold",
+    "Damage Reduction"
+   ]
+  },
+  {
+   "name": "Break The Ice",
+   "tree": "Cold",
+   "tier": 2,
+   "passive": true,
+   "description": "The first time you deal damage or healing in battle, it's effectiveness is increased by 100%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Crystalize II",
+   "tree": "Cold",
+   "tier": 2,
+   "passive": true,
+   "description": "Increases Physical Resistance by an additional 10%.",
+   "dependency": "Crystalize I",
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive",
+    "Physical"
+   ],
+   "narrow": [
+    "Resistance"
+   ]
+  },
+  {
+   "name": "Deep Freeze",
+   "tree": "Cold",
+   "tier": 2,
+   "passive": false,
+   "description": "Intense frost encircles your foe applying 5 stacks of Chilled on the target.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Control",
+    "Ranged",
+    "Free Action",
+    "Debuff"
+   ],
+   "narrow": [
+    "Cold",
+    "Character Stats",
+    "Movement Speed",
+    "Immobilize",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Enchant Cold",
+   "tree": "Cold",
+   "tier": 2,
+   "passive": false,
+   "description": "Enchants the target's weapon to add X cold damage to attacks.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Elemental",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Cold",
+    "Modifies Weapon"
+   ]
+  },
+  {
+   "name": "Frost Nova",
+   "tree": "Cold",
+   "tier": 2,
+   "passive": false,
+   "description": "The caster creates a wave of frozen energy dealing X cold damage within 2 hexes of the selected target.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Elemental",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Cold",
+    "Elemental AOE"
+   ]
+  },
+  {
+   "name": "Frostbite II",
+   "tree": "Cold",
+   "tier": 2,
+   "passive": true,
+   "description": "Your stacks of Chilled now reduce the targets damage by an additional 3%.",
+   "dependency": "Frostbite I",
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive"
+   ],
+   "narrow": [
+    "Cold",
+    "Damage Reduction"
+   ]
+  },
+  {
+   "name": "Ice Lance",
+   "tree": "Cold",
+   "tier": 2,
+   "passive": false,
+   "description": "The caster hurls a razor-like shard of ice piercing foes in a line dealing X cold damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Elemental"
+   ],
+   "narrow": [
+    "Cold",
+    "Elemental AOE"
+   ]
+  },
+  {
+   "name": "Aura Of Frost",
+   "tree": "Cold",
+   "tier": 3,
+   "passive": false,
+   "description": "Deals X cold damage to enemies that start their turns within 3 hexes of your character.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Free Action",
+    "Buff"
+   ],
+   "narrow": [
+    "Cold",
+    "Auras"
+   ]
+  },
+  {
+   "name": "Breath of Winter",
+   "tree": "Cold",
+   "tier": 3,
+   "passive": false,
+   "description": "Conjures the breath of a frost dragon dealing X cold damage to all enemies in a cone.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Costs Action Point",
+    "Elemental",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Elemental AOE"
+   ]
+  },
+  {
+   "name": "Cold Heart",
+   "tree": "Cold",
+   "tier": 3,
+   "passive": true,
+   "description": "Each stack of chilled you've applied increases your cold damage by 5%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Cold",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Diamond Ice",
+   "tree": "Cold",
+   "tier": 3,
+   "passive": true,
+   "description": "1% of your Armor value is added to your character as Additional Cold Damage. Current Bonus: X",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Cold",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Frozen Spikes",
+   "tree": "Cold",
+   "tier": 3,
+   "passive": false,
+   "description": "Hurl 5 shards of ice dealing X cold damage to each target.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Elemental"
+   ],
+   "narrow": [
+    "Cold"
+   ]
+  },
+  {
+   "name": "Ice Wall",
+   "tree": "Cold",
+   "tier": 3,
+   "passive": false,
+   "description": "Summon pillars of ice to block 4 hexes blocking enemy's line of sight. Attackers take cold damage. Lasts 4 turns.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Control",
+    "Ranged",
+    "Free Action",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Summon"
+   ]
+  },
+  {
+   "name": "Brain Freeze",
+   "tree": "Cold",
+   "tier": 4,
+   "passive": false,
+   "description": "Deals X cold damage each time the target performs an action.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Control",
+    "Ranged",
+    "Free Action",
+    "Debuff"
+   ],
+   "narrow": [
+    "Cold"
+   ]
+  },
+  {
+   "name": "Frozen Core",
+   "tree": "Cold",
+   "tier": 4,
+   "passive": true,
+   "description": "Each stack of chilled now reduces the target's maxium health by 5%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Cold"
+   ]
+  },
+  {
+   "name": "Ice Storm",
+   "tree": "Cold",
+   "tier": 4,
+   "passive": false,
+   "description": "Conjure a massive ice storm dealing X cold damage to affected enemies each turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Invulnerable Winter",
+   "tree": "Cold",
+   "tier": 4,
+   "passive": true,
+   "description": "Intelligence grants X Armor and Magic Armor per point. Current Bonus: X",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive"
+   ],
+   "narrow": [
+    "Armor"
+   ]
+  },
+  {
+   "name": "Stasis",
+   "tree": "Cold",
+   "tier": 4,
+   "passive": false,
+   "description": "Incases the friendly target in a dome of ice granting X Armor and Magic Armor for the duration. Immobilizes the target.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Control",
+    "Ranged",
+    "Free Action",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Armor",
+    "Immobilize"
+   ]
+  },
+  {
+   "name": "Chain Frost",
+   "tree": "Cold",
+   "tier": 5,
+   "passive": false,
+   "description": "Deals X cold damage. Bounces between enemies within 4 hexes up to 10 times.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Elemental"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Icefall",
+   "tree": "Cold",
+   "tier": 5,
+   "passive": true,
+   "description": "When enemies are frozen by you they release a frost nova.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Cold"
+   ]
+  },
+  {
+   "name": "Mass Freeze",
+   "tree": "Cold",
+   "tier": 5,
+   "passive": false,
+   "description": "Applies Frozen to all enemies.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Control",
+    "Costs Action Point"
+   ],
+   "narrow": [
+    "Cold",
+    "Immunity",
+    "Stun",
+    "Immobilize"
+   ]
+  },
+  {
+   "name": "Master Of Ice",
+   "tree": "Cold",
+   "tier": 5,
+   "passive": true,
+   "description": "Each turn you freeze an enemy, you gain an additional action.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Cold"
+   ]
+  },
+  {
+   "name": "Shatter",
+   "tree": "Cold",
+   "tier": 5,
+   "passive": false,
+   "description": "Summons a blast of frozen energy dealing X cold damage plus an additional X per stack of Chilled on targets in a 4 hex radius.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Dazzling Darts",
+   "tree": "Lightning",
+   "tier": 1,
+   "passive": false,
+   "description": "Shoots 3 darts of electricity each dealing X lightning damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Elemental"
+   ],
+   "narrow": [
+    "Lightning"
+   ]
+  },
+  {
+   "name": "Lightning Shield",
+   "tree": "Lightning",
+   "tier": 1,
+   "passive": false,
+   "description": "Increases Lightning Resistance by 10%. Attackers take X lightning damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Defense",
+    "Ranged",
+    "Free Action",
+    "Elemental",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Lightning",
+    "Resistance",
+    "Retaliation"
+   ]
+  },
+  {
+   "name": "Shock",
+   "tree": "Lightning",
+   "tier": 1,
+   "passive": false,
+   "description": "Reaches out and shocks the target dealing X lightning damage. Applies Disabled to the target.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Control",
+    "Melee",
+    "Costs Action Point",
+    "Elemental",
+    "Debuff"
+   ],
+   "narrow": [
+    "Lightning",
+    "Stun"
+   ]
+  },
+  {
+   "name": "Storm Borne",
+   "tree": "Lightning",
+   "tier": 1,
+   "passive": true,
+   "description": "Increases lightning resistance by 10%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive"
+   ],
+   "narrow": [
+    "Resistance"
+   ]
+  },
+  {
+   "name": "Storm Weathered I",
+   "tree": "Lightning",
+   "tier": 1,
+   "passive": true,
+   "description": "Increase all elemental resistances by 5%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive"
+   ],
+   "narrow": [
+    "Resistance"
+   ]
+  },
+  {
+   "name": "Stormbringer I",
+   "tree": "Lightning",
+   "tier": 1,
+   "passive": true,
+   "description": "Increases critical hit chance by 5%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Crit"
+   ]
+  },
+  {
+   "name": "Discharge",
+   "tree": "Lightning",
+   "tier": 2,
+   "passive": false,
+   "description": "Deals X lightning damage within 3 hexes of the caster.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Costs Action Point",
+    "Elemental"
+   ],
+   "narrow": [
+    "Lightning",
+    "Elemental AOE"
+   ]
+  },
+  {
+   "name": "Enchant Lightning",
+   "tree": "Lightning",
+   "tier": 2,
+   "passive": false,
+   "description": "Enchants the target's weapon to add X lightning damage to attacks.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Elemental",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Lightning",
+    "Modifies Weapon"
+   ]
+  },
+  {
+   "name": "Gathering Storm",
+   "tree": "Lightning",
+   "tier": 2,
+   "passive": true,
+   "description": "Increases maximum mana by 20%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Character Stats",
+    "Mana Economy"
+   ]
+  },
+  {
+   "name": "Storm Weathered II",
+   "tree": "Lightning",
+   "tier": 2,
+   "passive": true,
+   "description": "Increase all elemental resistances by an additional 8%.",
+   "dependency": "Storm Weathered I",
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive"
+   ],
+   "narrow": [
+    "Resistance"
+   ]
+  },
+  {
+   "name": "Stormbringer II",
+   "tree": "Lightning",
+   "tier": 2,
+   "passive": true,
+   "description": "Increases critical hit chance by an additional 8%.",
+   "dependency": "Stormbringer I",
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Crit"
+   ]
+  },
+  {
+   "name": "Teleport Self",
+   "tree": "Lightning",
+   "tier": 2,
+   "passive": false,
+   "description": "Teleports the caster to the target location in a flash of lightning. Unaffected by increased range modifiers.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Free Action"
+   ],
+   "narrow": [
+    "Teleport"
+   ]
+  },
+  {
+   "name": "Twister",
+   "tree": "Lightning",
+   "tier": 2,
+   "passive": false,
+   "description": "Summons a raging tempest that deals X lightning damage in a line. Targets hit are Crippled for 2 turns.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Control",
+    "Costs Action Point",
+    "Elemental",
+    "Debuff"
+   ],
+   "narrow": [
+    "Lightning",
+    "Movement Speed",
+    "Elemental AOE",
+    "Immobilize"
+   ]
+  },
+  {
+   "name": "Aura of Lightning",
+   "tree": "Lightning",
+   "tier": 3,
+   "passive": false,
+   "description": "Each time an action is made by an enemy within the aura they suffer X lightning damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Free Action",
+    "Elemental",
+    "Buff"
+   ],
+   "narrow": [
+    "Lightning",
+    "Auras"
+   ]
+  },
+  {
+   "name": "Chain Lightning",
+   "tree": "Lightning",
+   "tier": 3,
+   "passive": false,
+   "description": "Conjures a lightning bolt that chains up to 5 enemies near the target dealing X lightning damage to each target.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Elemental"
+   ],
+   "narrow": [
+    "Lightning"
+   ]
+  },
+  {
+   "name": "Mana Shield",
+   "tree": "Lightning",
+   "tier": 3,
+   "passive": true,
+   "description": "90% of the damage taken is lost in mana instead of health.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive"
+   ],
+   "narrow": [
+    "Mana Economy"
+   ]
+  },
+  {
+   "name": "Storm Brewing",
+   "tree": "Lightning",
+   "tier": 3,
+   "passive": true,
+   "description": "Each stack of shocked you've applied increases your critical hit chance by 1%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Crit"
+   ]
+  },
+  {
+   "name": "Teleport Other",
+   "tree": "Lightning",
+   "tier": 3,
+   "passive": false,
+   "description": "Teleports the target to the location of your choosing in a flash of lightning. Unaffected by increased range modifiers.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Control",
+    "Costs Action Point",
+    "Ally Target"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Thunder Bolt",
+   "tree": "Lightning",
+   "tier": 3,
+   "passive": false,
+   "description": "Summon lightning from the sky to strike an area dealing X lightning damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Elemental"
+   ],
+   "narrow": [
+    "Lightning",
+    "Elemental AOE"
+   ]
+  },
+  {
+   "name": "Heavy Rains",
+   "tree": "Lightning",
+   "tier": 4,
+   "passive": true,
+   "description": "Each point of intelligence now grants .1% critical hit chance and 1% critical hit damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Crit"
+   ]
+  },
+  {
+   "name": "Overload",
+   "tree": "Lightning",
+   "tier": 4,
+   "passive": false,
+   "description": "Gives the target 100% Critical Hit Chance for 1 turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Free Action",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Crit",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Recharge",
+   "tree": "Lightning",
+   "tier": 4,
+   "passive": true,
+   "description": "You have a 33% chance to completely refund the mana cost spent while using abilities. When mana is refunded this way, a random ability will have its cooldown lowered by 1.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Cooldown"
+   ]
+  },
+  {
+   "name": "Shocking Shackles",
+   "tree": "Lightning",
+   "tier": 4,
+   "passive": false,
+   "description": "Deals X lightning damage. Applies Stunned.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Control",
+    "Ranged",
+    "Costs Action Point",
+    "Elemental",
+    "Debuff"
+   ],
+   "narrow": [
+    "Lightning",
+    "Stun",
+    "Immobilize"
+   ]
+  },
+  {
+   "name": "Static Field",
+   "tree": "Lightning",
+   "tier": 4,
+   "passive": false,
+   "description": "Averages all the current health percentages of targets within 3 hexes and redistributes them to be even.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Healing",
+    "Ranged",
+    "Costs Action Point",
+    "Elemental",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Lightning"
+   ]
+  },
+  {
+   "name": "Thunder Storm",
+   "tree": "Lightning",
+   "tier": 4,
+   "passive": false,
+   "description": "Summon a thunderstorm over a large area that deals X lightning damage every turn to enemies within it's range.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Elemental"
+   ],
+   "narrow": [
+    "Lightning"
+   ]
+  },
+  {
+   "name": "Conduit",
+   "tree": "Lightning",
+   "tier": 5,
+   "passive": true,
+   "description": "Gain an additional action each turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Action Economy"
+   ]
+  },
+  {
+   "name": "Energy Cannon",
+   "tree": "Lightning",
+   "tier": 5,
+   "passive": false,
+   "description": "Deals X lightning damage in a 6 hex line 10 times.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Costs Action Point",
+    "Elemental"
+   ],
+   "narrow": [
+    "Lightning",
+    "Elemental AOE"
+   ]
+  },
+  {
+   "name": "Thunder Struck",
+   "tree": "Lightning",
+   "tier": 5,
+   "passive": true,
+   "description": "Your lightning damage has a 10% chance to conjure a thunderbolt on a random enemy dealing X lightning damage within 2 hexes of its blast.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Thunder Wrath",
+   "tree": "Lightning",
+   "tier": 5,
+   "passive": false,
+   "description": "Summons 4 thunder bolts targeting enemies at random within a 10 hex radius. Each bolt deals X lightning damage to foes within 3 hexes of its blast.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Costs Action Point",
+    "Elemental"
+   ],
+   "narrow": [
+    "Lightning"
+   ]
+  },
+  {
+   "name": "Blessed By Light I",
+   "tree": "Light",
+   "tier": 1,
+   "passive": true,
+   "description": "Mana costs reduced by 10%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Mana Economy"
+   ]
+  },
+  {
+   "name": "Cure",
+   "tree": "Light",
+   "tier": 1,
+   "passive": false,
+   "description": "Restores target's health by X.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Healing",
+    "Ranged",
+    "Costs Action Point",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Direct Heal"
+   ]
+  },
+  {
+   "name": "Elemental Protection",
+   "tree": "Light",
+   "tier": 1,
+   "passive": false,
+   "description": "Increases target's elemental resistance by 15%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Ranged",
+    "Free Action",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Resistance"
+   ]
+  },
+  {
+   "name": "Empowered Light I",
+   "tree": "Light",
+   "tier": 1,
+   "passive": true,
+   "description": "Increases Holy Power and Healing Received by 10%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Healing",
+    "Passive"
+   ],
+   "narrow": [
+    "Direct Heal",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Healing Hand",
+   "tree": "Light",
+   "tier": 1,
+   "passive": false,
+   "description": "The caster reaches out in aid healing 30% of target's maximum health.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Healing",
+    "Melee",
+    "Costs Action Point",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Direct Heal"
+   ]
+  },
+  {
+   "name": "Regenerate",
+   "tree": "Light",
+   "tier": 1,
+   "passive": false,
+   "description": "Target restores X health per turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Healing",
+    "Ranged",
+    "Free Action",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Lifesteal & Regen",
+    "Direct Heal"
+   ]
+  },
+  {
+   "name": "Bless",
+   "tree": "Light",
+   "tier": 2,
+   "passive": false,
+   "description": "Bless all allies within 5 hexes. Increases damage, maximum health, and maximum Mana by 10%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Healing",
+    "Free Action",
+    "Buff"
+   ],
+   "narrow": [
+    "Holy",
+    "Character Stats",
+    "Damage Amp",
+    "Mana Economy"
+   ]
+  },
+  {
+   "name": "Blessed By Light II",
+   "tree": "Light",
+   "tier": 2,
+   "passive": true,
+   "description": "Mana costs reduced by an additional 15%.",
+   "dependency": "Blessed By Light I",
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Mana Economy"
+   ]
+  },
+  {
+   "name": "Blinding Light",
+   "tree": "Light",
+   "tier": 2,
+   "passive": false,
+   "description": "Summons a radiant light applying Blind to the target dealing X Holy damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Control",
+    "Ranged",
+    "Free Action",
+    "Debuff"
+   ],
+   "narrow": [
+    "Blind & Silence"
+   ]
+  },
+  {
+   "name": "Empowered Light II",
+   "tree": "Light",
+   "tier": 2,
+   "passive": true,
+   "description": "Increases Holy Power and Healing Received by an additional 15%.",
+   "dependency": "Empowered Light I",
+   "excludes": null,
+   "broad": [
+    "Healing",
+    "Passive"
+   ],
+   "narrow": [
+    "Direct Heal",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Glory",
+   "tree": "Light",
+   "tier": 2,
+   "passive": true,
+   "description": "The first time you recieve fatal damage in battle you are revived with 1 health and become immune to all damage for 1 turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Kindred Spirit",
+   "tree": "Light",
+   "tier": 2,
+   "passive": true,
+   "description": "All healing you do to others also heals you for 20% of the amount healed.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Healing",
+    "Passive"
+   ],
+   "narrow": [
+    "Lifesteal & Regen"
+   ]
+  },
+  {
+   "name": "Seal of Protection",
+   "tree": "Light",
+   "tier": 2,
+   "passive": false,
+   "description": "Decreases damage taken by 10% for you and allies within 3 hexes.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Free Action",
+    "Buff"
+   ],
+   "narrow": [
+    "Holy",
+    "Damage Reduction",
+    "Auras"
+   ]
+  },
+  {
+   "name": "Shield of Light",
+   "tree": "Light",
+   "tier": 2,
+   "passive": false,
+   "description": "Calls down a shield that protects the target absorbing X damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Ranged",
+    "Costs Action Point",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Holy"
+   ]
+  },
+  {
+   "name": "Light's Beckon",
+   "tree": "Light",
+   "tier": 3,
+   "passive": false,
+   "description": "Teleport any target on the battlefield within 3 hexes of your character.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Control",
+    "Free Action",
+    "Ally Target"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Light's Brilliance",
+   "tree": "Light",
+   "tier": 3,
+   "passive": true,
+   "description": "Increase intelligence by 20%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Character Stats"
+   ]
+  },
+  {
+   "name": "Light's Celerity",
+   "tree": "Light",
+   "tier": 3,
+   "passive": true,
+   "description": "Increase dexterity by 20%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Character Stats"
+   ]
+  },
+  {
+   "name": "Light's Endurance",
+   "tree": "Light",
+   "tier": 3,
+   "passive": true,
+   "description": "Increase vitality by 20%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Character Stats"
+   ]
+  },
+  {
+   "name": "Light's Intuition",
+   "tree": "Light",
+   "tier": 3,
+   "passive": true,
+   "description": "Increase reflex by 20%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Character Stats"
+   ]
+  },
+  {
+   "name": "Light's Strength",
+   "tree": "Light",
+   "tier": 3,
+   "passive": true,
+   "description": "Increase might by 20%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Character Stats"
+   ]
+  },
+  {
+   "name": "Mass Cure",
+   "tree": "Light",
+   "tier": 3,
+   "passive": false,
+   "description": "Restores X health to all allies within 2 hexes of target.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Healing",
+    "Ranged",
+    "Costs Action Point"
+   ],
+   "narrow": [
+    "Direct Heal"
+   ]
+  },
+  {
+   "name": "Purify",
+   "tree": "Light",
+   "tier": 3,
+   "passive": false,
+   "description": "Removes all negative statuses from the target. Can be used when Disabled.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Ranged",
+    "Free Action",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Seal of Might",
+   "tree": "Light",
+   "tier": 3,
+   "passive": false,
+   "description": "Increase damage of all allies within 3 hexes by 30%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Free Action",
+    "Buff"
+   ],
+   "narrow": [
+    "Holy",
+    "Auras",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Divine Intervention",
+   "tree": "Light",
+   "tier": 4,
+   "passive": false,
+   "description": "Restores the target to full health.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Healing",
+    "Ranged",
+    "Costs Action Point",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Direct Heal"
+   ]
+  },
+  {
+   "name": "Holy Ground",
+   "tree": "Light",
+   "tier": 4,
+   "passive": false,
+   "description": "Consecrate an area of ground to heal allies that stand upon it. Heals X per turn for 3 turns.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Healing",
+    "Ranged",
+    "Free Action",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Direct Heal"
+   ]
+  },
+  {
+   "name": "Lingering Light",
+   "tree": "Light",
+   "tier": 4,
+   "passive": true,
+   "description": "Any target you heal with Cure, Regenerate, Healing Hand, Mass Cure, or Divine Intervention also recieves an additional healing over time effect restoring X health for 3 turns.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Quickening",
+   "tree": "Light",
+   "tier": 4,
+   "passive": true,
+   "description": "Every time one of your Light skills is cast on an ally, one of the ally's spells has it's cooldown lowered by 1 turn. This effect can only happen once per turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Shield of Retribution",
+   "tree": "Light",
+   "tier": 4,
+   "passive": false,
+   "description": "Conjures a shield imbued with holy flame absorbing X damage. Upon shield depletion, it explodes and deals X fire damage to all foes in a 3 hex radius.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Defense",
+    "Ranged",
+    "Costs Action Point",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Holy",
+    "Retaliation"
+   ]
+  },
+  {
+   "name": "The Good Doctor",
+   "tree": "Light",
+   "tier": 4,
+   "passive": true,
+   "description": "Reduces the cooldown of all Light spells by 1.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Cooldown"
+   ]
+  },
+  {
+   "name": "Ascendancy",
+   "tree": "Light",
+   "tier": 5,
+   "passive": false,
+   "description": "Increases the target allies' stats by 20%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Character Stats",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Redemption",
+   "tree": "Light",
+   "tier": 5,
+   "passive": true,
+   "description": "Redeem the soul of the first character to die in your party. The target's health and mana are fully restored. Does not affect summoned creatures.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Salvation",
+   "tree": "Light",
+   "tier": 5,
+   "passive": true,
+   "description": "Any target you heal with Cure, Regenerate, Healing Hand, Mass Cure, or Divine Intervention also recieves Salvation. Lasts 3 turns.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Healing",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Character Stats"
+   ]
+  },
+  {
+   "name": "Seal of Salvation",
+   "tree": "Light",
+   "tier": 5,
+   "passive": false,
+   "description": "All allies within 3 hexes of you heal for X per turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Healing",
+    "Free Action",
+    "Buff"
+   ],
+   "narrow": [
+    "Holy",
+    "Auras"
+   ]
+  },
+  {
+   "name": "Wrath of the  Righteous",
+   "tree": "Light",
+   "tier": 5,
+   "passive": true,
+   "description": "Healing skills in the Light tree can now deal damage to enemies as well as heal allies.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Adaptation I",
+   "tree": "Nature",
+   "tier": 1,
+   "passive": true,
+   "description": "Gain a 6% resistance to the last type of damage taken.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive",
+    "Physical"
+   ],
+   "narrow": [
+    "Resistance"
+   ]
+  },
+  {
+   "name": "Beast Master I",
+   "tree": "Nature",
+   "tier": 1,
+   "passive": true,
+   "description": "Summons deal 10% more damage and have 10% more health.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Summon"
+   ]
+  },
+  {
+   "name": "Brambles",
+   "tree": "Nature",
+   "tier": 1,
+   "passive": false,
+   "description": "Summon brambles to block 4 hexes. Attackers will take physical damage when striking the brambles. Lasts 4 turns.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Control",
+    "Ranged",
+    "Free Action",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Summon"
+   ]
+  },
+  {
+   "name": "Entangle",
+   "tree": "Nature",
+   "tier": 1,
+   "passive": false,
+   "description": "Deals X physical damage and applies Immobilized for 1 turn and 2 stacks of Poisoned.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Control",
+    "Ranged",
+    "Free Action",
+    "Debuff"
+   ],
+   "narrow": [
+    "Poison",
+    "Immobilize"
+   ]
+  },
+  {
+   "name": "Faerie Swarm",
+   "tree": "Nature",
+   "tier": 1,
+   "passive": false,
+   "description": "Faeries swarm the target clawing and biting for X physical damage and applying 1 stack of Bleeding each turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Physical",
+    "Debuff"
+   ],
+   "narrow": [
+    "Summon"
+   ]
+  },
+  {
+   "name": "Nature Summoning I",
+   "tree": "Nature",
+   "tier": 1,
+   "passive": false,
+   "description": "Summons a Raven, Coyote, or Raccoon to fight for you.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Ranged",
+    "Costs Action Point"
+   ],
+   "narrow": [
+    "Summon"
+   ]
+  },
+  {
+   "name": "Pack Hunter I",
+   "tree": "Nature",
+   "tier": 1,
+   "passive": true,
+   "description": "For every ally within 1 hex of you gain 8% increased Damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Thorns I",
+   "tree": "Nature",
+   "tier": 1,
+   "passive": true,
+   "description": "Grants X Return Physical Damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive",
+    "Physical"
+   ],
+   "narrow": [
+    "Retaliation"
+   ]
+  },
+  {
+   "name": "Adaptation II",
+   "tree": "Nature",
+   "tier": 2,
+   "passive": true,
+   "description": "Gain an additional 9% resistance to the last type of damage taken.",
+   "dependency": "Adaptation I",
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Passive",
+    "Physical"
+   ],
+   "narrow": [
+    "Resistance"
+   ]
+  },
+  {
+   "name": "Beast Master II",
+   "tree": "Nature",
+   "tier": 2,
+   "passive": true,
+   "description": "Summons deal an additional 15% more damage and have an additional 15% more health.",
+   "dependency": "Beast Master I",
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Summon"
+   ]
+  },
+  {
+   "name": "Living Armor",
+   "tree": "Nature",
+   "tier": 2,
+   "passive": false,
+   "description": "Envelopes the target in living vines that increase armor and magic armor by X and causes the target to regenerate X health each turn.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Defense",
+    "Ranged",
+    "Free Action",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Armor"
+   ]
+  },
+  {
+   "name": "Pack Hunter I",
+   "tree": "Nature",
+   "tier": 2,
+   "passive": true,
+   "description": "For every ally within 1 hex of you gain an additional 12% increased Damage.",
+   "dependency": "Pack Hunter I",
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "The Bad Bloom",
+   "tree": "Nature",
+   "tier": 2,
+   "passive": false,
+   "description": "Creates a magic flower that applies 2 stacks of Poisoned per turn to enemies in range.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Ranged",
+    "Free Action",
+    "Ally Target"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Thorns II",
+   "tree": "Nature",
+   "tier": 2,
+   "passive": true,
+   "description": "Grants an additional X Return Physical Damage.",
+   "dependency": "Thorns I",
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive",
+    "Physical"
+   ],
+   "narrow": [
+    "Retaliation"
+   ]
+  },
+  {
+   "name": "Venomous Skin",
+   "tree": "Nature",
+   "tier": 2,
+   "passive": false,
+   "description": "Causes the skin of a target ally to secrete poison. Attacking enemies receive 3 stacks of Poisoned. Lasts 3 turns.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Poison"
+   ]
+  },
+  {
+   "name": "Bristles",
+   "tree": "Nature",
+   "tier": 3,
+   "passive": true,
+   "description": "Summons gain 50% of your return damage.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Retaliation"
+   ]
+  },
+  {
+   "name": "Contagion",
+   "tree": "Nature",
+   "tier": 3,
+   "passive": true,
+   "description": "Your poison damage spreads to enemy targets within 1 hex of the poisoned enemy.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Passive"
+   ],
+   "narrow": [
+    "Poison"
+   ]
+  },
+  {
+   "name": "Nature Summoning II",
+   "tree": "Nature",
+   "tier": 3,
+   "passive": false,
+   "description": "Summons a Stag, Wolf, or Boar to fight for you.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Ranged",
+    "Costs Action Point"
+   ],
+   "narrow": [
+    "Summon"
+   ]
+  },
+  {
+   "name": "Shapeshift Werewolf",
+   "tree": "Nature",
+   "tier": 3,
+   "passive": false,
+   "description": "Shapeshift into a Werewolf. Empowers your basic attack and gain new abilities. Increases Max Health by 10%.",
+   "dependency": null,
+   "excludes": [
+    "Shapeshift Dire Werewolf"
+   ],
+   "broad": [
+    "Free Action",
+    "Buff"
+   ],
+   "narrow": [
+    "Shapeshift"
+   ]
+  },
+  {
+   "name": "Skin Walker",
+   "tree": "Nature",
+   "tier": 3,
+   "passive": true,
+   "description": "Reduces the cooldown of Shapeshifting skills by 2.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Shapeshift",
+    "Cooldown"
+   ]
+  },
+  {
+   "name": "Stun Spores",
+   "tree": "Nature",
+   "tier": 3,
+   "passive": false,
+   "description": "Infects enemies with Stunning Spores applying Stun for 1 turns.",
+   "dependency": null,
+   "excludes": [
+    "Rage Spores",
+    "Sleep Spores"
+   ],
+   "broad": [
+    "Control",
+    "Ranged",
+    "Free Action",
+    "Debuff"
+   ],
+   "narrow": [
+    "Stun",
+    "Immobilize"
+   ]
+  },
+  {
+   "name": "The Good Bloom",
+   "tree": "Nature",
+   "tier": 3,
+   "passive": false,
+   "description": "Creates a magic blossom that regenerates X of health and mana per turn. This effect stacks.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Healing",
+    "Ranged",
+    "Free Action",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": [
+    "Direct Heal"
+   ]
+  },
+  {
+   "name": "Call of the Wild",
+   "tree": "Nature",
+   "tier": 4,
+   "passive": true,
+   "description": "Summoning skill cooldowns reduced by 1.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive"
+   ],
+   "narrow": [
+    "Summon",
+    "Cooldown"
+   ]
+  },
+  {
+   "name": "Circle of Life",
+   "tree": "Nature",
+   "tier": 4,
+   "passive": true,
+   "description": "When an enemy dies, you have a 50% chance to spawn a Good Bloom or Bad Bloom.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Mass Entangle",
+   "tree": "Nature",
+   "tier": 4,
+   "passive": false,
+   "description": "Deals X physical damage and applies Immobilized for 1 turn and 3 stacks of Poisoned.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Healing",
+    "Control",
+    "Costs Action Point"
+   ],
+   "narrow": [
+    "Poison",
+    "Direct Heal",
+    "Immobilize"
+   ]
+  },
+  {
+   "name": "Natural Selection",
+   "tree": "Nature",
+   "tier": 4,
+   "passive": true,
+   "description": "When an Ally or an Enemy dies gain 5% of your max Health and Mana.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Healing",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Rage Spores",
+   "tree": "Nature",
+   "tier": 4,
+   "passive": false,
+   "description": "Infects enemies and allies with Rage Spores that increase damage dealt and reduce damage reduction by 25% for 2 turns.",
+   "dependency": "Stun Spores",
+   "excludes": [
+    "Sleep Spores"
+   ],
+   "broad": [
+    "Damage",
+    "Ranged",
+    "Free Action",
+    "Debuff"
+   ],
+   "narrow": [
+    "Poison",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Rainstorm",
+   "tree": "Nature",
+   "tier": 4,
+   "passive": false,
+   "description": "Calls down a magical rain that increases potency of Mana using abilities by 50% for allies within the area. Lasts 2 turns.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Ranged",
+    "Free Action",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": []
+  },
+  {
+   "name": "Sleep Spores",
+   "tree": "Nature",
+   "tier": 4,
+   "passive": false,
+   "description": "Infects enemies with Sleep Spores applying Sleep for 2 turns.",
+   "dependency": "Stun Spores",
+   "excludes": [
+    "Rage Spores"
+   ],
+   "broad": [
+    "Control",
+    "Ranged",
+    "Free Action",
+    "Debuff"
+   ],
+   "narrow": [
+    "Stun",
+    "Immobilize"
+   ]
+  },
+  {
+   "name": "Ecosystem",
+   "tree": "Nature",
+   "tier": 5,
+   "passive": true,
+   "description": "Every summon active increases the Max Life, Damage and Healing of you and your summons by 5%.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Healing",
+    "Passive"
+   ],
+   "narrow": [
+    "Character Stats",
+    "Summon",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Evolution",
+   "tree": "Nature",
+   "tier": 5,
+   "passive": true,
+   "description": "Getting hit increases max health by 5% stacking 10x. Hitting increases damage by 5% stacking 10x. Only one of the buffs can be active at a time.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Damage",
+    "Healing",
+    "Passive",
+    "Triggered"
+   ],
+   "narrow": [
+    "Stacking Self Buff",
+    "Character Stats",
+    "Damage Amp"
+   ]
+  },
+  {
+   "name": "Mind Blossom",
+   "tree": "Nature",
+   "tier": 5,
+   "passive": false,
+   "description": "Charm the enemy target for 1 turn. Cannot target bosses.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Control",
+    "Ranged",
+    "Free Action",
+    "Debuff"
+   ],
+   "narrow": [
+    "Enrage"
+   ]
+  },
+  {
+   "name": "Nature Summoning III",
+   "tree": "Nature",
+   "tier": 5,
+   "passive": false,
+   "description": "Summons a Bear, Moose, or Panther to fight for you.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Ranged",
+    "Costs Action Point"
+   ],
+   "narrow": [
+    "Summon"
+   ]
+  },
+  {
+   "name": "Shapeshift Dire Werewolf",
+   "tree": "Nature",
+   "tier": 5,
+   "passive": false,
+   "description": "Shapeshift into a Dire Werewolf. Basic attack and abilities are further empowered. Increases Max Health by 20%.",
+   "dependency": "Shapeshift Werewolf",
+   "excludes": null,
+   "broad": [
+    "Free Action",
+    "Buff"
+   ],
+   "narrow": [
+    "Shapeshift"
+   ]
+  },
+  {
+   "name": "Shapeshift Dragonkin",
+   "tree": "Nature",
+   "tier": 5,
+   "passive": false,
+   "description": "Gain the ability to shapeshift into a powerful elemental Dragonkin. Empowers basic attack, grants new abilities, and resistance based on the color you choose. Increases Armor by X.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Free Action",
+    "Buff"
+   ],
+   "narrow": [
+    "Shapeshift"
+   ]
+  },
+  {
+   "name": "Titan Bloom",
+   "tree": "Nature",
+   "tier": 5,
+   "passive": false,
+   "description": "Creates a magic mushroom that increases the Max Health and Damage of allies within its aura by X%. Stacks up to 5 times.",
+   "dependency": null,
+   "excludes": null,
+   "broad": [
+    "Ranged",
+    "Free Action",
+    "Buff",
+    "Ally Target"
+   ],
+   "narrow": []
+  }
+ ]
+}

@@ -1,0 +1,44 @@
+# Build output
+bin/
+obj/
+dist/
+
+# Release artifacts are attached to GitHub releases, not committed
+*.zip
+
+# --- Working material, deliberately not published ------------------------------------------
+# The repo holds what a mod needs to build and run. Notes, research and generated exploration
+# files stay local for now.
+
+CLAUDE.md
+modding-notes/
+
+# Extracted game content. Skill and status definitions live in the game's asset bundles, so
+# these dumps are the publisher's data rather than ours - never redistribute them.
+**/skill-dump.json
+**/status-dump.json
+**/*-dump.json
+
+# Generated from the dumps above: taxonomy tooling and the weights explorer page
+SkillWeightMod/skill-data.js
+SkillWeightMod/skill-matrix.svg
+SkillWeightMod/skill-tags.md
+SkillWeightMod/weights-explorer.html
+SkillWeightMod/tools/
+
+# Scratch notes
+**/Notes&Ideas.txt
+*.local.*
+scratch/
+
+# Decompiler output
+*.decompiled.cs
+strings.txt
+
+# Editor / OS
+.vs/
+.idea/
+*.user
+*.suo
+Thumbs.db
+desktop.ini

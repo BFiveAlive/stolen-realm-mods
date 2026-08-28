@@ -30,6 +30,22 @@ namespace ModManager
 
         private static List<PluginSettings> plugins;
 
+        /// <summary>
+        /// Structural changes waiting for the next Layout event.
+        ///
+        /// IMGUI lays out on the Layout event and reuses that layout for Repaint. A click arrives
+        /// on its own event in between, so acting on one immediately - collapsing a section,
+        /// switching tab - changes how many controls the next Repaint draws and Unity throws
+        /// "Getting control N's position in a group with only M controls". Queueing the change and
+        /// applying it at the top of the next Layout keeps every pass of a frame consistent.
+        /// </summary>
+        private static readonly List<Action> Deferred = new List<Action>();
+
+        private static void Defer(Action action)
+        {
+            Deferred.Add(action);
+        }
+
         /// <summary>Rebuilt on open rather than every frame; the loaded plugin set cannot change.</summary>
         public static void Refresh()
         {
@@ -64,6 +80,14 @@ namespace ModManager
 
         private static void DrawContents(int id)
         {
+            if (Event.current.type == EventType.Layout && Deferred.Count > 0)
+            {
+                foreach (var action in Deferred)
+                    action();
+
+                Deferred.Clear();
+            }
+
             DrawTabs();
 
             GUILayout.Space(6f);
@@ -108,7 +132,7 @@ namespace ModManager
         {
             var style = tab == target ? Skin.TabActive : Skin.Tab;
             if (GUILayout.Button(label, style, GUILayout.Width(120f)))
-                tab = target;
+                Defer(() => tab = target);
         }
 
         private static void DrawSettings()
@@ -118,10 +142,16 @@ namespace ModManager
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Search", Skin.Muted, GUILayout.Width(44f));
-            search = GUILayout.TextField(search ?? string.Empty, Skin.Field);
+            // Deferred like every other structural change: the set of rows below depends on this
+            // text, so applying a keystroke immediately would resize the layout mid-frame. The
+            // text box keeps its own editing state, so the one-frame lag is not visible.
+            string typed = GUILayout.TextField(search ?? string.Empty, Skin.Field);
+            if (typed != search)
+                Defer(() => search = typed);
+
             if (GUILayout.Button("clear", Skin.SmallButton, GUILayout.Width(50f)))
             {
-                search = string.Empty;
+                Defer(() => search = string.Empty);
                 GUI.FocusControl(null);
             }
             GUILayout.EndHorizontal();
@@ -185,8 +215,11 @@ namespace ModManager
 
             if (GUILayout.Button((collapsed ? "▶  " : "▼  ") + plugin.Name, Skin.Foldout))
             {
-                if (collapsed) Collapsed.Remove(plugin.Guid);
-                else Collapsed.Add(plugin.Guid);
+                Defer(() =>
+                {
+                    if (collapsed) Collapsed.Remove(plugin.Guid);
+                    else Collapsed.Add(plugin.Guid);
+                });
             }
 
             GUILayout.Label("v" + plugin.Version, Skin.Badge, GUILayout.Width(70f));
@@ -213,10 +246,13 @@ namespace ModManager
             GUILayout.FlexibleSpace();
             if (GUILayout.Button("Reset " + plugin.Name + " to defaults", Skin.SmallButton))
             {
-                foreach (var row in plugin.Rows)
-                    ConfigWriter.Reset(row);
+                Defer(() =>
+                {
+                    foreach (var row in plugin.Rows)
+                        ConfigWriter.Reset(row);
 
-                EntryDrawer.ClearTransientState();
+                    EntryDrawer.ClearTransientState();
+                });
             }
             GUILayout.EndHorizontal();
         }
@@ -233,14 +269,21 @@ namespace ModManager
 
             GUILayout.FlexibleSpace();
 
-            // Only offered where it would do something, so the eye is not drawn to a row that is
-            // already at its default.
-            if (!Equals(SafeValue(row), row.Entry.DefaultValue)
-                && GUILayout.Button("reset", Skin.SmallButton, GUILayout.Width(52f)))
+            // Always drawn, only disabled at its default value. Showing and hiding it would
+            // change the control count in the same frame as the edit that triggered it, which is
+            // the layout mismatch this window is careful to avoid everywhere else.
+            GUI.enabled = !Equals(SafeValue(row), row.Entry.DefaultValue);
+
+            if (GUILayout.Button("reset", Skin.SmallButton, GUILayout.Width(52f)))
             {
-                ConfigWriter.Reset(row);
-                EntryDrawer.ClearTransientState();
+                Defer(() =>
+                {
+                    ConfigWriter.Reset(row);
+                    EntryDrawer.ClearTransientState();
+                });
             }
+
+            GUI.enabled = true;
 
             GUILayout.EndHorizontal();
 
@@ -267,12 +310,13 @@ namespace ModManager
 
         private static void DrawRestartBanner()
         {
-            if (ConfigWriter.ChangedRequiringRestart.Count == 0)
-                return;
+            int count = ConfigWriter.ChangedRequiringRestart.Count;
 
             GUILayout.Space(4f);
-            GUILayout.Label("↻  " + ConfigWriter.ChangedRequiringRestart.Count
-                + " changed setting(s) only take effect after restarting the game.", Skin.Warning);
+            GUILayout.Label(count == 0
+                    ? string.Empty
+                    : "↻  " + count + " changed setting(s) only take effect after restarting the game.",
+                Skin.Warning);
         }
 
         private static void DrawAbout()

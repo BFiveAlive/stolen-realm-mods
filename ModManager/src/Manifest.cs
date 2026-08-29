@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace ModManager
 {
@@ -6,28 +7,84 @@ namespace ModManager
     /// The shape of mods.json, the single list of what is published.
     ///
     /// Both consumers read this same file: the in-game updater here, and the standalone installer.
-    /// Fields are public and the classes are [Serializable] because UnityEngine.JsonUtility is
-    /// doing the parsing - the game ships Newtonsoft, but depending on a version of it that the
-    /// game chose is a needless way to break on a game update.
+    /// Parsed by the reader in Json.cs, with the mapping below written out by hand. See that
+    /// file for why UnityEngine.JsonUtility is not used.
     /// </summary>
-    [Serializable]
-    internal class Manifest
+    public class Manifest
     {
         public int schemaVersion;
         public BepInExRelease bepinex;
         public ModRelease[] mods;
+
+        /// <summary>
+        /// Builds a manifest from JSON text, or throws if the document is not an object.
+        /// Individual fields are read leniently, so a manifest from a newer release that adds
+        /// fields still parses.
+        /// </summary>
+        public static Manifest Parse(string text)
+        {
+            var root = Json.AsObject(Json.Parse(text));
+            if (root == null)
+                throw new FormatException("The manifest is not a JSON object.");
+
+            var manifest = new Manifest
+            {
+                schemaVersion = Json.GetInt(root, "schemaVersion")
+            };
+
+            root.TryGetValue("bepinex", out object bepinexValue);
+            var bepinex = Json.AsObject(bepinexValue);
+
+            if (bepinex != null)
+            {
+                manifest.bepinex = new BepInExRelease
+                {
+                    version = Json.GetString(bepinex, "version"),
+                    url = Json.GetString(bepinex, "url"),
+                    sha256 = Json.GetString(bepinex, "sha256")
+                };
+            }
+
+            root.TryGetValue("mods", out object modsValue);
+            var mods = Json.AsArray(modsValue);
+
+            var releases = new List<ModRelease>();
+
+            if (mods != null)
+            {
+                foreach (var item in mods)
+                {
+                    var entry = Json.AsObject(item);
+                    if (entry == null)
+                        continue;
+
+                    releases.Add(new ModRelease
+                    {
+                        guid = Json.GetString(entry, "guid"),
+                        name = Json.GetString(entry, "name"),
+                        folder = Json.GetString(entry, "folder"),
+                        version = Json.GetString(entry, "version"),
+                        description = Json.GetString(entry, "description"),
+                        url = Json.GetString(entry, "url"),
+                        sha256 = Json.GetString(entry, "sha256"),
+                        recommended = Json.GetBool(entry, "recommended")
+                    });
+                }
+            }
+
+            manifest.mods = releases.ToArray();
+            return manifest;
+        }
     }
 
-    [Serializable]
-    internal class BepInExRelease
+    public class BepInExRelease
     {
         public string version;
         public string url;
         public string sha256;
     }
 
-    [Serializable]
-    internal class ModRelease
+    public class ModRelease
     {
         /// <summary>Matches the plugin's BepInPlugin GUID, which is how installed mods are identified.</summary>
         public string guid;

@@ -76,10 +76,12 @@ namespace ModManager
                     yield break;
                 }
 
+                string body = request.downloadHandler.text ?? string.Empty;
+
                 Manifest manifest;
                 try
                 {
-                    manifest = JsonUtility.FromJson<Manifest>(request.downloadHandler.text);
+                    manifest = Manifest.Parse(body);
                 }
                 catch (Exception e)
                 {
@@ -87,7 +89,7 @@ namespace ModManager
                     yield break;
                 }
 
-                if (manifest == null || manifest.mods == null)
+                if (manifest == null || manifest.mods == null || manifest.mods.Length == 0)
                 {
                     Fail("The mod list was empty or malformed.");
                     yield break;

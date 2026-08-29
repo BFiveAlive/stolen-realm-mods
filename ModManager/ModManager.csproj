@@ -4,11 +4,9 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>ModManager</AssemblyName>
     <RootNamespace>ModManager</RootNamespace>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <LangVersion>latest</LangVersion>
-    <!-- CS0649: the mods.json model's fields are assigned by JsonUtility through reflection,
-         never by code, so every one of them looks unassigned to the compiler. -->
-    <NoWarn>$(NoWarn);CS0436;MSB3277;CS0649</NoWarn>
+    <NoWarn>$(NoWarn);CS0436;MSB3277</NoWarn>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <DebugType>portable</DebugType>
   </PropertyGroup>
@@ -59,10 +57,6 @@
     </Reference>
     <Reference Include="UnityEngine.UnityWebRequestModule">
       <HintPath>$(ManagedDir)\UnityEngine.UnityWebRequestModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.JSONSerializeModule">
-      <HintPath>$(ManagedDir)\UnityEngine.JSONSerializeModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>

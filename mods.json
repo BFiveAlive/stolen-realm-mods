@@ -13,7 +13,7 @@
       "version": "0.1.0",
       "description": "In-game settings editor and updater for every mod here.",
       "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.1.0/ModManager-0.1.0.zip",
-      "sha256": "87ab22cad079bc9e3470ecacdc88a12c8abe47bb7a0bbafdffe80d294e39616b",
+      "sha256": "ca575d60d01760968fd18043b0eec3cd4aba06adf3b02a0490c7339ea421cfaf",
       "recommended": true
     },
     {
@@ -23,7 +23,7 @@
       "version": "0.2.1",
       "description": "Weights roguelike skill offers toward what your character already has.",
       "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.1.0/SkillWeightMod-0.2.1.zip",
-      "sha256": "7685312580fb6acff62926c5a0358a557f888e6608c20ebb77e7e9485cb4e038",
+      "sha256": "01e8bd774ec1c580c6c2a336c5cd3c4218ccf4694c944ba53e79958fadd60c13",
       "recommended": true
     },
     {
@@ -33,7 +33,7 @@
       "version": "0.1.0",
       "description": "Toggles the post-battle stats window between the last battle and the whole run.",
       "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.1.0/CumulativeStatsMod-0.1.0.zip",
-      "sha256": "969878bcfd38603b6f28af01908acf49d2e169b3f09008402336d7d3daec2d04",
+      "sha256": "ca69acde29a37ff017fd92969f4a82feecf90152604a9f3c4408cd68036c2871",
       "recommended": true
     },
     {
@@ -43,7 +43,7 @@
       "version": "0.1.0",
       "description": "Config-driven edits to status effect duration, potency and stacking.",
       "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.1.0/StatusEffectsMod-0.1.0.zip",
-      "sha256": "ec56a8f73942e9028de5ee99966d938d6805375ffef5db5d21055899e58b0b3c",
+      "sha256": "11a310f54f74b0ddcb6ac412beabb574c65ec9300a34a65f9ea2a6a7c769641a",
       "recommended": true
     }
   ]

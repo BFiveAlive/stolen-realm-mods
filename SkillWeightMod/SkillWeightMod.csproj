@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>SkillWeightMod</AssemblyName>
     <RootNamespace>SkillWeightMod</RootNamespace>
-    <Version>0.2.1</Version>
+    <Version>0.3.0</Version>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <!-- Unity/BepInEx assemblies are not signed/reference assemblies; silence the noise -->

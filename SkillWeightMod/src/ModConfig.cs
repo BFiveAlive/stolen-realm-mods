@@ -60,7 +60,7 @@ namespace SkillWeightMod
                 "bundles rather than in code, so this is the only way to inspect them. Useful " +
                 "for checking how common a tag or status really is before weighting on it.");
 
-            ShowWeightsInMenu = cfg.Bind("General", "ShowWeightsInMenu", false,
+            ShowWeightsInMenu = cfg.Bind("General", "ShowWeightsInMenu", true,
                 "Testing aid. Prints each offered skill's computed weight under its name in the " +
                 "level-up window: the raw weight, its share of that tier's total, and how many " +
                 "candidates it beat. Costs nothing when off.");
@@ -82,18 +82,18 @@ namespace SkillWeightMod
                 "Added per already-owned skill from the same tree (Fire, Warrior, Shadow, ...). " +
                 "This is the main specialisation lever.");
 
-            BroadAffinity = cfg.Bind("Affinity", "BroadAffinity", 0.15f,
+            BroadAffinity = cfg.Bind("Affinity", "BroadAffinity", 0.05f,
                 "Master scalar on the broad categories (Damage, Defense, Melee, Passive, ...). " +
                 "Each shared category also has its own multiplier under [Broad Weights]. " +
                 "Broad categories are large, so a little goes a long way.");
 
-            NarrowAffinity = cfg.Bind("Affinity", "NarrowAffinity", 0.6f,
+            NarrowAffinity = cfg.Bind("Affinity", "NarrowAffinity", 0.2f,
                 "Master scalar on the narrow categories (Poison, Crit, Teleport, ...). " +
                 "Each shared category also has its own multiplier under [Narrow Weights]. " +
                 "Raise this relative to BroadAffinity to chase specific mechanics rather than " +
                 "general roles.");
 
-            DependencyBonus = cfg.Bind("Affinity", "DependencyBonus", 0.5f,
+            DependencyBonus = cfg.Bind("Affinity", "DependencyBonus", 1.0f,
                 "Flat bonus when you already own the candidate's prerequisite skill. " +
                 "Encourages the game to finish chains it has started.");
 
@@ -104,19 +104,19 @@ namespace SkillWeightMod
                 "Declining a skill does not remove it from the pool, so without this a heavily " +
                 "weighted skill keeps reappearing at full strength.");
 
-            MaxOfferedPenaltyStacks = cfg.Bind("Repetition", "MaxOfferedPenaltyStacks", 4,
+            MaxOfferedPenaltyStacks = cfg.Bind("Repetition", "MaxOfferedPenaltyStacks", 5,
                 "Cap on how many times the OfferedDecay penalty compounds, so a skill offered " +
                 "very often does not become effectively impossible. At the default 0.5 decay, " +
-                "4 stacks bottoms out at 1/16 weight.");
+                "5 stacks bottoms out at 1/32 weight.");
 
             RerollEnabled = cfg.Bind("Reroll", "RerollEnabled", true,
                 "Adds a Reroll button to the skill selection window that redraws the offered " +
                 "skills for a health and mana cost. Set false to remove the button entirely.");
 
-            RerollHealthCost = cfg.Bind("Reroll", "RerollHealthCost", 0.5f,
+            RerollHealthCost = cfg.Bind("Reroll", "RerollHealthCost", 0.49f,
                 "Fraction of health spent per reroll. 0.5 = half.");
 
-            RerollManaCost = cfg.Bind("Reroll", "RerollManaCost", 0.5f,
+            RerollManaCost = cfg.Bind("Reroll", "RerollManaCost", 0.49f,
                 "Fraction of mana spent per reroll. Characters with no mana pool skip this.");
 
             RerollCostFromMaxPool = cfg.Bind("Reroll", "RerollCostFromMaxPool", true,
@@ -125,10 +125,10 @@ namespace SkillWeightMod
                 "false = cost is a fraction of CURRENT health/mana, which halves what you have " +
                 "left and can never quite reach zero.");
 
-            RerollHealthThreshold = cfg.Bind("Reroll", "RerollHealthThreshold", 0.5f,
+            RerollHealthThreshold = cfg.Bind("Reroll", "RerollHealthThreshold", 0.49f,
                 "The button is greyed out at or below this fraction of maximum health.");
 
-            RerollManaThreshold = cfg.Bind("Reroll", "RerollManaThreshold", 0.5f,
+            RerollManaThreshold = cfg.Bind("Reroll", "RerollManaThreshold", 0.49f,
                 "The button is greyed out at or below this fraction of maximum mana. " +
                 "Ignored for characters with no mana pool.");
 
@@ -155,7 +155,7 @@ namespace SkillWeightMod
             MinWeight = cfg.Bind("Clamp", "MinWeight", 0.05f,
                 "Floor on a skill's final weight. Keep above 0 so no skill becomes truly unrollable.");
 
-            MaxWeight = cfg.Bind("Clamp", "MaxWeight", 12.0f,
+            MaxWeight = cfg.Bind("Clamp", "MaxWeight", 20.0f,
                 "Ceiling on a skill's final weight, so a deep specialisation cannot fully crowd out everything else.");
 
         }

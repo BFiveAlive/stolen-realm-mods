@@ -12,7 +12,7 @@ namespace SkillWeightMod
     {
         public const string Guid = "bfivealive.stolenrealm.skillweightmod";
         public const string Name = "Skill Weight Mod";
-        public const string Version = "0.2.1";
+        public const string Version = "0.3.0";
 
         internal static ManualLogSource Log;
 

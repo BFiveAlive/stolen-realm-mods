@@ -35,18 +35,32 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $dist = Join-Path $root 'dist'
 
-# Mods that ship a data file next to the DLL. The plugin reads these at runtime, so a zip
-# without them installs a mod that loads and then cannot work.
-$extraFiles = @{
-    'SkillWeightMod' = @('skill-categories.json')
+# Nothing here lists the mods. A mod declares its own description and data files in its csproj
+# and is found by looking for one, so adding a mod is adding a folder - this script was
+# previously a second place you had to remember to edit, and forgetting meant a mod that built
+# fine and silently never reached anyone.
+
+function Get-CsprojProperty([string] $csproj, [string] $name) {
+    $xml = [xml](Get-Content -LiteralPath $csproj)
+    $value = $xml.Project.PropertyGroup.$name | Where-Object { $_ } | Select-Object -First 1
+    if ($value) { return "$value".Trim() }
+    return $null
 }
 
-# Description shown in the installer's checklist and the updater's list.
-$descriptions = @{
-    'ModManager'       = 'In-game settings editor and updater for every mod here.'
-    'SkillWeightMod'   = 'Weights roguelike skill offers toward what your character already has.'
-    'CumulativeStatsMod' = 'Toggles the post-battle stats window between the last battle and the whole run.'
-    'StatusEffectsMod' = 'Config-driven edits to status effect duration, potency and stacking.'
+function Get-ModProjects([string] $root) {
+    # A mod is a folder with a matching csproj whose plugin declares [BepInPlugin]. That rules
+    # out ModUpdatePatcher, which is a preloader patcher rather than a plugin, and the installer,
+    # which is a console app - without either of them needing to be named here.
+    Get-ChildItem -LiteralPath $root -Directory |
+        Where-Object {
+            $csproj = Join-Path $_.FullName ($_.Name + '.csproj')
+            $plugin = Join-Path $_.FullName 'src\Plugin.cs'
+
+            (Test-Path $csproj) -and (Test-Path $plugin) -and
+                (Select-String -LiteralPath $plugin -Pattern '\[BepInPlugin' -Quiet)
+        } |
+        Sort-Object Name |
+        ForEach-Object { $_.Name }
 }
 
 function Get-CsprojVersion([string] $csproj) {
@@ -73,7 +87,11 @@ if (-not (Test-Path $GameDir)) {
 
 # --- Build -------------------------------------------------------------------------------
 
-$modProjects = @('ModManager', 'SkillWeightMod', 'CumulativeStatsMod', 'StatusEffectsMod')
+$modProjects = @(Get-ModProjects $root)
+if ($modProjects.Count -eq 0) { throw "No mod projects found under $root" }
+
+Write-Host ("Found " + $modProjects.Count + " mod(s): " + ($modProjects -join ', ')) -ForegroundColor Cyan
+
 $allProjects = $modProjects + @('ModUpdatePatcher')
 
 foreach ($name in $allProjects) {
@@ -107,6 +125,13 @@ foreach ($name in $modProjects) {
     if (-not (Test-Path $csproj)) { continue }
 
     $version = Get-CsprojVersion $csproj
+
+    $description = Get-CsprojProperty $csproj 'Description'
+    if (-not $description) {
+        Write-Warning "$name has no <Description> in its csproj; it will show up unexplained."
+        $description = ''
+    }
+
     $dll = Join-Path $modDir "bin\Release\netstandard2.1\$name.dll"
     if (-not (Test-Path $dll)) { throw "Missing build output: $dll" }
 
@@ -115,7 +140,11 @@ foreach ($name in $modProjects) {
     New-Item -ItemType Directory -Path $pluginDir -Force | Out-Null
     Copy-Item $dll $pluginDir
 
-    foreach ($extra in ($extraFiles[$name] | Where-Object { $_ })) {
+    $declared = Get-CsprojProperty $csproj 'ModDataFiles'
+    $dataFiles = @()
+    if ($declared) { $dataFiles = $declared -split ';' | ForEach-Object { $_.Trim() } | Where-Object { $_ } }
+
+    foreach ($extra in $dataFiles) {
         $source = Join-Path $modDir $extra
         if (Test-Path $source) { Copy-Item $source $pluginDir }
         else { Write-Warning "$name declares data file '$extra' but it is missing" }
@@ -146,7 +175,7 @@ foreach ($name in $modProjects) {
                         ForEach-Object { $_.Matches[0].Groups[1].Value })
         folder      = $name
         version     = $version
-        description = $descriptions[$name]
+        description = $description
         url         = "https://github.com/$Owner/$Repo/releases/download/$Tag/$name-$version.zip"
         sha256      = $hash
         recommended = $true

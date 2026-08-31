@@ -8,6 +8,7 @@
     <RootNamespace>StatusEffectsMod</RootNamespace>
     <Version>0.2.1</Version>
     <LangVersion>latest</LangVersion>
+    <Description>Config-driven edits to status effect duration, potency and stacking.</Description>
     <NoWarn>$(NoWarn);CS0436;MSB3277</NoWarn>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <DebugType>portable</DebugType>

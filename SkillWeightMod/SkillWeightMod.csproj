@@ -6,6 +6,9 @@
     <RootNamespace>SkillWeightMod</RootNamespace>
     <Version>0.3.0</Version>
     <LangVersion>latest</LangVersion>
+    <Description>Weights roguelike skill offers toward what your character already has.</Description>
+    <!-- Data files shipped beside the DLL; the release script reads this. -->
+    <ModDataFiles>skill-categories.json</ModDataFiles>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <!-- Unity/BepInEx assemblies are not signed/reference assemblies; silence the noise -->
     <NoWarn>$(NoWarn);CS0436;MSB3277</NoWarn>

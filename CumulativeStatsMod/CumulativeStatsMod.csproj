@@ -6,6 +6,7 @@
     <RootNamespace>CumulativeStatsMod</RootNamespace>
     <Version>0.1.0</Version>
     <LangVersion>latest</LangVersion>
+    <Description>Toggles the post-battle stats window between the last battle and the whole run.</Description>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <!-- Unity/BepInEx assemblies are not signed/reference assemblies; silence the noise -->
     <NoWarn>$(NoWarn);CS0436;MSB3277</NoWarn>

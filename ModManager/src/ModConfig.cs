@@ -19,6 +19,7 @@ namespace ModManager
         public static ConfigEntry<bool> CheckForUpdatesOnStartup;
         public static ConfigEntry<string> ManifestUrl;
 
+        public static ConfigEntry<int> CombineSectionsBelow;
         public static ConfigEntry<float> SaveDebounceSeconds;
         public static ConfigEntry<bool> VerboseLogging;
 
@@ -65,6 +66,14 @@ namespace ModManager
             ManifestUrl = cfg.Bind("Updates", "ManifestUrl", DefaultManifestUrl,
                 "The mods.json describing what is published. Point this at your own fork to " +
                 "update from somewhere else.");
+
+            CombineSectionsBelow = cfg.Bind("General", "CombineSectionsBelow", 25,
+                new ConfigDescription(
+                    "A mod with no more than this many settings shows all of them on one page, " +
+                    "with its sections as dividers, instead of one entry per section in the list " +
+                    "on the left. Splitting up a handful of settings costs more navigation than " +
+                    "it saves. Set to 0 to always list sections separately.",
+                    new AcceptableValueRange<int>(0, 200)));
 
             SaveDebounceSeconds = cfg.Bind("Advanced", "SaveDebounceSeconds", 0.5f,
                 new ConfigDescription(

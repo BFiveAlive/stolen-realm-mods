@@ -38,10 +38,33 @@ namespace ModManager
         private static Vector2 listScroll;
         private static Vector2 detailScroll;
 
+        /// <summary>
+        /// One line of the list: either a setting, or the name of the section that follows.
+        /// Dividers are list entries rather than extra space so every line keeps the same pitch,
+        /// which is what makes the list virtualisable.
+        /// </summary>
+        private struct ListItem
+        {
+            public SettingRow Row;
+            public string Header;
+
+            public bool IsHeader => Row == null;
+        }
+
         // The filtered list is rebuilt only when something it depends on changes. Recomputing it
         // per frame would mean a substring scan over 583 settings on every event.
-        private static List<SettingRow> rows = new List<SettingRow>();
+        private static List<ListItem> items = new List<ListItem>();
         private static string rowsKey;
+
+        /// <summary>
+        /// Whether a mod's sections are worth navigating separately. Splitting fifteen settings
+        /// across five list entries costs more navigation than it saves, so below the threshold
+        /// they are shown on one page with the sections as dividers.
+        /// </summary>
+        private static bool Combined(PluginSettings plugin)
+        {
+            return plugin.Rows.Count <= Mathf.Max(0, ModConfig.CombineSectionsBelow.Value);
+        }
 
         private static bool Searching => !string.IsNullOrEmpty(query.Trim());
 
@@ -101,6 +124,13 @@ namespace ModManager
                 selectedPlugin = 0;
 
             var plugin = plugins[selectedPlugin];
+
+            // A combined mod has no section selection to keep valid: the page is all of them.
+            if (Combined(plugin))
+            {
+                selectedSection = null;
+                return;
+            }
 
             if (selectedSection == null || !plugin.Sections.Any(s => s.Key == selectedSection))
                 selectedSection = plugin.Sections.Count > 0 ? plugin.Sections[0].Key : null;
@@ -169,7 +199,7 @@ namespace ModManager
             for (int i = 0; i < plugins.Count; i++)
             {
                 height += Skin.PluginRowHeight;
-                if (i == selectedPlugin)
+                if (i == selectedPlugin && !Combined(plugins[i]))
                     height += plugins[i].Sections.Count * Skin.SectionRowHeight + 6f;
             }
 
@@ -206,7 +236,7 @@ namespace ModManager
 
                 y += Skin.PluginRowHeight;
 
-                if (!active)
+                if (!active || Combined(plugin))
                     continue;
 
                 foreach (var section in plugin.Sections)
@@ -316,6 +346,7 @@ namespace ModManager
                 return;
 
             rowsKey = key;
+            items = new List<ListItem>();
 
             if (Searching)
             {
@@ -324,18 +355,50 @@ namespace ModManager
                     ? plugins[searchScope].Rows.AsEnumerable()
                     : everything.AsEnumerable();
 
-                rows = source.Where(r => Matches(r, needle)).ToList();
+                foreach (var row in source.Where(r => Matches(r, needle)))
+                    items.Add(new ListItem { Row = row });
+
                 return;
             }
 
             var plugin = plugins[selectedPlugin];
-            var section = plugin.Sections.FirstOrDefault(s => s.Key == selectedSection);
-            var candidates = section.Value ?? new List<SettingRow>();
-
             string filter = sectionFilter.Trim();
-            rows = filter.Length == 0
-                ? candidates.ToList()
-                : candidates.Where(r => Contains(r.Key, filter) || Contains(r.Description, filter)).ToList();
+
+            if (Combined(plugin))
+            {
+                foreach (var group in plugin.Sections)
+                {
+                    var kept = Keep(group.Value, filter);
+                    if (kept.Count == 0)
+                        continue;
+
+                    // A single section needs no divider; it would just say the same thing as the
+                    // heading directly above it.
+                    if (plugin.Sections.Count > 1)
+                        items.Add(new ListItem { Header = group.Key });
+
+                    foreach (var row in kept)
+                        items.Add(new ListItem { Row = row });
+                }
+
+                return;
+            }
+
+            var section = plugin.Sections.FirstOrDefault(s => s.Key == selectedSection);
+
+            foreach (var row in Keep(section.Value, filter))
+                items.Add(new ListItem { Row = row });
+        }
+
+        private static List<SettingRow> Keep(List<SettingRow> source, string filter)
+        {
+            if (source == null)
+                return new List<SettingRow>();
+
+            if (filter.Length == 0)
+                return source;
+
+            return source.Where(r => Contains(r.Key, filter) || Contains(r.Description, filter)).ToList();
         }
 
         private static bool Matches(SettingRow row, string needle)
@@ -366,11 +429,11 @@ namespace ModManager
 
             var view = new Rect(area.x, header.yMax, area.width, area.height - headerHeight);
 
-            if (rows.Count == 0)
+            if (items.Count == 0)
             {
                 Skin.Text(new Rect(view.x + 20f, view.y + 24f, view.width - 40f, 26f),
                     Searching ? "Nothing matches “" + query.Trim() + "”."
-                              : "Nothing in this section matches that filter.",
+                              : "Nothing here matches that filter.",
                     Skin.Body, Skin.InkMuted);
                 return;
             }
@@ -380,24 +443,27 @@ namespace ModManager
             EntryDrawer.HandleMenuInput();
 
             float pitch = Searching ? Skin.ResultRowHeight : Skin.ListRowHeight;
-            var content = new Rect(0f, 0f, view.width - 18f, rows.Count * pitch);
+            var content = new Rect(0f, 0f, view.width - 18f, items.Count * pitch);
 
             listScroll = GUI.BeginScrollView(view, listScroll, content);
 
             // Only the rows on screen are built. With 470 settings in one section, drawing them
             // all would mean 470 text fields per event, twice a frame.
             int first = Mathf.Max(0, Mathf.FloorToInt(listScroll.y / pitch) - 1);
-            int last = Mathf.Min(rows.Count - 1,
+            int last = Mathf.Min(items.Count - 1,
                 Mathf.CeilToInt((listScroll.y + view.height) / pitch) + 1);
 
             for (int i = first; i <= last; i++)
             {
                 var rect = new Rect(0f, i * pitch, content.width, pitch);
+                var item = items[i];
 
-                if (Searching)
-                    DrawResultRow(rect, rows[i], i);
+                if (item.IsHeader)
+                    DrawDivider(rect, item.Header);
+                else if (Searching)
+                    DrawResultRow(rect, item.Row, i);
                 else
-                    DrawSettingRow(rect, rows[i], i);
+                    DrawSettingRow(rect, item.Row, i);
             }
 
             GUI.EndScrollView();
@@ -406,23 +472,36 @@ namespace ModManager
             EntryDrawer.PaintMenu();
         }
 
+        private static void DrawDivider(Rect rect, string title)
+        {
+            Skin.Text(new Rect(rect.x + 18f, rect.y + 10f, rect.width - 36f, rect.height - 10f),
+                title.ToUpperInvariant(), Skin.SmallCaps, Skin.Accent);
+
+            Skin.HLine(rect.x + 18f, rect.yMax - 6f, rect.width - 36f, Skin.Line);
+        }
+
         private static void DrawSectionHeader(Rect area)
         {
             var plugin = plugins[selectedPlugin];
+            bool combined = Combined(plugin);
+
             var section = plugin.Sections.FirstOrDefault(s => s.Key == selectedSection);
-            int total = section.Value != null ? section.Value.Count : 0;
+            var scope = combined ? plugin.Rows : section.Value;
+            int total = scope != null ? scope.Count : 0;
 
             Skin.Text(new Rect(area.x + 20f, area.y + 8f, area.width - 260f, 28f),
-                selectedSection ?? "—", Skin.Header, Skin.Ink);
+                combined ? plugin.Name : (selectedSection ?? "—"), Skin.Header, Skin.Ink);
 
             Skin.Text(new Rect(area.x + 20f, area.y + 36f, area.width - 260f, 20f),
-                plugin.Name + "  ·  " + total + (total == 1 ? " setting" : " settings"),
+                (combined ? "v" + plugin.Version : plugin.Name)
+                    + "  ·  " + total + (total == 1 ? " setting" : " settings"),
                 Skin.Value, Skin.InkDim);
 
             var reset = new Rect(area.xMax - 174f, area.y + 12f, 154f, 30f);
-            if (GUI.Button(reset, "Reset this section", Skin.Button) && section.Value != null)
+            if (GUI.Button(reset, combined ? "Reset this mod" : "Reset this section", Skin.Button)
+                && scope != null)
             {
-                foreach (var row in section.Value)
+                foreach (var row in scope)
                     ConfigWriter.Reset(row);
 
                 EntryDrawer.ClearTransientState();
@@ -449,11 +528,11 @@ namespace ModManager
             string needle = query.Trim();
 
             Skin.Text(new Rect(area.x + 20f, area.y + 10f, area.width - 40f, 28f),
-                rows.Count + (rows.Count == 1 ? " setting matches “" : " settings match “")
+                items.Count + (items.Count == 1 ? " setting matches “" : " settings match “")
                     + needle + "”",
                 Skin.Header, Skin.Ink);
 
-            int mods = rows.Select(r => r.Owner).Distinct().Count();
+            int mods = items.Select(i => i.Row.Owner).Distinct().Count();
             Skin.Text(new Rect(area.x + 20f, area.y + 38f, area.width - 40f, 20f),
                 searchScope >= 0
                     ? "in " + plugins[searchScope].Name
@@ -715,8 +794,13 @@ namespace ModManager
 
             // Looked up in the visible list first so the common case is short, then across
             // everything, because a selection survives changing section.
-            return rows.FirstOrDefault(r => r.Id == selectedRowId)
-                ?? everything.FirstOrDefault(r => r.Id == selectedRowId);
+            foreach (var item in items)
+            {
+                if (!item.IsHeader && item.Row.Id == selectedRowId)
+                    return item.Row;
+            }
+
+            return everything.FirstOrDefault(r => r.Id == selectedRowId);
         }
 
         // --- footer -------------------------------------------------------------------------

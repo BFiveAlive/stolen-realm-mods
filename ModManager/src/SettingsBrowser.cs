@@ -463,7 +463,7 @@ namespace ModManager
             else if (index % 2 == 1)
                 Skin.Fill(rect, Skin.RowAlt);
 
-            var name = new Rect(rect.x + 18f, rect.y, rect.width - Skin.ControlWidth - 70f, rect.height);
+            var name = new Rect(rect.x + 18f, rect.y, NameWidth, rect.height);
 
             Skin.Text(name, row.Key, selected ? Skin.RowNameBold : Skin.RowName,
                 IsModified(row) ? Skin.Accent : Skin.Ink);
@@ -471,10 +471,16 @@ namespace ModManager
             if (row.RequiresRestart)
                 Skin.Text(new Rect(name.xMax + 2f, rect.y, 22f, rect.height), "↻", Skin.Value, Skin.Accent);
 
-            EntryDrawer.Draw(new Rect(rect.xMax - Skin.ControlWidth - 18f, rect.y,
-                Skin.ControlWidth, rect.height), row);
+            var control = new Rect(rect.xMax - Skin.ControlWidth - 18f, rect.y,
+                Skin.ControlWidth, rect.height);
 
-            if (Clicked(name))
+            DrawBrief(row, name, control.x, rect.y, rect.height);
+
+            EntryDrawer.Draw(control, row);
+
+            // The whole strip left of the control selects the row, so the hint is as clickable as
+            // the name is - it is the part that tells you there is more to read on the right.
+            if (Clicked(new Rect(rect.x, rect.y, control.x - rect.x - 8f, rect.height)))
                 selectedRowId = row.Id;
         }
 
@@ -492,8 +498,7 @@ namespace ModManager
                 (row.Owner != null ? row.Owner.Name : "?") + "  ›  " + row.Section,
                 Skin.Value, Skin.InkDim);
 
-            var name = new Rect(rect.x + 18f, rect.y + 26f,
-                rect.width - Skin.ControlWidth - 70f, 30f);
+            var name = new Rect(rect.x + 18f, rect.y + 26f, NameWidth, 30f);
 
             Skin.Text(name, row.Key, selected ? Skin.RowNameBold : Skin.RowName,
                 IsModified(row) ? Skin.Accent : Skin.Ink);
@@ -501,11 +506,38 @@ namespace ModManager
             if (row.RequiresRestart)
                 Skin.Text(new Rect(name.xMax + 2f, name.y, 22f, name.height), "↻", Skin.Value, Skin.Accent);
 
-            EntryDrawer.Draw(new Rect(rect.xMax - Skin.ControlWidth - 18f, rect.y + 22f,
-                Skin.ControlWidth, 38f), row);
+            var control = new Rect(rect.xMax - Skin.ControlWidth - 18f, rect.y + 22f,
+                Skin.ControlWidth, 38f);
+
+            DrawBrief(row, name, control.x, name.y, name.height);
+
+            EntryDrawer.Draw(control, row);
 
             if (Clicked(new Rect(rect.x, rect.y, rect.width - Skin.ControlWidth - 40f, rect.height)))
                 selectedRowId = row.Id;
+        }
+
+        /// <summary>Fixed, so the hints beside every row start on the same column.</summary>
+        private const float NameWidth = 310f;
+
+        /// <summary>
+        /// The first sentence of the description, on the same line as the name. Rows stay one
+        /// line each - which is what makes a 470-row section navigable - while still saying what
+        /// each setting is without a click. The full text is in the detail panel.
+        /// </summary>
+        private static void DrawBrief(SettingRow row, Rect name, float controlX, float y, float height)
+        {
+            if (string.IsNullOrEmpty(row.Brief))
+                return;
+
+            float x = name.xMax + (row.RequiresRestart ? 26f : 10f);
+            float width = controlX - 20f - x;
+
+            if (width < 90f)
+                return;
+
+            Skin.Text(new Rect(x, y, width, height),
+                Skin.Ellipsize(row.Brief, Skin.Value, width), Skin.Value, Skin.InkDim);
         }
 
         // --- detail panel -------------------------------------------------------------------

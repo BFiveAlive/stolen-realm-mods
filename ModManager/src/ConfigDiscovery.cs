@@ -15,6 +15,10 @@ namespace ModManager
         public string Section;
         public string Key;
         public string Description;
+
+        /// <summary>First sentence of <see cref="Description"/>, for the inline hint on the row.</summary>
+        public string Brief;
+
         public bool RequiresRestart;
 
         /// <summary>Stable identity for edit buffers, independent of list order.</summary>
@@ -126,6 +130,7 @@ namespace ModManager
                     Section = entry.Definition.Section,
                     Key = entry.Definition.Key,
                     Description = description ?? string.Empty,
+                    Brief = FirstSentence(description),
                     RequiresRestart = DetectRequiresRestart(entry),
                     Id = settings.Guid + "|" + entry.Definition.Section + "|" + entry.Definition.Key,
                     Owner = settings
@@ -144,6 +149,24 @@ namespace ModManager
             }
 
             return settings;
+        }
+
+        /// <summary>
+        /// The first sentence, which for the descriptions these mods write is reliably the one
+        /// that says what the setting is; the rest is qualification and detail that belongs in
+        /// the panel rather than on a 44px row.
+        /// </summary>
+        private static string FirstSentence(string description)
+        {
+            if (string.IsNullOrEmpty(description))
+                return string.Empty;
+
+            int stop = description.IndexOf(". ", StringComparison.Ordinal);
+            string first = stop > 0 ? description.Substring(0, stop + 1) : description;
+
+            // Written as codes: a description may legitimately contain either, and the
+            // literal escapes are easy to lose when this file is edited by tooling.
+            return first.Replace((char)10, ' ').Replace((char)13, ' ').Trim();
         }
 
         // "restart" as a whole word, so that "needs a restart" and "restart the game" both match

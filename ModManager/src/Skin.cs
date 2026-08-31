@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ModManager
@@ -246,6 +247,56 @@ namespace ModManager
             style.normal.textColor = colour;
             GUI.Label(rect, content, style);
             style.normal.textColor = previous;
+        }
+
+        // Truncation is measured rather than estimated from a character count, because the font
+        // is proportional and a row of "Illlll" and a row of "WWWWWW" are nowhere near the same
+        // width. Cached because the same handful of rows are re-measured on every event.
+        private static readonly Dictionary<string, string> Elided = new Dictionary<string, string>();
+
+        public static void ClearTextCache()
+        {
+            Elided.Clear();
+        }
+
+        public static string Ellipsize(string text, GUIStyle style, float width)
+        {
+            if (string.IsNullOrEmpty(text) || width < 24f)
+                return string.Empty;
+
+            string key = ((int)width) + "\u0000" + text;
+            if (Elided.TryGetValue(key, out string cached))
+                return cached;
+
+            var content = new GUIContent(text);
+            string result = text;
+
+            if (style.CalcSize(content).x > width)
+            {
+                int low = 0;
+                int high = text.Length;
+
+                while (low < high)
+                {
+                    int mid = (low + high + 1) / 2;
+                    content.text = text.Substring(0, mid) + "\u2026";
+
+                    if (style.CalcSize(content).x <= width)
+                        low = mid;
+                    else
+                        high = mid - 1;
+                }
+
+                result = low <= 0 ? string.Empty : text.Substring(0, low).TrimEnd() + "\u2026";
+            }
+
+            // The panel can be resized by UiScale, so the key space is not fixed; a bound keeps
+            // this from growing without limit over a long session.
+            if (Elided.Count > 4000)
+                Elided.Clear();
+
+            Elided[key] = result;
+            return result;
         }
 
         private static Texture2D Solid(Color colour)

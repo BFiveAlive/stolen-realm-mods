@@ -19,7 +19,7 @@ namespace ModManager
     {
         public const string Guid = "bfivealive.stolenrealm.modmanager";
         public const string Name = "Mod Manager";
-        public const string Version = "0.1.1";
+        public const string Version = "0.2.0";
 
         internal static ManualLogSource Log;
         internal static Plugin Instance { get; private set; }
@@ -30,7 +30,7 @@ namespace ModManager
         // leaving the cursor unlocked in a game that wanted it captured.
         private bool previousCursorVisible;
         private CursorLockMode previousCursorLock;
-        private EventSystem suppressedEventSystem;
+        private BaseInputModule suppressedInputModule;
 
         private void Awake()
         {
@@ -57,6 +57,7 @@ namespace ModManager
             // A few seconds in, so a slow or unreachable network never delays the main menu.
             yield return new WaitForSeconds(4f);
             yield return UpdateService.Check();
+
 
             if (UpdateService.AnyUpdatesAvailable)
                 Log.LogMessage(UpdateService.Message + " Press " + ModConfig.ToggleKey.Value + " to review.");
@@ -153,27 +154,41 @@ namespace ModManager
                 Cursor.lockState = CursorLockMode.None;
         }
 
+        /// <summary>
+        /// Stops clicks on this panel also pressing whatever game UI is behind it.
+        ///
+        /// It is the input module that gets disabled, not the EventSystem. Disabling the
+        /// EventSystem component makes the static EventSystem.current null, and Stolen Realm's
+        /// GUIManager.PointerOverUIObject dereferences that without a null check from
+        /// CursorManager.Update - so suppressing the EventSystem threw once per frame, for every
+        /// frame the manager was open. Disabling the module leaves EventSystem.current valid
+        /// while still stopping every raycast and pointer event, which is all that was wanted.
+        /// </summary>
         private void SuppressEventSystem()
         {
             var current = EventSystem.current;
-            if (current == null || !current.enabled)
+            if (current == null)
                 return;
 
-            current.enabled = false;
-            suppressedEventSystem = current;
+            var module = current.currentInputModule;
+            if (module == null || !module.enabled)
+                return;
+
+            module.enabled = false;
+            suppressedInputModule = module;
         }
 
         private void RestoreEventSystem()
         {
-            if (suppressedEventSystem == null)
+            if (suppressedInputModule == null)
                 return;
 
             // Null-checked through Unity's overloaded operator: the object may have been destroyed
             // by a scene change while the window was open.
-            if (suppressedEventSystem)
-                suppressedEventSystem.enabled = true;
+            if (suppressedInputModule)
+                suppressedInputModule.enabled = true;
 
-            suppressedEventSystem = null;
+            suppressedInputModule = null;
         }
 
         internal void BeginUpdateCheck()

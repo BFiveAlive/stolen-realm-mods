@@ -3,38 +3,83 @@ using UnityEngine;
 namespace ModManager
 {
     /// <summary>
-    /// IMGUI styling, built once on first use.
+    /// IMGUI styling and the primitive rect painters the panel is drawn from.
     ///
     /// Unity's default IMGUI skin is the grey editor look and is close to unreadable over a dark
     /// game. These styles are deliberately plain rather than an attempt to imitate Stolen Realm's
     /// art: nothing here depends on a game asset, so a game update cannot break the panel.
+    ///
+    /// Everything is square-edged on purpose. Rounded corners in IMGUI mean a nine-slice texture
+    /// per corner radius, which is a pile of generated art to maintain for a visual detail; a 1px
+    /// border drawn as four thin rects reads nearly as well and costs nothing.
     /// </summary>
     internal static class Skin
     {
-        public const float FieldWidth = 230f;
-        public const float NumberBoxWidth = 64f;
-        public const float LabelWidth = 210f;
+        // --- palette ------------------------------------------------------------------------
+
+        public static readonly Color Backdrop   = new Color(0f, 0f, 0f, 0.55f);
+        public static readonly Color Panel      = new Color(0.098f, 0.110f, 0.141f, 0.98f);
+        public static readonly Color PanelHigh  = new Color(0.125f, 0.141f, 0.180f, 1f);
+        public static readonly Color Rail       = new Color(0.078f, 0.090f, 0.125f, 1f);
+        public static readonly Color RowAlt     = new Color(0.114f, 0.129f, 0.169f, 1f);
+        public static readonly Color RowHover   = new Color(0.153f, 0.173f, 0.220f, 1f);
+        public static readonly Color Selected   = new Color(0.200f, 0.251f, 0.353f, 1f);
+        public static readonly Color Line       = new Color(0.200f, 0.227f, 0.282f, 1f);
+        public static readonly Color Sunken     = new Color(0.055f, 0.063f, 0.086f, 1f);
+
+        public static readonly Color Ink        = new Color(0.914f, 0.906f, 0.886f);
+        public static readonly Color InkMuted   = new Color(0.596f, 0.627f, 0.690f);
+        public static readonly Color InkDim     = new Color(0.420f, 0.451f, 0.522f);
+        public static readonly Color Accent     = new Color(0.851f, 0.643f, 0.255f);
+        public static readonly Color Good       = new Color(0.435f, 0.749f, 0.451f);
+        public static readonly Color Bad        = new Color(0.878f, 0.400f, 0.400f);
+
+        // --- metrics (unscaled; GUI.matrix applies UiScale on top) ---------------------------
+
+        public const float TitleBarHeight  = 54f;
+        public const float SearchStrip     = 62f;
+        public const float FooterHeight    = 44f;
+        public const float RailWidth       = 306f;
+        public const float DetailWidth     = 404f;
+
+        public const float PluginRowHeight  = 52f;
+        public const float SectionRowHeight = 34f;
+
+        /// <summary>Uniform, because virtualising the list depends on a constant row pitch.</summary>
+        public const float ListRowHeight   = 44f;
+        public const float ResultRowHeight = 76f;
+
+        public const float ControlWidth    = 300f;
+        public const float NumberBoxWidth  = 74f;
+
+        // --- styles -------------------------------------------------------------------------
 
         public static GUIStyle Window;
-        public static GUIStyle Field;
-        public static GUIStyle Toggle;
-        public static GUIStyle Muted;
+        public static GUIStyle Title;
+        public static GUIStyle Subtitle;
+        public static GUIStyle TabLabel;
         public static GUIStyle Header;
-        public static GUIStyle SectionHeader;
-        public static GUIStyle Foldout;
-        public static GUIStyle Tab;
-        public static GUIStyle TabActive;
-        public static GUIStyle Badge;
+        public static GUIStyle SmallCaps;
+        public static GUIStyle RowName;
+        public static GUIStyle RowNameBold;
+        public static GUIStyle Value;
+        public static GUIStyle ValueRight;
+        public static GUIStyle Body;
+        public static GUIStyle Muted;
+        public static GUIStyle MutedRight;
         public static GUIStyle Warning;
-        public static GUIStyle SmallButton;
+        public static GUIStyle Field;
+        public static GUIStyle FieldPlaceholder;
+        public static GUIStyle Button;
+        public static GUIStyle ButtonQuiet;
+        public static GUIStyle Toggle;
+        public static GUIStyle Slider;
+        public static GUIStyle SliderThumb;
+        public static GUIStyle Badge;
         public static GUIStyle Row;
 
         private static bool built;
-
-        private static readonly Color Ink = new Color(0.88f, 0.87f, 0.83f);
-        private static readonly Color InkMuted = new Color(0.62f, 0.61f, 0.58f);
-        private static readonly Color Accent = new Color(0.85f, 0.72f, 0.42f);
-        private static readonly Color Alert = new Color(0.93f, 0.62f, 0.36f);
+        private static Texture2D white;
 
         public static void Build()
         {
@@ -42,106 +87,177 @@ namespace ModManager
                 return;
 
             built = true;
+            white = Solid(Color.white);
 
-            Window = new GUIStyle(GUI.skin.window)
+            Window = new GUIStyle(GUI.skin.box)
             {
-                padding = new RectOffset(14, 14, 26, 12)
+                padding = new RectOffset(0, 0, 0, 0),
+                border = new RectOffset(0, 0, 0, 0)
             };
-            Window.normal.background = Fill(new Color(0.09f, 0.09f, 0.10f, 0.97f));
+            Window.normal.background = Solid(Panel);
             Window.onNormal.background = Window.normal.background;
-            Window.normal.textColor = Ink;
-            Window.onNormal.textColor = Ink;
-            Window.fontStyle = FontStyle.Bold;
 
-            Field = new GUIStyle(GUI.skin.textField);
+            Title = Label(24, FontStyle.Bold, Ink);
+            Subtitle = Label(15, FontStyle.Normal, InkDim);
+            TabLabel = Label(17, FontStyle.Normal, InkMuted, TextAnchor.MiddleCenter);
+            Header = Label(21, FontStyle.Bold, Ink);
+            SmallCaps = Label(13, FontStyle.Bold, InkDim);
+
+            RowName = Label(17, FontStyle.Normal, Ink);
+            RowNameBold = Label(17, FontStyle.Bold, Ink);
+
+            Value = Label(15, FontStyle.Normal, InkMuted);
+            ValueRight = Label(15, FontStyle.Normal, InkMuted, TextAnchor.MiddleRight);
+
+            Body = Label(16, FontStyle.Normal, InkMuted);
+            Body.wordWrap = true;
+
+            Muted = Label(15, FontStyle.Normal, InkMuted);
+            Muted.wordWrap = true;
+
+            MutedRight = Label(15, FontStyle.Normal, InkDim, TextAnchor.MiddleRight);
+
+            Warning = Label(16, FontStyle.Normal, Accent);
+            Badge = Label(14, FontStyle.Normal, InkDim, TextAnchor.MiddleRight);
+
+            Field = new GUIStyle(GUI.skin.textField)
+            {
+                fontSize = 16,
+                padding = new RectOffset(9, 9, 5, 5),
+                alignment = TextAnchor.MiddleLeft
+            };
+            Field.normal.background = Solid(Sunken);
+            Field.focused.background = Field.normal.background;
+            Field.hover.background = Field.normal.background;
             Field.normal.textColor = Ink;
             Field.focused.textColor = Color.white;
+            Field.hover.textColor = Ink;
 
-            Toggle = new GUIStyle(GUI.skin.toggle);
+            FieldPlaceholder = new GUIStyle(Field);
+            FieldPlaceholder.normal.textColor = InkDim;
+
+            Button = new GUIStyle(GUI.skin.button)
+            {
+                fontSize = 15,
+                padding = new RectOffset(10, 10, 5, 5)
+            };
+            Button.normal.background = Solid(PanelHigh);
+            Button.hover.background = Solid(RowHover);
+            Button.active.background = Solid(Selected);
+            Button.normal.textColor = InkMuted;
+            Button.hover.textColor = Ink;
+            Button.active.textColor = Ink;
+
+            ButtonQuiet = new GUIStyle(Button) { fontSize = 14 };
+
+            Toggle = new GUIStyle(GUI.skin.toggle)
+            {
+                fontSize = 16
+            };
             Toggle.normal.textColor = InkMuted;
             Toggle.onNormal.textColor = Ink;
             Toggle.hover.textColor = Ink;
             Toggle.onHover.textColor = Ink;
 
-            Muted = new GUIStyle(GUI.skin.label)
-            {
-                wordWrap = true,
-                fontSize = 11
-            };
-            Muted.normal.textColor = InkMuted;
+            Slider = new GUIStyle(GUI.skin.horizontalSlider);
+            Slider.normal.background = Solid(new Color(0.208f, 0.235f, 0.298f));
+            Slider.fixedHeight = 8f;
 
-            Header = new GUIStyle(GUI.skin.label)
-            {
-                fontStyle = FontStyle.Bold,
-                fontSize = 14
-            };
-            Header.normal.textColor = Accent;
+            SliderThumb = new GUIStyle(GUI.skin.horizontalSliderThumb);
+            SliderThumb.normal.background = Solid(Accent);
+            SliderThumb.active.background = Solid(Color.white);
+            SliderThumb.hover.background = Solid(Color.Lerp(Accent, Color.white, 0.3f));
+            SliderThumb.fixedWidth = 14f;
+            SliderThumb.fixedHeight = 18f;
+            SliderThumb.border = new RectOffset(0, 0, 0, 0);
+            SliderThumb.overflow = new RectOffset(0, 0, 0, 0);
 
-            SectionHeader = new GUIStyle(GUI.skin.label)
-            {
-                fontStyle = FontStyle.Bold,
-                fontSize = 12,
-                margin = new RectOffset(8, 0, 8, 2)
-            };
-            SectionHeader.normal.textColor = InkMuted;
-
-            // A left-aligned button reads as a clickable header rather than as a control.
-            Foldout = new GUIStyle(GUI.skin.button)
-            {
-                alignment = TextAnchor.MiddleLeft,
-                fontStyle = FontStyle.Bold,
-                padding = new RectOffset(8, 8, 5, 5)
-            };
-            Foldout.normal.textColor = Ink;
-
-            Tab = new GUIStyle(GUI.skin.button)
-            {
-                padding = new RectOffset(16, 16, 6, 6)
-            };
-            Tab.normal.textColor = InkMuted;
-
-            TabActive = new GUIStyle(Tab)
-            {
-                fontStyle = FontStyle.Bold
-            };
-            TabActive.normal.textColor = Accent;
-            TabActive.normal.background = Fill(new Color(0.20f, 0.19f, 0.16f, 1f));
-
-            Badge = new GUIStyle(GUI.skin.label)
-            {
-                fontSize = 11,
-                alignment = TextAnchor.MiddleRight
-            };
-            Badge.normal.textColor = Accent;
-
-            Warning = new GUIStyle(GUI.skin.label)
-            {
-                wordWrap = true,
-                fontSize = 12
-            };
-            Warning.normal.textColor = Alert;
-
-            SmallButton = new GUIStyle(GUI.skin.button)
-            {
-                fontSize = 11,
-                padding = new RectOffset(8, 8, 3, 3)
-            };
-
+            // Used by the Updates tab, which is still laid out with GUILayout: a card background
+            // it can wrap a whole entry in.
             Row = new GUIStyle
             {
-                padding = new RectOffset(4, 4, 2, 2)
+                padding = new RectOffset(14, 14, 10, 10),
+                margin = new RectOffset(0, 0, 0, 6)
             };
+            Row.normal.background = Solid(RowAlt);
         }
 
-        private static Texture2D Fill(Color colour)
+        private static GUIStyle Label(int size, FontStyle weight, Color colour,
+            TextAnchor anchor = TextAnchor.MiddleLeft)
+        {
+            var style = new GUIStyle(GUI.skin.label)
+            {
+                fontSize = size,
+                fontStyle = weight,
+                alignment = anchor,
+                padding = new RectOffset(0, 0, 0, 0),
+                margin = new RectOffset(0, 0, 0, 0),
+                clipping = TextClipping.Clip
+            };
+
+            style.normal.textColor = colour;
+            style.hover.textColor = colour;
+            return style;
+        }
+
+        // --- painters -----------------------------------------------------------------------
+
+        /// <summary>Flat colour fill. Tinting one white texture avoids a texture per colour.</summary>
+        public static void Fill(Rect rect, Color colour)
+        {
+            var previous = GUI.color;
+            GUI.color = colour;
+            GUI.DrawTexture(rect, white);
+            GUI.color = previous;
+        }
+
+        public static void Frame(Rect rect, Color colour, float thickness = 1f)
+        {
+            Fill(new Rect(rect.x, rect.y, rect.width, thickness), colour);
+            Fill(new Rect(rect.x, rect.yMax - thickness, rect.width, thickness), colour);
+            Fill(new Rect(rect.x, rect.y, thickness, rect.height), colour);
+            Fill(new Rect(rect.xMax - thickness, rect.y, thickness, rect.height), colour);
+        }
+
+        public static void HLine(float x, float y, float width, Color colour)
+        {
+            Fill(new Rect(x, y, width, 1f), colour);
+        }
+
+        public static void VLine(float x, float y, float height, Color colour)
+        {
+            Fill(new Rect(x, y, 1f, height), colour);
+        }
+
+        /// <summary>The accent stripe that marks a selected rail entry.</summary>
+        public static void SelectionMarker(Rect rect)
+        {
+            Fill(rect, Selected);
+            Fill(new Rect(rect.x, rect.y, 4f, rect.height), Accent);
+        }
+
+        /// <summary>
+        /// A label drawn in a colour other than its style's, without permanently mutating the
+        /// shared style - the styles here are singletons, so assigning to one leaks everywhere.
+        /// </summary>
+        public static void Text(Rect rect, string content, GUIStyle style, Color colour)
+        {
+            var previous = style.normal.textColor;
+            style.normal.textColor = colour;
+            GUI.Label(rect, content, style);
+            style.normal.textColor = previous;
+        }
+
+        private static Texture2D Solid(Color colour)
         {
             var texture = new Texture2D(1, 1, TextureFormat.RGBA32, false);
             texture.SetPixel(0, 0, colour);
             texture.Apply();
 
-            // Unity destroys ordinary textures on scene load; this one has to outlive that or the
+            // Unity destroys ordinary textures on scene load; these have to outlive that or the
             // panel loses its background the first time the player enters a battle.
             texture.hideFlags = HideFlags.HideAndDontSave;
+            texture.wrapMode = TextureWrapMode.Clamp;
             return texture;
         }
     }

@@ -20,7 +20,7 @@ namespace ModManager
                      || UpdateService.Phase == UpdatePhase.Downloading;
 
             GUI.enabled = !busy;
-            if (GUILayout.Button("Check for updates", Skin.SmallButton, GUILayout.Width(150f)))
+            if (GUILayout.Button("Check for updates", Skin.Button, GUILayout.Width(190f)))
                 Plugin.Instance.BeginUpdateCheck();
             GUI.enabled = true;
 
@@ -70,9 +70,9 @@ namespace ModManager
 
             GUILayout.BeginHorizontal();
 
-            GUILayout.Label(status.DisplayName, Skin.Foldout, GUILayout.Width(240f));
+            GUILayout.Label(status.DisplayName, Skin.RowNameBold, GUILayout.Width(300f));
 
-            GUILayout.Label(VersionText(status), Skin.Muted, GUILayout.Width(180f));
+            GUILayout.Label(VersionText(status), Skin.Muted, GUILayout.Width(230f));
 
             GUILayout.FlexibleSpace();
 
@@ -101,9 +101,9 @@ namespace ModManager
         {
             if (status.Staged)
             {
-                GUILayout.Label("staged", Skin.Badge, GUILayout.Width(60f));
+                GUILayout.Label("staged", Skin.Badge, GUILayout.Width(78f));
 
-                if (GUILayout.Button("cancel", Skin.SmallButton, GUILayout.Width(64f)))
+                if (GUILayout.Button("cancel", Skin.ButtonQuiet, GUILayout.Width(88f)))
                     UpdateService.Unstage(status);
 
                 return;
@@ -117,7 +117,7 @@ namespace ModManager
                 // Re-downloading a current version is the standard way out of a corrupted install,
                 // so it stays available - just not as the obvious action.
                 GUI.enabled = !busy;
-                if (GUILayout.Button("reinstall", Skin.SmallButton, GUILayout.Width(80f)))
+                if (GUILayout.Button("reinstall", Skin.ButtonQuiet, GUILayout.Width(104f)))
                     Plugin.Instance.BeginDownload(status);
                 GUI.enabled = true;
                 return;
@@ -126,7 +126,7 @@ namespace ModManager
             GUI.enabled = !busy;
 
             string label = status.Installed ? "update" : "install";
-            if (GUILayout.Button(label, Skin.SmallButton, GUILayout.Width(80f)))
+            if (GUILayout.Button(label, Skin.ButtonQuiet, GUILayout.Width(104f)))
                 Plugin.Instance.BeginDownload(status);
 
             GUI.enabled = true;
@@ -134,12 +134,11 @@ namespace ModManager
 
         private static void DrawProgressBar(float progress)
         {
-            var rect = GUILayoutUtility.GetRect(100f, 6f, GUILayout.ExpandWidth(true));
+            var rect = GUILayoutUtility.GetRect(100f, 10f, GUILayout.ExpandWidth(true));
 
-            GUI.DrawTexture(rect, Texture2D.blackTexture, ScaleMode.StretchToFill);
-
-            var filled = new Rect(rect.x, rect.y, rect.width * Mathf.Clamp01(progress), rect.height);
-            GUI.DrawTexture(filled, Texture2D.whiteTexture, ScaleMode.StretchToFill);
+            Skin.Fill(rect, Skin.Sunken);
+            Skin.Fill(new Rect(rect.x, rect.y, rect.width * Mathf.Clamp01(progress), rect.height),
+                Skin.Accent);
         }
     }
 }

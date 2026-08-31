@@ -38,12 +38,23 @@ Press **F1** in game. Everything is drawn with IMGUI, so it works on the main me
 and anywhere else.
 
 - **Settings** lists every loaded BepInEx plugin's configuration, read straight from BepInEx's own
-  registry. A mod does not have to know this manager exists to appear here.
+  registry. A mod does not have to know this manager exists to appear here. Mods and their
+  sections are a rail down the left; the selected setting's description, default and range are in
+  a panel on the right.
+- **Search** (the box across the top) switches to a flat list of matches from every mod at once,
+  with the rail becoming a scope filter. Useful when you know the word but not which mod owns it.
 - **Updates** compares what's installed against `mods.json` in this repo, and downloads what you
   ask it to.
 
 A `↻` next to a setting means it only takes effect after restarting. Everything else applies
 immediately, provided the mod reads its config at the point of use.
+
+The panel fills most of the screen (`WindowFill`) and scales with `UiScale` — raise the latter if
+the text is still small on a high-DPI display.
+
+One mod binds 470 settings in a single section, so the list is virtualised: rows are drawn into
+absolute rects at a fixed pitch and only the ones on screen are built. That is also why the
+settings tab uses no GUILayout at all.
 
 ### Why updates need a restart
 

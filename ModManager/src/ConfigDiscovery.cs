@@ -19,6 +19,9 @@ namespace ModManager
 
         /// <summary>Stable identity for edit buffers, independent of list order.</summary>
         public string Id;
+
+        /// <summary>The plugin this setting belongs to, for the search results' breadcrumb.</summary>
+        public PluginSettings Owner;
     }
 
     internal sealed class PluginSettings
@@ -124,7 +127,8 @@ namespace ModManager
                     Key = entry.Definition.Key,
                     Description = description ?? string.Empty,
                     RequiresRestart = DetectRequiresRestart(entry),
-                    Id = settings.Guid + "|" + entry.Definition.Section + "|" + entry.Definition.Key
+                    Id = settings.Guid + "|" + entry.Definition.Section + "|" + entry.Definition.Key,
+                    Owner = settings
                 };
 
                 settings.Rows.Add(row);

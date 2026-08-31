@@ -42,3 +42,6 @@ strings.txt
 *.suo
 Thumbs.db
 desktop.ini
+
+# UI design mockups (scratch work, not part of any mod)
+mockups/

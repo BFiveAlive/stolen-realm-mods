@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using BepInEx.Configuration;
 using UnityEngine;
 
@@ -10,7 +9,13 @@ namespace ModManager
     /// <summary>
     /// Draws the editing widget for one setting, chosen from its runtime type.
     ///
-    /// The important property here is that an unrecognised type still gets an editor. BepInEx can
+    /// Everything here draws into an explicit <see cref="Rect"/> rather than through GUILayout.
+    /// The settings list is virtualised - only the rows actually on screen are drawn - and that is
+    /// only possible with a constant row pitch and absolute positioning. It also sidesteps
+    /// GUILayout's Layout/Repaint control pairing entirely, which is what used to make a list
+    /// whose length changed mid-frame throw.
+    ///
+    /// The important property is that an unrecognised type still gets an editor. BepInEx can
     /// round-trip any setting it was able to write to disk through <c>GetSerializedValue</c> and
     /// <c>SetSerializedValue</c>, so the fallback is a text box over the same TOML representation
     /// the .cfg file holds. A future mod using a type this file has never heard of is editable,
@@ -36,8 +41,14 @@ namespace ModManager
             listeningFor = null;
         }
 
-        public static void Draw(SettingRow row)
+        private const float ControlHeight = 28f;
+
+        /// <summary>Draws the editor for <paramref name="row"/> centred inside <paramref name="area"/>.</summary>
+        public static void Draw(Rect area, SettingRow row)
         {
+            var rect = new Rect(area.x, area.y + (area.height - ControlHeight) / 2f,
+                area.width, ControlHeight);
+
             var entry = row.Entry;
             var type = entry.SettingType;
 
@@ -48,51 +59,53 @@ namespace ModManager
             }
             catch (Exception e)
             {
-                GUILayout.Label("<unreadable: " + e.Message + ">", Skin.Muted);
+                Skin.Text(rect, "<unreadable: " + e.Message + ">", Skin.Value, Skin.Bad);
                 return;
             }
 
             if (type == typeof(bool))
             {
-                DrawBool(row, (bool)current);
+                DrawBool(rect, row, (bool)current);
                 return;
             }
 
             if (type == typeof(KeyboardShortcut))
             {
-                DrawShortcut(row, (KeyboardShortcut)current);
+                DrawShortcut(rect, row, (KeyboardShortcut)current);
                 return;
             }
 
             if (type.IsEnum)
             {
-                DrawEnum(row, type, current);
+                DrawEnum(rect, row, type, current);
                 return;
             }
 
             if (IsNumeric(type))
             {
-                DrawNumeric(row, type, current);
+                DrawNumeric(rect, row, type, current);
                 return;
             }
 
             if (type == typeof(string))
             {
-                DrawString(row, (string)current);
+                DrawString(rect, row, (string)current);
                 return;
             }
 
-            DrawSerialized(row);
+            DrawSerialized(rect, row);
         }
 
-        private static void DrawBool(SettingRow row, bool value)
+        private static void DrawBool(Rect rect, SettingRow row, bool value)
         {
-            bool next = GUILayout.Toggle(value, value ? " on" : " off", Skin.Toggle, GUILayout.Width(Skin.FieldWidth));
+            var box = new Rect(rect.x, rect.y, Mathf.Min(rect.width, 120f), rect.height);
+
+            bool next = GUI.Toggle(box, value, value ? "  on" : "  off", Skin.Toggle);
             if (next != value)
                 ConfigWriter.Set(row, next);
         }
 
-        private static void DrawShortcut(SettingRow row, KeyboardShortcut value)
+        private static void DrawShortcut(Rect rect, SettingRow row, KeyboardShortcut value)
         {
             bool listening = listeningFor == row.Id;
 
@@ -121,51 +134,41 @@ namespace ModManager
                 GUI.changed = true;
             }
 
-            string label = listening ? "press a key (esc cancels)" : value.ToString();
+            string label = listening ? "press a key  (esc cancels)" : value.ToString();
 
-            if (GUILayout.Button(label, Skin.Field, GUILayout.Width(Skin.FieldWidth)))
+            if (GUI.Button(rect, label, Skin.Button))
                 listeningFor = listening ? null : row.Id;
         }
 
-        private static bool IsModifier(KeyCode key)
-        {
-            return key == KeyCode.LeftControl || key == KeyCode.RightControl
-                || key == KeyCode.LeftAlt || key == KeyCode.RightAlt
-                || key == KeyCode.LeftShift || key == KeyCode.RightShift
-                || key == KeyCode.LeftCommand || key == KeyCode.RightCommand;
-        }
-
-        private static void DrawEnum(SettingRow row, Type type, object current)
+        private static void DrawEnum(Rect rect, SettingRow row, Type type, object current)
         {
             // [Flags] enums are a set rather than a choice, and a row of toggles for one is wider
-            // than the panel. The serialized form BepInEx already uses ("A, B, C") is both
+            // than the column. The serialized form BepInEx already uses ("A, B, C") is both
             // compact and exactly what the .cfg file contains.
             if (type.IsDefined(typeof(FlagsAttribute), false))
             {
-                DrawSerialized(row);
-                return;
-            }
-
-            var values = Enum.GetValues(type);
-
-            // KeyCode has several hundred members; a selection grid of those is unusable.
-            if (values.Length > 12)
-            {
-                DrawSerialized(row);
+                DrawSerialized(rect, row);
                 return;
             }
 
             var names = Enum.GetNames(type);
-            int index = Array.IndexOf(names, current != null ? current.ToString() : string.Empty);
 
-            int columns = names.Length <= 4 ? names.Length : 3;
-            int next = GUILayout.SelectionGrid(index, names, columns, Skin.Field, GUILayout.Width(Skin.FieldWidth));
+            // KeyCode has several hundred members; a selection grid of those is unusable, and a
+            // grid of more than a handful no longer fits the control column at a legible size.
+            if (names.Length > 6)
+            {
+                DrawSerialized(rect, row);
+                return;
+            }
+
+            int index = Array.IndexOf(names, current != null ? current.ToString() : string.Empty);
+            int next = GUI.SelectionGrid(rect, index, names, names.Length, Skin.Button);
 
             if (next != index && next >= 0 && next < names.Length)
                 ConfigWriter.Set(row, Enum.Parse(type, names[next]));
         }
 
-        private static void DrawNumeric(SettingRow row, Type type, object current)
+        private static void DrawNumeric(Rect rect, SettingRow row, Type type, object current)
         {
             var range = row.Entry.Description != null
                 ? row.Entry.Description.AcceptableValues as AcceptableValueBase
@@ -175,10 +178,11 @@ namespace ModManager
             {
                 double value = Convert.ToDouble(current, CultureInfo.InvariantCulture);
 
-                GUILayout.BeginHorizontal(GUILayout.Width(Skin.FieldWidth));
+                float trackWidth = rect.width - Skin.NumberBoxWidth - 10f;
+                var track = new Rect(rect.x, rect.y + (rect.height - 18f) / 2f, trackWidth, 18f);
 
-                float slid = GUILayout.HorizontalSlider((float)value, (float)min, (float)max,
-                    GUILayout.Width(Skin.FieldWidth - Skin.NumberBoxWidth - 8f));
+                float slid = GUI.HorizontalSlider(track, (float)value, (float)min, (float)max,
+                    Skin.Slider, Skin.SliderThumb);
 
                 // An integer slider must land on integers, and float comparison needs a tolerance
                 // wider than the slider's own pixel quantisation to avoid writing every frame.
@@ -188,26 +192,31 @@ namespace ModManager
                 if (Math.Abs(candidate - value) > epsilon)
                 {
                     ConfigWriter.Set(row, ConvertTo(type, candidate));
+
                     // The slider is now authoritative, so drop any stale text being typed.
                     Buffers.Remove(row.Id);
                     BufferSource.Remove(row.Id);
                 }
 
-                DrawNumberBox(row, type, Skin.NumberBoxWidth);
-
-                GUILayout.EndHorizontal();
+                DrawNumberBox(new Rect(rect.xMax - Skin.NumberBoxWidth, rect.y,
+                    Skin.NumberBoxWidth, rect.height), row, type);
                 return;
             }
 
-            DrawNumberBox(row, type, Skin.FieldWidth);
+            DrawNumberBox(new Rect(rect.x, rect.y, Mathf.Min(rect.width, 150f), rect.height),
+                row, type);
         }
 
-        private static void DrawNumberBox(SettingRow row, Type type, float width)
+        private static void DrawNumberBox(Rect rect, SettingRow row, Type type)
         {
             string canonical = FormatNumber(row.Entry.BoxedValue);
             string buffer = SyncBuffer(row.Id, canonical);
 
-            string typed = GUILayout.TextField(buffer, Skin.Field, GUILayout.Width(width));
+            // Named so focus follows the setting rather than the draw order: rows scroll in and
+            // out of the virtualised list, which shifts every unnamed control's id underneath a
+            // box that is being typed into.
+            GUI.SetNextControlName(row.Id);
+            string typed = GUI.TextField(rect, buffer, Skin.Field);
 
             if (typed == buffer)
                 return;
@@ -224,12 +233,13 @@ namespace ModManager
             }
         }
 
-        private static void DrawString(SettingRow row, string value)
+        private static void DrawString(Rect rect, SettingRow row, string value)
         {
             string canonical = value ?? string.Empty;
             string buffer = SyncBuffer(row.Id, canonical);
 
-            string typed = GUILayout.TextField(buffer, Skin.Field, GUILayout.Width(Skin.FieldWidth));
+            GUI.SetNextControlName(row.Id);
+            string typed = GUI.TextField(rect, buffer, Skin.Field);
 
             if (typed == buffer)
                 return;
@@ -242,7 +252,7 @@ namespace ModManager
         /// <summary>
         /// The universal fallback: edit the setting in the exact TOML form the .cfg file stores.
         /// </summary>
-        private static void DrawSerialized(SettingRow row)
+        private static void DrawSerialized(Rect rect, SettingRow row)
         {
             string canonical;
             try
@@ -251,13 +261,14 @@ namespace ModManager
             }
             catch (Exception e)
             {
-                GUILayout.Label("<not editable: " + e.Message + ">", Skin.Muted);
+                Skin.Text(rect, "<not editable: " + e.Message + ">", Skin.Value, Skin.Bad);
                 return;
             }
 
             string buffer = SyncBuffer(row.Id, canonical);
 
-            string typed = GUILayout.TextField(buffer, Skin.Field, GUILayout.Width(Skin.FieldWidth));
+            GUI.SetNextControlName(row.Id);
+            string typed = GUI.TextField(rect, buffer, Skin.Field);
 
             if (typed == buffer)
                 return;
@@ -295,6 +306,45 @@ namespace ModManager
             Buffers[id] = canonical;
             BufferSource[id] = canonical;
             return canonical;
+        }
+
+        /// <summary>Human-readable current value, for the detail panel and the About list.</summary>
+        public static string Format(object value)
+        {
+            if (value == null)
+                return "(none)";
+
+            if (value is string s)
+                return s.Length == 0 ? "(empty)" : s;
+
+            if (value is bool b)
+                return b ? "on" : "off";
+
+            return FormatNumber(value);
+        }
+
+        public static bool TryDescribeRange(SettingRow row, out string text)
+        {
+            text = null;
+
+            var acceptable = row.Entry.Description != null
+                ? row.Entry.Description.AcceptableValues as AcceptableValueBase
+                : null;
+
+            if (!TryGetRange(acceptable, out double min, out double max))
+                return false;
+
+            text = min.ToString("0.####", CultureInfo.InvariantCulture) + "  to  "
+                 + max.ToString("0.####", CultureInfo.InvariantCulture);
+            return true;
+        }
+
+        private static bool IsModifier(KeyCode key)
+        {
+            return key == KeyCode.LeftControl || key == KeyCode.RightControl
+                || key == KeyCode.LeftAlt || key == KeyCode.RightAlt
+                || key == KeyCode.LeftShift || key == KeyCode.RightShift
+                || key == KeyCode.LeftCommand || key == KeyCode.RightCommand;
         }
 
         private static bool TryGetRange(AcceptableValueBase acceptable, out double min, out double max)

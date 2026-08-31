@@ -12,6 +12,7 @@ namespace ModManager
     {
         public static ConfigEntry<KeyboardShortcut> ToggleKey;
         public static ConfigEntry<float> UiScale;
+        public static ConfigEntry<float> WindowFill;
         public static ConfigEntry<bool> UnlockCursorWhileOpen;
         public static ConfigEntry<bool> BlockGameUiWhileOpen;
 
@@ -37,8 +38,15 @@ namespace ModManager
 
             UiScale = cfg.Bind("General", "UiScale", 1.0f,
                 new ConfigDescription(
-                    "Size of the manager window and its text. Raise it on a 4K display.",
+                    "Scales the whole panel, text included. Raise it on a 4K display, or if the " +
+                    "text is still too small at 1.",
                     new AcceptableValueRange<float>(0.6f, 2.5f)));
+
+            WindowFill = cfg.Bind("General", "WindowFill", 0.94f,
+                new ConfigDescription(
+                    "How much of the screen the manager window covers, as a fraction. 1 is edge " +
+                    "to edge. The window is always centred.",
+                    new AcceptableValueRange<float>(0.5f, 1f)));
 
             UnlockCursorWhileOpen = cfg.Bind("General", "UnlockCursorWhileOpen", true,
                 "Force the mouse cursor visible and unlocked while the manager is open, and put " +

@@ -13,31 +13,30 @@ namespace ModManager
     }
 
     /// <summary>
-    /// The manager panel itself. Everything is drawn with IMGUI, which means it needs nothing
-    /// from the game's own UI: it works on the main menu, mid-battle, and on a screen where no
-    /// game canvas exists yet.
+    /// The window shell: the frame, the title bar and the top-level tabs. The Settings tab's
+    /// contents live in <see cref="SettingsBrowser"/>.
+    ///
+    /// Everything is drawn with IMGUI, which means it needs nothing from the game's own UI: it
+    /// works on the main menu, mid-battle, and on a screen where no game canvas exists yet. The
+    /// window fills most of the screen and is fixed there rather than being draggable - at this
+    /// size there is nowhere useful to drag it to, and not having a drag region removes a whole
+    /// class of "the click went to the wrong place" bug.
     /// </summary>
     internal static class ManagerWindow
     {
         private const int WindowId = 0x5A1E;
 
-        private static Rect windowRect = new Rect(80f, 60f, 720f, 620f);
-        private static Vector2 scroll;
-        private static string search = string.Empty;
         private static Tab tab = Tab.Settings;
-
-        private static readonly HashSet<string> Collapsed = new HashSet<string>();
-
-        private static List<PluginSettings> plugins;
 
         /// <summary>
         /// Structural changes waiting for the next Layout event.
         ///
-        /// IMGUI lays out on the Layout event and reuses that layout for Repaint. A click arrives
-        /// on its own event in between, so acting on one immediately - collapsing a section,
-        /// switching tab - changes how many controls the next Repaint draws and Unity throws
-        /// "Getting control N's position in a group with only M controls". Queueing the change and
-        /// applying it at the top of the next Layout keeps every pass of a frame consistent.
+        /// The Settings tab is drawn with absolute rects and needs none of this, but the Updates
+        /// tab still uses GUILayout: IMGUI lays out on the Layout event and reuses that layout for
+        /// Repaint, so switching tab on the click event in between would change how many controls
+        /// the next Repaint draws and Unity throws "Getting control N's position in a group with
+        /// only M controls". Queueing the change and applying it at the top of the next Layout
+        /// keeps every pass of a frame consistent.
         /// </summary>
         private static readonly List<Action> Deferred = new List<Action>();
 
@@ -49,8 +48,7 @@ namespace ModManager
         /// <summary>Rebuilt on open rather than every frame; the loaded plugin set cannot change.</summary>
         public static void Refresh()
         {
-            plugins = ConfigDiscovery.Collect();
-            EntryDrawer.ClearTransientState();
+            SettingsBrowser.Refresh();
         }
 
         public static void Draw()
@@ -60,20 +58,27 @@ namespace ModManager
             float scale = Mathf.Clamp(ModConfig.UiScale.Value, 0.6f, 2.5f);
 
             // Scaling the whole GUI matrix keeps every control crisp and consistent. The window
-            // rect is in the scaled space afterwards, so it is clamped against the scaled screen.
+            // rect is in the scaled space afterwards, so it is sized against the scaled screen.
             var previousMatrix = GUI.matrix;
             GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(scale, scale, 1f));
 
             float maxWidth = Screen.width / scale;
             float maxHeight = Screen.height / scale;
 
-            windowRect.width = Mathf.Min(windowRect.width, maxWidth - 20f);
-            windowRect.height = Mathf.Min(windowRect.height, maxHeight - 20f);
-            windowRect.x = Mathf.Clamp(windowRect.x, -windowRect.width + 120f, maxWidth - 120f);
-            windowRect.y = Mathf.Clamp(windowRect.y, 0f, maxHeight - 60f);
+            // Dims the game behind the panel so the text on top of it stays legible whatever is
+            // on screen. DrawTexture does not take input, so this cannot swallow a click.
+            Skin.Fill(new Rect(0f, 0f, maxWidth, maxHeight), Skin.Backdrop);
 
-            windowRect = GUILayout.Window(WindowId, windowRect, DrawContents,
-                "Stolen Realm Mods", Skin.Window);
+            float fill = Mathf.Clamp(ModConfig.WindowFill.Value, 0.5f, 1f);
+            float width = maxWidth * fill;
+            float height = maxHeight * fill;
+
+            var rect = new Rect((maxWidth - width) / 2f, (maxHeight - height) / 2f, width, height);
+
+            windowWidth = rect.width;
+            windowHeight = rect.height;
+
+            GUI.Window(WindowId, rect, DrawContents, GUIContent.none, Skin.Window);
 
             GUI.matrix = previousMatrix;
         }
@@ -88,270 +93,153 @@ namespace ModManager
                 Deferred.Clear();
             }
 
-            DrawTabs();
+            var window = new Rect(0f, 0f, windowWidth, windowHeight);
 
-            GUILayout.Space(6f);
+            Skin.Frame(window, Skin.Line);
+
+            var title = new Rect(0f, 0f, window.width, Skin.TitleBarHeight);
+            DrawTitleBar(title);
+
+            var body = new Rect(0f, title.yMax, window.width, window.height - title.height);
 
             switch (tab)
             {
                 case Tab.Settings:
-                    DrawSettings();
+                    SettingsBrowser.Draw(body);
                     break;
+
                 case Tab.Updates:
+                    // UpdatesTab scrolls itself, so this only gives it a padded region to
+                    // lay out inside.
+                    GUILayout.BeginArea(new Rect(body.x + 24f, body.y + 18f,
+                        body.width - 48f, body.height - 36f));
                     UpdatesTab.Draw();
+                    GUILayout.EndArea();
                     break;
+
                 default:
-                    DrawAbout();
+                    DrawAbout(body);
                     break;
             }
-
-            // Last, so it never steals a click from a control drawn above it.
-            GUI.DragWindow(new Rect(0f, 0f, windowRect.width, 24f));
         }
 
-        private static void DrawTabs()
+        // GUI.Window gives the callback window-relative coordinates but not the size, so it is
+        // stashed when the rect is computed rather than recomputed from Screen here (which would
+        // be wrong on the frame the resolution changes).
+        private static float windowWidth;
+        private static float windowHeight;
+
+        private static void DrawTitleBar(Rect area)
         {
-            GUILayout.BeginHorizontal();
+            Skin.Fill(area, Skin.PanelHigh);
+            Skin.HLine(area.x, area.yMax - 1f, area.width, Skin.Line);
+            Skin.Fill(new Rect(area.x, area.y, 5f, area.height), Skin.Accent);
 
-            DrawTabButton(Tab.Settings, "Settings");
+            Skin.Text(new Rect(area.x + 22f, area.y, 320f, area.height),
+                "Stolen Realm Mods", Skin.Title, Skin.Ink);
 
-            int available = UpdateService.Statuses.Count(s => s.UpdateAvailable);
-            DrawTabButton(Tab.Updates, available > 0 ? "Updates (" + available + ")" : "Updates");
+            Skin.Text(new Rect(area.x + 262f, area.y, 360f, area.height),
+                Summary(), Skin.Subtitle, Skin.InkDim);
 
-            DrawTabButton(Tab.About, "About");
+            float x = area.xMax - 60f;
 
-            GUILayout.FlexibleSpace();
-
-            if (GUILayout.Button("Close", Skin.SmallButton, GUILayout.Width(64f)))
+            var close = new Rect(x, area.y + 12f, 40f, 30f);
+            if (GUI.Button(close, "✕", Skin.Button))
                 Plugin.Instance.CloseWindow();
 
-            GUILayout.EndHorizontal();
+            x -= 10f;
+
+            int available = UpdateService.Statuses.Count(s => s.UpdateAvailable);
+
+            x = DrawTab(x, area, Tab.About, "About", 92f);
+            x = DrawTab(x, area, Tab.Updates,
+                available > 0 ? "Updates (" + available + ")" : "Updates", 132f);
+            DrawTab(x, area, Tab.Settings, "Settings", 108f);
         }
 
-        private static void DrawTabButton(Tab target, string label)
+        private static float DrawTab(float right, Rect bar, Tab target, string label, float width)
         {
-            var style = tab == target ? Skin.TabActive : Skin.Tab;
-            if (GUILayout.Button(label, style, GUILayout.Width(120f)))
+            var rect = new Rect(right - width, bar.y + 10f, width, bar.height - 20f);
+            bool active = tab == target;
+
+            if (active)
+            {
+                Skin.Fill(rect, Skin.Panel);
+                Skin.Fill(new Rect(rect.x, rect.yMax - 3f, rect.width, 3f), Skin.Accent);
+            }
+
+            Skin.Text(rect, label, Skin.TabLabel, active ? Skin.Ink : Skin.InkMuted);
+
+            var e = Event.current;
+            if (e != null && e.type == EventType.MouseDown && e.button == 0 && rect.Contains(e.mousePosition))
+            {
                 Defer(() => tab = target);
+                e.Use();
+            }
+
+            return rect.x - 6f;
         }
 
-        private static void DrawSettings()
+        private static string Summary()
         {
-            if (plugins == null)
-                Refresh();
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Search", Skin.Muted, GUILayout.Width(44f));
-            // Deferred like every other structural change: the set of rows below depends on this
-            // text, so applying a keystroke immediately would resize the layout mid-frame. The
-            // text box keeps its own editing state, so the one-frame lag is not visible.
-            string typed = GUILayout.TextField(search ?? string.Empty, Skin.Field);
-            if (typed != search)
-                Defer(() => search = typed);
-
-            if (GUILayout.Button("clear", Skin.SmallButton, GUILayout.Width(50f)))
-            {
-                Defer(() => search = string.Empty);
-                GUI.FocusControl(null);
-            }
-            GUILayout.EndHorizontal();
-
-            GUILayout.Space(4f);
-
-            scroll = GUILayout.BeginScrollView(scroll);
-
-            bool anyShown = false;
-
-            foreach (var plugin in plugins)
-            {
-                var matching = Filter(plugin);
-                if (matching.Count == 0)
-                    continue;
-
-                anyShown = true;
-                DrawPlugin(plugin, matching);
-            }
-
-            if (!anyShown)
-            {
-                GUILayout.Space(12f);
-                GUILayout.Label(string.IsNullOrEmpty(search)
-                        ? "No loaded mod exposes any settings."
-                        : "Nothing matches \"" + search + "\".",
-                    Skin.Muted);
-            }
-
-            GUILayout.EndScrollView();
-
-            DrawRestartBanner();
+            int mods = BepInEx.Bootstrap.Chainloader.PluginInfos.Count;
+            return mods + (mods == 1 ? " mod loaded" : " mods loaded");
         }
 
-        /// <summary>
-        /// Rows matching the search box. A plugin whose own name matches shows all of its
-        /// settings, so searching for a mod by name is a way to isolate it.
-        /// </summary>
-        private static List<SettingRow> Filter(PluginSettings plugin)
+        private static void DrawAbout(Rect area)
         {
-            if (string.IsNullOrEmpty(search))
-                return plugin.Rows;
+            float x = area.x + 26f;
+            float width = area.width - 52f;
+            float y = area.y + 22f;
 
-            string needle = search.Trim();
+            Skin.Text(new Rect(x, y, width, 30f), "Stolen Realm Mod Manager " + Plugin.Version,
+                Skin.Header, Skin.Ink);
+            y += 38f;
 
-            if (plugin.Name.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0)
-                return plugin.Rows;
-
-            return plugin.Rows.Where(r =>
-                r.Key.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0
-                || r.Section.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0
-                || r.Description.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
-        }
-
-        private static void DrawPlugin(PluginSettings plugin, List<SettingRow> rows)
-        {
-            bool collapsed = Collapsed.Contains(plugin.Guid);
-
-            GUILayout.Space(8f);
-            GUILayout.BeginHorizontal();
-
-            if (GUILayout.Button((collapsed ? "▶  " : "▼  ") + plugin.Name, Skin.Foldout))
-            {
-                Defer(() =>
-                {
-                    if (collapsed) Collapsed.Remove(plugin.Guid);
-                    else Collapsed.Add(plugin.Guid);
-                });
-            }
-
-            GUILayout.Label("v" + plugin.Version, Skin.Badge, GUILayout.Width(70f));
-            GUILayout.EndHorizontal();
-
-            if (collapsed)
-                return;
-
-            // Sections are only worth a heading when there is more than one to tell apart.
-            var sections = rows.GroupBy(r => r.Section).ToList();
-            bool showSectionHeaders = sections.Count > 1;
-
-            foreach (var section in sections)
-            {
-                if (showSectionHeaders)
-                    GUILayout.Label(section.Key, Skin.SectionHeader);
-
-                foreach (var row in section)
-                    DrawRow(row);
-            }
-
-            GUILayout.Space(2f);
-            GUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-            if (GUILayout.Button("Reset " + plugin.Name + " to defaults", Skin.SmallButton))
-            {
-                Defer(() =>
-                {
-                    foreach (var row in plugin.Rows)
-                        ConfigWriter.Reset(row);
-
-                    EntryDrawer.ClearTransientState();
-                });
-            }
-            GUILayout.EndHorizontal();
-        }
-
-        private static void DrawRow(SettingRow row)
-        {
-            GUILayout.BeginVertical(Skin.Row);
-            GUILayout.BeginHorizontal();
-
-            string label = row.RequiresRestart ? row.Key + " ↻" : row.Key;
-            GUILayout.Label(label, GUILayout.Width(Skin.LabelWidth));
-
-            EntryDrawer.Draw(row);
-
-            GUILayout.FlexibleSpace();
-
-            // Always drawn, only disabled at its default value. Showing and hiding it would
-            // change the control count in the same frame as the edit that triggered it, which is
-            // the layout mismatch this window is careful to avoid everywhere else.
-            GUI.enabled = !Equals(SafeValue(row), row.Entry.DefaultValue);
-
-            if (GUILayout.Button("reset", Skin.SmallButton, GUILayout.Width(52f)))
-            {
-                Defer(() =>
-                {
-                    ConfigWriter.Reset(row);
-                    EntryDrawer.ClearTransientState();
-                });
-            }
-
-            GUI.enabled = true;
-
-            GUILayout.EndHorizontal();
-
-            if (!string.IsNullOrEmpty(row.Description))
-            {
-                GUILayout.Space(1f);
-                GUILayout.Label(row.Description, Skin.Muted);
-            }
-
-            GUILayout.EndVertical();
-        }
-
-        private static object SafeValue(SettingRow row)
-        {
-            try
-            {
-                return row.Entry.BoxedValue;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        private static void DrawRestartBanner()
-        {
-            int count = ConfigWriter.ChangedRequiringRestart.Count;
-
-            GUILayout.Space(4f);
-            GUILayout.Label(count == 0
-                    ? string.Empty
-                    : "↻  " + count + " changed setting(s) only take effect after restarting the game.",
-                Skin.Warning);
-        }
-
-        private static void DrawAbout()
-        {
-            GUILayout.Space(6f);
-            GUILayout.Label("Stolen Realm Mod Manager " + Plugin.Version, Skin.Header);
-            GUILayout.Space(6f);
-
-            GUILayout.Label(
+            y = Paragraph(x, y, width,
                 "Settings are read straight from BepInEx, so every loaded mod that binds its "
                 + "configuration the normal way appears here without needing to know about this "
-                + "manager at all.",
-                Skin.Muted);
+                + "manager at all.");
 
-            GUILayout.Space(6f);
-            GUILayout.Label("↻ marks a setting that only takes effect after a restart. "
-                + "Everything else applies as soon as you change it, provided the mod reads its "
-                + "config at the point of use.", Skin.Muted);
+            y = Paragraph(x, y, width,
+                "↻ marks a setting that only takes effect after a restart. Everything else "
+                + "applies as soon as you change it, provided the mod reads its config at the "
+                + "point of use.");
 
-            GUILayout.Space(10f);
-            GUILayout.Label("Loaded plugins", Skin.SectionHeader);
+            y = Paragraph(x, y, width,
+                "Updates are downloaded to a staging folder and put in place during the next "
+                + "launch, before any mod is loaded. A running assembly cannot be replaced, so "
+                + "there is no way to finish an update without restarting.");
 
-            foreach (var pair in BepInEx.Bootstrap.Chainloader.PluginInfos.Values
+            y += 10f;
+            Skin.Text(new Rect(x, y, width, 22f), "LOADED PLUGINS", Skin.SmallCaps, Skin.InkDim);
+            y += 26f;
+
+            foreach (var info in BepInEx.Bootstrap.Chainloader.PluginInfos.Values
                          .OrderBy(p => p.Metadata.Name, StringComparer.OrdinalIgnoreCase))
             {
-                GUILayout.BeginHorizontal();
-                GUILayout.Label(pair.Metadata.Name, GUILayout.Width(260f));
-                GUILayout.Label("v" + pair.Metadata.Version, Skin.Muted, GUILayout.Width(70f));
-                GUILayout.Label(pair.Metadata.GUID, Skin.Muted);
-                GUILayout.EndHorizontal();
+                Skin.Text(new Rect(x, y, 300f, 24f), info.Metadata.Name, Skin.RowName, Skin.Ink);
+                Skin.Text(new Rect(x + 310f, y, 90f, 24f), "v" + info.Metadata.Version,
+                    Skin.Value, Skin.InkMuted);
+                Skin.Text(new Rect(x + 410f, y, width - 410f, 24f), info.Metadata.GUID,
+                    Skin.Value, Skin.InkDim);
+                y += 26f;
             }
 
-            GUILayout.Space(10f);
-            GUILayout.Label("Config files: " + BepInEx.Paths.ConfigPath, Skin.Muted);
-            GUILayout.Label("Log: " + System.IO.Path.Combine(BepInEx.Paths.BepInExRootPath, "LogOutput.log"), Skin.Muted);
+            y += 14f;
+            Skin.Text(new Rect(x, y, width, 22f),
+                "Config files: " + BepInEx.Paths.ConfigPath, Skin.Value, Skin.InkDim);
+            y += 24f;
+            Skin.Text(new Rect(x, y, width, 22f),
+                "Log: " + System.IO.Path.Combine(BepInEx.Paths.BepInExRootPath, "LogOutput.log"),
+                Skin.Value, Skin.InkDim);
+        }
+
+        private static float Paragraph(float x, float y, float width, string text)
+        {
+            float height = Skin.Body.CalcHeight(new GUIContent(text), width);
+            GUI.Label(new Rect(x, y, width, height), text, Skin.Body);
+            return y + height + 14f;
         }
     }
 }

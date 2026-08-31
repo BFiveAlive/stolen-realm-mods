@@ -85,7 +85,48 @@ namespace ModManager
                     result.Add(settings);
             }
 
-            return result.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase).ToList();
+            var ordered = result
+                .OrderBy(RailRank)
+                .ThenBy(p => p.Name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            // Logged here rather than as each is built, so the log shows the order the rail will
+            // actually present - which is the part worth checking when something looks wrong.
+            if (ModConfig.VerboseLogging.Value)
+            {
+                for (int i = 0; i < ordered.Count; i++)
+                {
+                    Plugin.Log.LogInfo(string.Format("rail[{0}] {1} ({2}): {3} settings in {4} section(s)",
+                        i, ordered[i].Name, ordered[i].Guid,
+                        ordered[i].Rows.Count, ordered[i].Sections.Count));
+                }
+            }
+
+            return ordered;
+        }
+
+        /// <summary>
+        /// A curated order for the mods in this repo, rather than alphabetical.
+        ///
+        /// The list reads as "the mods that change the game, then the thing that manages them":
+        /// anything not named here sorts alphabetically after the known mods but still above the
+        /// manager, so a new mod appears in a sensible place without this list being updated. An
+        /// unrecognised GUID is a normal case, not a missing entry - the manager is meant to work
+        /// with mods it has never heard of.
+        /// </summary>
+        private static int RailRank(PluginSettings plugin)
+        {
+            switch (plugin.Guid)
+            {
+                case "bfivealive.stolenrealm.skillweightmod": return 0;
+                case "bfivealive.stolenrealm.statuseffectsmod": return 1;
+                case "bfivealive.stolenrealm.cumulativestatsmod": return 2;
+
+                // Always last: it is the panel you are already looking at.
+                case Plugin.Guid: return 100;
+
+                default: return 50;
+            }
         }
 
         private static PluginSettings Build(BepInEx.PluginInfo info)
@@ -141,12 +182,6 @@ namespace ModManager
 
             foreach (var group in settings.Rows.GroupBy(r => r.Section))
                 settings.Sections.Add(new KeyValuePair<string, List<SettingRow>>(group.Key, group.ToList()));
-
-            if (ModConfig.VerboseLogging.Value)
-            {
-                Plugin.Log.LogInfo(string.Format("{0} ({1}): {2} settings in {3} section(s)",
-                    settings.Name, settings.Guid, settings.Rows.Count, settings.Sections.Count));
-            }
 
             return settings;
         }

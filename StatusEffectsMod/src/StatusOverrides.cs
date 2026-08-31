@@ -42,7 +42,7 @@ namespace StatusEffectsMod
                         new ConfigDescription(
                             StatusCatalog.DescribeVanilla(entry),
                             null,
-                            OverrideSchema.Descriptor));
+                            OverrideSchema.For(entry)));
 
                     entries[entry.ConfigKey] = bound;
                 }

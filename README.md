@@ -45,8 +45,9 @@ and anywhere else.
   with the rail becoming a scope filter. Useful when you know the word but not which mod owns it.
 - **Structured settings.** A mod whose setting holds several values in one string can describe
   its fields as a BepInEx config tag, and the manager renders a control per field in the detail
-  panel - a menu where only certain words are legal, so a typo stops being one of the possible
-  outcomes. The tag is read by reflection, so neither assembly references the other: a mod with
+  panel, each starting at the value the game actually ships with and resettable to it, so the
+  panel reads as the status itself rather than as a blank form. Anything limited to a fixed set
+  of words is a list of buttons, so a typo stops being one of the possible outcomes. The tag is read by reflection, so neither assembly references the other: a mod with
   no descriptor still gets a plain text box, and the manager needs no knowledge of any specific
   mod. Status Effects Mod uses this for its 470 status overrides. Fields the schema doesn't
   describe are preserved untouched rather than being rewritten away.

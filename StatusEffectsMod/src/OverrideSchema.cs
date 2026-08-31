@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace StatusEffectsMod
@@ -28,14 +29,16 @@ namespace StatusEffectsMod
         /// <summary>Permitted values, for Kind == "enum".</summary>
         public string[] Options;
 
-        /// <summary>Shown under or beside the control.</summary>
+        /// <summary>Shown beside the control.</summary>
         public string Help;
 
         /// <summary>
-        /// Whether the value may be relative (<c>*2</c>, <c>+1</c>) or an expression rather than
-        /// an outright replacement. False for anything that is not a number.
+        /// True when the value scales the shipped one rather than replacing it, and is therefore
+        /// written as a multiplier. Only potency works this way: the amounts it scales are game
+        /// script expressions, so there is no number to replace, and the applier rejects an
+        /// absolute value outright. A UI must offer these as "x N", never as a plain value.
         /// </summary>
-        public bool AllowOperators;
+        public bool Relative;
 
         /// <summary>Whether to show this field before the reader asks for the rest.</summary>
         public bool Common;
@@ -54,6 +57,13 @@ namespace StatusEffectsMod
         public string Syntax = "semicolon-key-value";
 
         public StructuredField[] Fields;
+
+        /// <summary>
+        /// The shipped value of each field, positionally matching <see cref="Fields"/>, so an
+        /// editor can show what a setting currently is rather than an empty box. Empty where the
+        /// value is unknown or meaningless. For a Relative field this is the neutral multiplier.
+        /// </summary>
+        public string[] Vanilla;
     }
 
     /// <summary>
@@ -64,7 +74,7 @@ namespace StatusEffectsMod
     {
         // Enum members are listed rather than reflected so this file states exactly what the UI
         // will offer. A game update adding a member is then a visible edit here rather than a
-        // silent change in what the dropdowns contain.
+        // silent change in what the menus contain.
         private static readonly string[] StackTypes =
         {
             "ReplaceSource", "ReplaceAny", "ReplaceOthers", "Add",
@@ -78,79 +88,140 @@ namespace StatusEffectsMod
 
         private static readonly string[] TurnEvents = { "TurnStart", "TurnEnd" };
 
-        private static StructuredValue cached;
+        private static StructuredField[] fields;
 
-        public static StructuredValue Descriptor
+        /// <summary>Shared across every status: the shape is the same, only the values differ.</summary>
+        private static StructuredField[] Fields
         {
-            get { return cached ?? (cached = Build()); }
+            get { return fields ?? (fields = Build()); }
         }
 
-        private static StructuredValue Build()
+        /// <summary>
+        /// The descriptor for one status, carrying that status's own shipped values.
+        /// </summary>
+        public static StructuredValue For(StatusEntry entry)
         {
-            var fields = new List<StructuredField>();
+            return new StructuredValue
+            {
+                Fields = Fields,
+                Vanilla = VanillaOf(entry.Original)
+            };
+        }
 
-            Number(fields, "duration", "Duration",
-                "Rounds the status lasts. Scaled afterwards by the global duration multipliers.",
+        private static string[] VanillaOf(StatusSnapshot original)
+        {
+            var values = new string[Fields.Length];
+
+            for (int i = 0; i < Fields.Length; i++)
+                values[i] = Vanilla(Fields[i].Key, original);
+
+            return values;
+        }
+
+        private static string Vanilla(string key, StatusSnapshot o)
+        {
+            switch (key)
+            {
+                // The shipped duration can be an expression rather than a number; it is handed
+                // over as written and the editor shows it as-is rather than pretending otherwise.
+                case "duration": return o.Duration ?? string.Empty;
+
+                // Neutral multiplier: potency scales, so "unchanged" is 1 rather than a value.
+                case "potency": return "1";
+
+                case "maxStacks": return Num(o.MaxStacks);
+                case "stackBonus": return Num(o.StackBonusMultplier);
+                case "stackType": return o.StackType.ToString();
+                case "stackIgnoreSource": return Bool(o.StackIgnoreSource);
+                case "tickType": return o.TickType.ToString();
+                case "expireType": return o.ExpireType.ToString();
+                case "infinite": return Bool(o.Infinite);
+                case "activateImmediately": return Bool(o.ActivateImmediately);
+                case "decrementOnTurnEnd": return Bool(o.DecrementOnTurnEnd);
+                case "cannotBeDispelled": return Bool(o.CannotBeDispelled);
+                case "endOnCrit": return Bool(o.EndOnCrit);
+                case "endOnAction": return Bool(o.EndOnAction);
+                case "isAura": return Bool(o.IsAura);
+                case "auraRadius": return o.AuraRadius.ToString(CultureInfo.InvariantCulture);
+                case "auraAllies": return Bool(o.AuraEffectsAllies);
+                case "auraEnemies": return Bool(o.AuraEffectsEnemies);
+                case "maintainMana": return Num(o.MaintainManaRatio);
+                case "groundMovement": return o.GroundMovementMod.ToString(CultureInfo.InvariantCulture);
+                case "damageMod": return Num(o.FlatDamageModifier);
+
+                default: return string.Empty;
+            }
+        }
+
+        private static string Num(float value)
+        {
+            return value.ToString("0.####", CultureInfo.InvariantCulture);
+        }
+
+        private static string Bool(bool value)
+        {
+            return value ? "true" : "false";
+        }
+
+        private static StructuredField[] Build()
+        {
+            var list = new List<StructuredField>();
+
+            Number(list, "duration", "Duration",
+                "Rounds the status lasts, then scaled by the global duration multipliers.",
                 common: true);
 
-            Number(fields, "potency", "Potency",
-                "Scales how much the status changes the attributes it touches. Effects that set "
-                + "an absolute value are skipped.", common: true);
+            Relative(list, "potency", "Potency",
+                "Scales how much the status changes what it touches. 1 leaves it alone. "
+                + "Effects that set an absolute value are skipped.", common: true);
 
-            Number(fields, "maxStacks", "Max stacks",
+            Number(list, "maxStacks", "Max stacks",
                 "How many copies can be present at once.", common: true);
 
-            Enum(fields, "stackType", "Stack type", StackTypes,
-                "What happens when the status is applied to something that already has it.",
-                common: true);
+            Enum(list, "stackType", "Stack type", StackTypes,
+                "What happens when it is applied to something that already has it.", common: true);
 
-            Bool(fields, "infinite", "Infinite",
+            Bool(list, "infinite", "Infinite",
                 "Never expires on its own, whatever the duration says.", common: true);
 
-            Number(fields, "damageMod", "Flat damage modifier",
+            Number(list, "damageMod", "Flat damage modifier",
                 "Flat change to damage. Setting this also switches on the flag that makes the "
                 + "game read it.");
 
-            Number(fields, "stackBonus", "Stack bonus",
-                "Multiplier applied per additional stack.");
+            Number(list, "stackBonus", "Stack bonus", "Multiplier applied per additional stack.");
 
-            Bool(fields, "stackIgnoreSource", "Stacks ignore source",
+            Bool(list, "stackIgnoreSource", "Stacks ignore source",
                 "Treat stacks from different casters as the same stack.");
 
-            Enum(fields, "tickType", "Tick type", TickTypes,
-                "Whose turn the status ticks on.");
+            Enum(list, "tickType", "Tick type", TickTypes, "Whose turn the status ticks on.");
 
-            Enum(fields, "expireType", "Expire type", TurnEvents,
+            Enum(list, "expireType", "Expire type", TurnEvents,
                 "Whether it wears off at the start or the end of a turn.");
 
-            Bool(fields, "activateImmediately", "Activate immediately",
+            Bool(list, "activateImmediately", "Activate immediately",
                 "Apply its effect on being cast rather than on the first tick.");
 
-            Bool(fields, "decrementOnTurnEnd", "Decrement on turn end",
+            Bool(list, "decrementOnTurnEnd", "Decrement on turn end",
                 "Count down at the end of the turn instead of the start.");
 
-            Bool(fields, "cannotBeDispelled", "Cannot be dispelled",
+            Bool(list, "cannotBeDispelled", "Cannot be dispelled",
                 "Immune to effects that remove statuses.");
 
-            Bool(fields, "endOnCrit", "End on crit",
-                "Removed when the bearer is critically hit.");
+            Bool(list, "endOnCrit", "End on crit", "Removed when the bearer is critically hit.");
+            Bool(list, "endOnAction", "End on action", "Removed as soon as the bearer acts.");
+            Bool(list, "isAura", "Is aura", "Affects characters around the bearer.");
 
-            Bool(fields, "endOnAction", "End on action",
-                "Removed as soon as the bearer acts.");
+            Number(list, "auraRadius", "Aura radius", "Tiles the aura reaches. Whole numbers.");
 
-            Bool(fields, "isAura", "Is aura", "Affects characters around the bearer.");
+            Bool(list, "auraAllies", "Aura affects allies", null);
+            Bool(list, "auraEnemies", "Aura affects enemies", null);
 
-            Number(fields, "auraRadius", "Aura radius", "Tiles the aura reaches. Whole numbers.");
-
-            Bool(fields, "auraAllies", "Aura affects allies", null);
-            Bool(fields, "auraEnemies", "Aura affects enemies", null);
-
-            Number(fields, "maintainMana", "Maintain mana",
+            Number(list, "maintainMana", "Maintain mana",
                 "Fraction of maximum mana reserved while the status is held.");
 
-            Number(fields, "groundMovement", "Ground movement", "Change to movement over ground.");
+            Number(list, "groundMovement", "Ground movement", "Change to movement over ground.");
 
-            return new StructuredValue { Fields = fields.ToArray() };
+            return list.ToArray();
         }
 
         private static void Number(List<StructuredField> into, string key, string label,
@@ -158,26 +229,26 @@ namespace StatusEffectsMod
         {
             into.Add(new StructuredField
             {
-                Key = key,
-                Label = label,
-                Kind = "number",
-                Help = help,
-                AllowOperators = true,
-                Common = common
+                Key = key, Label = label, Kind = "number", Help = help, Common = common
             });
         }
 
-        private static void Bool(List<StructuredField> into, string key, string label,
+        private static void Relative(List<StructuredField> into, string key, string label,
             string help, bool common = false)
         {
             into.Add(new StructuredField
             {
-                Key = key,
-                Label = label,
-                Kind = "bool",
-                Help = help,
-                AllowOperators = false,
-                Common = common
+                Key = key, Label = label, Kind = "number", Help = help,
+                Relative = true, Common = common
+            });
+        }
+
+        private static void Bool(List<StructuredField> into, string key, string label, string help,
+            bool common = false)
+        {
+            into.Add(new StructuredField
+            {
+                Key = key, Label = label, Kind = "bool", Help = help, Common = common
             });
         }
 
@@ -186,13 +257,8 @@ namespace StatusEffectsMod
         {
             into.Add(new StructuredField
             {
-                Key = key,
-                Label = label,
-                Kind = "enum",
-                Options = options.ToArray(),
-                Help = help,
-                AllowOperators = false,
-                Common = common
+                Key = key, Label = label, Kind = "enum", Options = options.ToArray(),
+                Help = help, Common = common
             });
         }
     }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 namespace ModManager
@@ -7,67 +8,104 @@ namespace ModManager
     /// <summary>
     /// Draws a control per field for a setting whose value is a list of <c>key=value</c> pairs.
     ///
-    /// The point is that the encoding stops being something to get right by hand. A field is
-    /// either left alone or given a value, the operator is chosen from a list rather than
-    /// remembered, and anything constrained to a fixed set of words - a stack type, a tick type -
-    /// is a menu, so a typo is not one of the available outcomes.
+    /// Every field starts showing the value the game actually ships with, read from the owning
+    /// mod's descriptor, so the panel reads as the status itself rather than as a blank form. A
+    /// field is overridden by typing a different value and returned to the shipped one with the
+    /// reset beside it; the encoding is never something to get right by hand, and anything limited
+    /// to a fixed set of words is a list of buttons, so a typo is not among the possible outcomes.
     ///
-    /// Keys the schema does not describe are preserved untouched and reported, because a
-    /// hand-written value must not be quietly destroyed by an editor that does not understand it.
+    /// A value the controls cannot represent - a hand-written multiplier or expression - is shown
+    /// as raw text and left exactly as written, because an editor that does not understand
+    /// something must not be the reason it disappears.
     /// </summary>
     internal static class StructuredEditor
     {
-        private const float RowHeight = 34f;
+        private const float LabelWidth = 150f;
+        private const float ResetWidth = 62f;
+        private const float LineHeight = 32f;
+        private const float NoteHeight = 20f;
         private const float Gap = 8f;
 
         private static bool showAll;
-
-        /// <summary>Key of the field whose operator menu is open, if any.</summary>
-        private static string openMode;
 
         private static readonly Dictionary<string, string> Buffers = new Dictionary<string, string>();
 
         public static void Reset()
         {
-            openMode = null;
             Buffers.Clear();
         }
 
+        // --- measuring ----------------------------------------------------------------------
+
         public static float Height(SettingRow row, StructuredSchema schema, float width)
         {
-            int visible = 0;
+            var tokens = Tokens(row);
+            float height = 26f;
 
-            foreach (var field in schema.Fields)
+            for (int i = 0; i < schema.Fields.Length; i++)
             {
-                if (showAll || field.Common)
-                    visible++;
+                var field = schema.Fields[i];
+                if (!showAll && !field.Common)
+                    continue;
+
+                height += FieldHeight(field, tokens) + Gap;
             }
 
-            float height = 28f + visible * (RowHeight + Gap) + 44f;
-
-            var tokens = Tokens(row);
             if (tokens.UnknownKeys(schema).Count > 0)
                 height += 46f;
+
+            return height + 44f;
+        }
+
+        private static float FieldHeight(StructuredField field, StructuredTokens tokens)
+        {
+            float height = LineHeight;
+
+            // An enum's options sit under the label, on their own rows, so every legal value is
+            // visible and clickable. A menu would have to paint over the fields below it, which
+            // inside a scroll view means the same split-input handling the settings list needs -
+            // a lot of machinery to hide four words.
+            if (field.IsEnum)
+                height += OptionRows(field) * 28f + 4f;
+
+            if (tokens.Has(field.Key))
+                height += NoteHeight;
 
             return height;
         }
 
+        private static int OptionRows(StructuredField field)
+        {
+            int columns = OptionColumns(field);
+            return (field.Options.Length + columns - 1) / columns;
+        }
+
+        private static int OptionColumns(StructuredField field)
+        {
+            return field.Options.Length > 4 ? 2 : 1;
+        }
+
+        // --- drawing ------------------------------------------------------------------------
+
         public static float Draw(Rect area, SettingRow row, StructuredSchema schema)
         {
             var tokens = Tokens(row);
-
             float y = area.y;
 
             Skin.Text(new Rect(area.x, y, area.width, 20f), "FIELDS", Skin.SmallCaps, Skin.InkDim);
             y += 26f;
 
-            foreach (var field in schema.Fields)
+            for (int i = 0; i < schema.Fields.Length; i++)
             {
+                var field = schema.Fields[i];
                 if (!showAll && !field.Common)
                     continue;
 
-                DrawField(new Rect(area.x, y, area.width, RowHeight), row, field, tokens);
-                y += RowHeight + Gap;
+                float height = FieldHeight(field, tokens);
+                DrawField(new Rect(area.x, y, area.width, height), row, field,
+                    schema.VanillaFor(i), tokens);
+
+                y += height + Gap;
             }
 
             var unknown = tokens.UnknownKeys(schema);
@@ -79,185 +117,120 @@ namespace ModManager
                 y += 46f;
             }
 
-            var toggle = new Rect(area.x, y, 200f, 30f);
-            if (GUI.Button(toggle, showAll ? "Show fewer fields" : "Show all fields", Skin.ButtonQuiet))
+            if (GUI.Button(new Rect(area.x, y, 200f, 30f),
+                    showAll ? "Show fewer fields" : "Show all fields", Skin.ButtonQuiet))
             {
                 showAll = !showAll;
-                openMode = null;
             }
 
             return y + 44f;
         }
 
         private static void DrawField(Rect rect, SettingRow row, StructuredField field,
-            StructuredTokens tokens)
+            string vanilla, StructuredTokens tokens)
         {
             string raw = tokens.Get(field.Key);
-            ValueMode mode = ValueModes.Read(raw, out string operand);
+            bool overridden = raw != null;
 
-            float labelWidth = 148f;
-            Skin.Text(new Rect(rect.x, rect.y, labelWidth, rect.height), field.Label,
-                Skin.RowName, mode == ValueMode.Vanilla ? Skin.InkMuted : Skin.Ink);
+            var label = new Rect(rect.x, rect.y, LabelWidth, LineHeight);
+            Skin.Text(label, field.Label, overridden ? Skin.RowNameBold : Skin.RowName,
+                overridden ? Skin.Accent : Skin.Ink);
 
-            float x = rect.x + labelWidth;
-            float remaining = rect.xMax - x;
+            var reset = new Rect(rect.xMax - ResetWidth, rect.y + 2f, ResetWidth, LineHeight - 4f);
 
-            // The mode selector is only worth its width where more than one mode is possible.
-            float modeWidth = field.AllowOperators ? 104f : 90f;
-            var modeRect = new Rect(x, rect.y + 2f, modeWidth, rect.height - 4f);
-
-            DrawModeSelector(modeRect, row, field, tokens, mode, operand);
-
-            x += modeWidth + 8f;
-            remaining = rect.xMax - x;
-
-            if (mode == ValueMode.Vanilla)
+            GUI.enabled = overridden;
+            if (GUI.Button(reset, "reset", Skin.ButtonQuiet))
             {
-                Skin.Text(new Rect(x, rect.y, remaining, rect.height),
-                    "unchanged", Skin.Value, Skin.InkDim);
-                return;
+                tokens.Remove(field.Key);
+                Buffers.Remove(BufferKey(row, field));
+                Commit(row, tokens);
             }
+            GUI.enabled = true;
 
-            var valueRect = new Rect(x, rect.y + 2f, remaining, rect.height - 4f);
+            float controlX = rect.x + LabelWidth + Gap;
+            float controlWidth = reset.x - Gap - controlX;
 
-            if (field.IsEnum && mode == ValueMode.Set)
-                DrawEnumValue(valueRect, row, field, tokens, operand);
-            else if (field.IsBool && mode == ValueMode.Set)
-                DrawBoolValue(valueRect, row, field, tokens, operand);
+            // The shipped value is what the control shows until something overrides it, so the
+            // panel describes the status as it stands rather than asking for it from nothing.
+            string shown = overridden ? raw : vanilla;
+
+            if (field.IsEnum)
+                DrawEnum(rect, controlX, controlWidth, row, field, tokens, shown);
+            else if (field.IsBool)
+                DrawBool(new Rect(controlX, rect.y + 2f, controlWidth, LineHeight - 4f),
+                    row, field, tokens, vanilla, shown);
             else
-                DrawTextValue(valueRect, row, field, tokens, mode, operand);
+                DrawNumber(new Rect(controlX, rect.y + 2f, controlWidth, LineHeight - 4f),
+                    row, field, tokens, vanilla, shown, overridden);
+
+            if (overridden)
+            {
+                Skin.Text(new Rect(rect.x, rect.yMax - NoteHeight, rect.width, NoteHeight),
+                    "shipped value: " + (string.IsNullOrEmpty(vanilla) ? "unset" : vanilla),
+                    Skin.Value, Skin.InkDim);
+            }
         }
 
         /// <summary>
-        /// Cycles rather than opening a menu. There are at most five modes, the list is short
-        /// enough to read off the button, and a popup inside the detail panel's scroll view would
-        /// need the same split-input dance the settings list uses - a lot of machinery for a
-        /// control whose whole job is to pick between "leave it alone" and four operators.
+        /// Numbers are edited as numbers. The override language also accepts a multiplier or an
+        /// expression, but for a single status those say nothing a plain value cannot - the
+        /// shipped number is on screen - so the box stays a box. A value already written in one of
+        /// those forms is detected and left as raw text rather than being flattened.
         /// </summary>
-        private static void DrawModeSelector(Rect rect, SettingRow row, StructuredField field,
-            StructuredTokens tokens, ValueMode mode, string operand)
+        private static void DrawNumber(Rect rect, SettingRow row, StructuredField field,
+            StructuredTokens tokens, string vanilla, string shown, bool overridden)
         {
-            if (!GUI.Button(rect, ValueModes.Label(mode), Skin.ButtonQuiet))
+            if (field.Relative)
+            {
+                // Potency only ever scales, so the box is the multiplier and 1 means unchanged.
+                var times = new Rect(rect.x, rect.y, 18f, rect.height);
+                Skin.Text(times, "x", Skin.RowName, Skin.InkMuted);
+
+                DrawValueBox(new Rect(rect.x + 20f, rect.y, rect.width - 20f, rect.height),
+                    row, field, tokens, "1", StripMultiplier(shown), Multiplier);
                 return;
-
-            var order = Modes(field);
-            int index = order.IndexOf(mode);
-            ValueMode next = order[(index + 1) % order.Count];
-
-            if (next == ValueMode.Vanilla)
-            {
-                tokens.Remove(field.Key);
-            }
-            else
-            {
-                tokens.Set(field.Key, ValueModes.Write(next, Seed(field, next, operand)));
             }
 
-            Buffers.Remove(BufferKey(row, field));
-            Commit(row, tokens);
-        }
-
-        private static List<ValueMode> Modes(StructuredField field)
-        {
-            var order = new List<ValueMode> { ValueMode.Vanilla, ValueMode.Set };
-
-            if (field.AllowOperators)
+            if (overridden && !IsPlainNumber(shown))
             {
-                order.Add(ValueMode.Multiply);
-                order.Add(ValueMode.Add);
-                order.Add(ValueMode.Expression);
-            }
-
-            return order;
-        }
-
-        /// <summary>A starting value that is valid for the mode being switched into.</summary>
-        private static string Seed(StructuredField field, ValueMode mode, string operand)
-        {
-            switch (mode)
-            {
-                case ValueMode.Multiply:
-                    return ValueModes.LooksNumeric(operand) ? operand : "1";
-
-                case ValueMode.Add:
-                    return ValueModes.LooksNumeric(operand) ? operand : "1";
-
-                case ValueMode.Expression:
-                    return string.IsNullOrEmpty(operand) ? "Source.Level" : operand;
-
-                default:
-                    if (field.IsBool)
-                        return operand == "false" ? "false" : "true";
-
-                    if (field.IsEnum)
-                    {
-                        return Array.IndexOf(field.Options, operand) >= 0
-                            ? operand
-                            : (field.Options.Length > 0 ? field.Options[0] : string.Empty);
-                    }
-
-                    return ValueModes.LooksNumeric(operand) ? operand : "1";
-            }
-        }
-
-        private static void DrawEnumValue(Rect rect, SettingRow row, StructuredField field,
-            StructuredTokens tokens, string operand)
-        {
-            bool open = openMode == field.Key;
-
-            if (GUI.Button(rect, operand.Length == 0 ? "choose…" : operand, Skin.Dropdown))
-                openMode = open ? null : field.Key;
-
-            Skin.Caret(rect);
-
-            if (!open)
+                // Written by hand as "*2" or "expr:...". Editable, but as the text it is.
+                DrawValueBox(rect, row, field, tokens, vanilla, shown, Verbatim);
                 return;
-
-            // Drawn immediately below, inside the same panel. The panel scrolls, so a long option
-            // list is reachable; nothing else is drawn over it because this is the last pass.
-            float height = field.Options.Length * 28f;
-            var list = new Rect(rect.x, rect.yMax + 2f, rect.width, height);
-
-            Skin.Fill(list, Skin.PanelHigh);
-            Skin.Frame(list, Skin.Accent);
-
-            for (int i = 0; i < field.Options.Length; i++)
-            {
-                var item = new Rect(list.x, list.y + i * 28f, list.width, 28f);
-                bool chosen = field.Options[i] == operand;
-
-                if (GUI.Button(item, field.Options[i], chosen ? Skin.MenuItemActive : Skin.MenuItem))
-                {
-                    tokens.Set(field.Key, field.Options[i]);
-                    Commit(row, tokens);
-                    openMode = null;
-                }
             }
+
+            DrawValueBox(rect, row, field, tokens, vanilla, shown, Verbatim);
         }
 
-        private static void DrawBoolValue(Rect rect, SettingRow row, StructuredField field,
-            StructuredTokens tokens, string operand)
+        private delegate string Encoder(string typed);
+
+        private static string Verbatim(string typed)
         {
-            bool value = !string.Equals(operand, "false", StringComparison.OrdinalIgnoreCase);
-
-            int chosen = GUI.SelectionGrid(rect, value ? 0 : 1, new[] { "true", "false" }, 2,
-                Skin.ButtonQuiet);
-
-            bool next = chosen == 0;
-            if (next == value)
-                return;
-
-            tokens.Set(field.Key, next ? "true" : "false");
-            Commit(row, tokens);
+            return typed;
         }
 
-        private static void DrawTextValue(Rect rect, SettingRow row, StructuredField field,
-            StructuredTokens tokens, ValueMode mode, string operand)
+        private static string Multiplier(string typed)
+        {
+            return "*" + typed;
+        }
+
+        private static string StripMultiplier(string shown)
+        {
+            if (string.IsNullOrEmpty(shown))
+                return "1";
+
+            string text = shown.Trim();
+            char first = text[0];
+
+            return first == '*' || first == 'x' || first == 'X' ? text.Substring(1).Trim() : text;
+        }
+
+        private static void DrawValueBox(Rect rect, SettingRow row, StructuredField field,
+            StructuredTokens tokens, string vanilla, string shown, Encoder encode)
         {
             string id = BufferKey(row, field);
 
             if (!Buffers.TryGetValue(id, out string buffer) || buffer == null)
-                buffer = operand;
+                buffer = shown ?? string.Empty;
 
             GUI.SetNextControlName(id);
             string typed = GUI.TextField(rect, buffer, Skin.Field);
@@ -267,13 +240,85 @@ namespace ModManager
 
             Buffers[id] = typed;
 
-            // Committed on every keystroke that leaves a usable value, but a half-typed number
-            // ("-", "1.") stays in the box rather than being written and bounced back.
-            if (mode == ValueMode.Expression || ValueModes.LooksNumeric(typed) || typed.Length == 0)
-            {
-                tokens.Set(field.Key, ValueModes.Write(mode, typed));
-                Commit(row, tokens);
-            }
+            // Typing the shipped value back is the same statement as resetting, so the key is
+            // dropped rather than written - a config file that only lists real changes.
+            if (SameAsVanilla(typed, vanilla, encode))
+                tokens.Remove(field.Key);
+            else
+                tokens.Set(field.Key, encode(typed.Trim()));
+
+            Commit(row, tokens);
+        }
+
+        private static bool SameAsVanilla(string typed, string vanilla, Encoder encode)
+        {
+            string text = (typed ?? string.Empty).Trim();
+
+            if (text.Length == 0)
+                return true;
+
+            // Compared numerically where both sides are numbers, so "3" and "3.0" agree.
+            if (TryNumber(text, out float a) && TryNumber(vanilla, out float b))
+                return Mathf.Approximately(a, b);
+
+            return string.Equals(text, (vanilla ?? string.Empty).Trim(), StringComparison.Ordinal);
+        }
+
+        private static void DrawBool(Rect rect, SettingRow row, StructuredField field,
+            StructuredTokens tokens, string vanilla, string shown)
+        {
+            bool value = string.Equals(shown, "true", StringComparison.OrdinalIgnoreCase);
+
+            int chosen = GUI.SelectionGrid(rect, value ? 0 : 1, TrueFalse, 2, Skin.ButtonQuiet);
+            bool next = chosen == 0;
+
+            if (next == value)
+                return;
+
+            string written = next ? "true" : "false";
+
+            if (string.Equals(written, (vanilla ?? string.Empty).Trim(), StringComparison.OrdinalIgnoreCase))
+                tokens.Remove(field.Key);
+            else
+                tokens.Set(field.Key, written);
+
+            Commit(row, tokens);
+        }
+
+        private static readonly string[] TrueFalse = { "true", "false" };
+
+        private static void DrawEnum(Rect rect, float controlX, float controlWidth,
+            SettingRow row, StructuredField field, StructuredTokens tokens, string shown)
+        {
+            Skin.Text(new Rect(controlX, rect.y + 2f, controlWidth, LineHeight - 4f),
+                string.IsNullOrEmpty(shown) ? "unset" : shown, Skin.Value, Skin.InkMuted);
+
+            int columns = OptionColumns(field);
+            int rows = OptionRows(field);
+
+            var grid = new Rect(rect.x, rect.y + LineHeight + 2f, rect.width, rows * 28f);
+            int index = Array.IndexOf(field.Options, shown);
+
+            int chosen = GUI.SelectionGrid(grid, index, field.Options, columns, Skin.ButtonQuiet);
+
+            if (chosen == index || chosen < 0 || chosen >= field.Options.Length)
+                return;
+
+            tokens.Set(field.Key, field.Options[chosen]);
+            Commit(row, tokens);
+        }
+
+        // --- helpers ------------------------------------------------------------------------
+
+        private static bool IsPlainNumber(string text)
+        {
+            return TryNumber(text, out _);
+        }
+
+        private static bool TryNumber(string text, out float value)
+        {
+            return float.TryParse((text ?? string.Empty).Trim(), NumberStyles.Float,
+                CultureInfo.InvariantCulture, out value);
         }
 
         private static string BufferKey(SettingRow row, StructuredField field)

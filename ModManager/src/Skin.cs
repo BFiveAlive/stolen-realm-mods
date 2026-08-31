@@ -44,7 +44,7 @@ namespace ModManager
         public const float SearchStrip     = 62f;
         public const float FooterHeight    = 44f;
         public const float RailWidth       = 306f;
-        public const float DetailWidth     = 404f;
+        public const float DetailWidth     = 448f;
 
         public const float PluginRowHeight  = 52f;
         public const float SectionRowHeight = 34f;

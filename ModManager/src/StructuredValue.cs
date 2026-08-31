@@ -15,7 +15,10 @@ namespace ModManager
         public string Kind = "text";
         public string[] Options = new string[0];
         public string Help = string.Empty;
-        public bool AllowOperators;
+
+        /// <summary>Value scales the shipped one rather than replacing it: written as *N.</summary>
+        public bool Relative;
+
         public bool Common;
 
         public bool IsNumber => Kind == "number";
@@ -38,6 +41,15 @@ namespace ModManager
         public const string SupportedSyntax = "semicolon-key-value";
 
         public StructuredField[] Fields = new StructuredField[0];
+
+        /// <summary>Shipped value per field, positionally. Empty where unknown.</summary>
+        public string[] Vanilla = new string[0];
+
+        /// <summary>The shipped value for one field, or empty if the mod did not supply one.</summary>
+        public string VanillaFor(int index)
+        {
+            return index >= 0 && index < Vanilla.Length ? Vanilla[index] ?? string.Empty : string.Empty;
+        }
 
         /// <summary>
         /// Reads a schema off a config entry's tags, or returns null if there isn't one. Any
@@ -97,12 +109,16 @@ namespace ModManager
                     Kind = Member(item, "Kind") as string ?? "text",
                     Options = Member(item, "Options") as string[] ?? new string[0],
                     Help = Member(item, "Help") as string ?? string.Empty,
-                    AllowOperators = Member(item, "AllowOperators") as bool? ?? false,
+                    Relative = Member(item, "Relative") as bool? ?? false,
                     Common = Member(item, "Common") as bool? ?? false
                 });
             }
 
-            return new StructuredSchema { Fields = fields.ToArray() };
+            return new StructuredSchema
+            {
+                Fields = fields.ToArray(),
+                Vanilla = Member(tag, "Vanilla") as string[] ?? new string[0]
+            };
         }
 
         private static object Member(object target, string name)

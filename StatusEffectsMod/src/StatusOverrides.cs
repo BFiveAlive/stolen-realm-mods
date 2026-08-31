@@ -32,11 +32,17 @@ namespace StatusEffectsMod
             {
                 try
                 {
+                    // The schema travels with the entry as a config tag. A UI that recognises it
+                    // can offer one control per field; anything else sees an ordinary string
+                    // setting and shows a text box, which is exactly what it was before.
                     ConfigEntry<string> bound = cfg.Bind(
                         Section,
                         entry.ConfigKey,
                         string.Empty,
-                        StatusCatalog.DescribeVanilla(entry));
+                        new ConfigDescription(
+                            StatusCatalog.DescribeVanilla(entry),
+                            null,
+                            OverrideSchema.Descriptor));
 
                     entries[entry.ConfigKey] = bound;
                 }

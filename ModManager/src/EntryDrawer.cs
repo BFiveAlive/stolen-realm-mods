@@ -40,6 +40,7 @@ namespace ModManager
             BufferSource.Clear();
             listeningFor = null;
             CloseMenu();
+            StructuredEditor.Reset();
         }
 
         private const float ControlHeight = 28f;

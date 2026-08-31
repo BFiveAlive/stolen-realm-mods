@@ -485,7 +485,7 @@ namespace ModManager
             // The whole strip left of the control selects the row, so the hint is as clickable as
             // the name is - it is the part that tells you there is more to read on the right.
             if (Clicked(new Rect(rect.x, rect.y, control.x - rect.x - 8f, rect.height)))
-                selectedRowId = row.Id;
+                Select(row);
         }
 
         private static void DrawResultRow(Rect rect, SettingRow row, int index)
@@ -515,7 +515,7 @@ namespace ModManager
             EntryDrawer.Draw(control, row);
 
             if (Clicked(new Rect(rect.x, rect.y, rect.width - Skin.ControlWidth - 40f, rect.height)))
-                selectedRowId = row.Id;
+                Select(row);
         }
 
         /// <summary>Fixed, so the hints beside every row start on the same column.</summary>
@@ -599,10 +599,20 @@ namespace ModManager
                 y += h + 18f;
             }
 
-            y = Caption(y, width, "CURRENT");
-            Skin.Text(new Rect(0f, y, width, 22f), Safe(() => EntryDrawer.Format(row.Entry.BoxedValue)),
-                Skin.RowName, IsModified(row) ? Skin.Accent : Skin.Ink);
-            y += 28f;
+            var schema = StructuredSchema.From(row);
+
+            if (schema != null)
+            {
+                y = StructuredEditor.Draw(new Rect(0f, y, width, 0f), row, schema);
+            }
+            else
+            {
+                y = Caption(y, width, "CURRENT");
+                Skin.Text(new Rect(0f, y, width, 22f),
+                    Safe(() => EntryDrawer.Format(row.Entry.BoxedValue)),
+                    Skin.RowName, IsModified(row) ? Skin.Accent : Skin.Ink);
+                y += 28f;
+            }
 
             y = Caption(y, width, "DEFAULT");
             Skin.Text(new Rect(0f, y, width, 22f), Safe(() => EntryDrawer.Format(row.Entry.DefaultValue)),
@@ -655,6 +665,10 @@ namespace ModManager
         {
             float height = 32f + 26f + 16f + 28f * 3f + 40f + 42f;
 
+            var schema = StructuredSchema.From(row);
+            if (schema != null)
+                height += StructuredEditor.Height(row, schema, width);
+
             if (!string.IsNullOrEmpty(row.Description))
                 height += 20f + Skin.Body.CalcHeight(new GUIContent(row.Description), width) + 18f;
 
@@ -678,6 +692,20 @@ namespace ModManager
             if (type.IsEnum) return "one of: " + string.Join(", ", Enum.GetNames(type));
 
             return type.Name;
+        }
+
+        private static void Select(SettingRow row)
+        {
+            if (selectedRowId == row.Id)
+                return;
+
+            selectedRowId = row.Id;
+            detailScroll = Vector2.zero;
+
+            // The structured editor keeps per-field edit buffers keyed by row; carrying them
+            // across a change of selection would show one status's half-typed number under
+            // another status's field.
+            StructuredEditor.Reset();
         }
 
         private static SettingRow FindSelected()

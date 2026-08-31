@@ -18,7 +18,7 @@ namespace StatusEffectsMod
     {
         public const string Guid = "bfivealive.stolenrealm.statuseffectsmod";
         public const string Name = "Status Effects Mod";
-        public const string Version = "0.1.0";
+        public const string Version = "0.2.0";
 
         internal static ManualLogSource Log;
 

@@ -35,6 +35,9 @@ namespace ModManager
         public static readonly Color Good       = new Color(0.435f, 0.749f, 0.451f);
         public static readonly Color Bad        = new Color(0.878f, 0.400f, 0.400f);
 
+        /// <summary>For notes that should be readable without competing with the value.</summary>
+        public static readonly Color AccentDim  = new Color(0.702f, 0.588f, 0.376f);
+
         // --- metrics (unscaled; GUI.matrix applies UiScale on top) ---------------------------
 
         public const float TitleBarHeight  = 54f;
@@ -68,6 +71,7 @@ namespace ModManager
         public static GUIStyle Body;
         public static GUIStyle Muted;
         public static GUIStyle MutedRight;
+        public static GUIStyle NoteRight;
         public static GUIStyle Warning;
         public static GUIStyle Field;
         public static GUIStyle FieldPlaceholder;
@@ -78,6 +82,10 @@ namespace ModManager
         public static GUIStyle SliderThumb;
         public static GUIStyle Badge;
         public static GUIStyle Row;
+        public static GUIStyle Dropdown;
+        public static GUIStyle DropdownOpen;
+        public static GUIStyle MenuItem;
+        public static GUIStyle MenuItemActive;
 
         private static bool built;
         private static Texture2D white;
@@ -117,6 +125,7 @@ namespace ModManager
             Muted.wordWrap = true;
 
             MutedRight = Label(15, FontStyle.Normal, InkDim, TextAnchor.MiddleRight);
+            NoteRight = Label(14, FontStyle.Normal, AccentDim, TextAnchor.MiddleRight);
 
             Warning = Label(16, FontStyle.Normal, Accent);
             Badge = Label(14, FontStyle.Normal, InkDim, TextAnchor.MiddleRight);
@@ -150,6 +159,29 @@ namespace ModManager
             Button.active.textColor = Ink;
 
             ButtonQuiet = new GUIStyle(Button) { fontSize = 14 };
+
+            // Left-aligned with room on the right for the caret, so it reads as a field showing a
+            // value rather than as a button performing an action.
+            Dropdown = new GUIStyle(Button)
+            {
+                fontSize = 16,
+                alignment = TextAnchor.MiddleLeft,
+                padding = new RectOffset(11, 26, 5, 5)
+            };
+            Dropdown.normal.background = Solid(Sunken);
+            Dropdown.hover.background = Solid(RowHover);
+            Dropdown.active.background = Solid(RowHover);
+            Dropdown.normal.textColor = Ink;
+
+            DropdownOpen = new GUIStyle(Dropdown);
+            DropdownOpen.normal.background = Solid(RowHover);
+
+            // Painted, never clicked - see EntryDrawer.PaintMenu - so these are label styles.
+            MenuItem = Label(16, FontStyle.Normal, Ink);
+            MenuItem.padding = new RectOffset(11, 11, 0, 0);
+
+            MenuItemActive = Label(16, FontStyle.Bold, Accent);
+            MenuItemActive.padding = new RectOffset(11, 11, 0, 0);
 
             Toggle = new GUIStyle(GUI.skin.toggle)
             {
@@ -228,6 +260,16 @@ namespace ModManager
         public static void VLine(float x, float y, float height, Color colour)
         {
             Fill(new Rect(x, y, 1f, height), colour);
+        }
+
+        /// <summary>The small triangle at the right of a dropdown.</summary>
+        public static void Caret(Rect box)
+        {
+            float x = box.xMax - 17f;
+            float y = box.y + box.height / 2f - 2f;
+
+            for (int i = 0; i < 4; i++)
+                Fill(new Rect(x + i, y + i, (4 - i) * 2f, 1f), InkMuted);
         }
 
         /// <summary>The accent stripe that marks a selected rail entry.</summary>

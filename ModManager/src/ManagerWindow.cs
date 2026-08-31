@@ -209,9 +209,9 @@ namespace ModManager
                 + "manager at all.");
 
             y = Paragraph(x, y, width,
-                "↻ marks a setting that only takes effect after a restart. Everything else "
-                + "applies as soon as you change it, provided the mod reads its config at the "
-                + "point of use.");
+                "A setting marked \"needs restart\" only takes effect the next time the game is "
+                + "launched. Everything else applies as soon as you change it, provided the mod "
+                + "reads its config at the point of use.");
 
             y = Paragraph(x, y, width,
                 "Updates are downloaded to a staging folder and put in place during the next "

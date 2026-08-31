@@ -50,7 +50,7 @@ and anywhere else.
 - **Updates** compares what's installed against `mods.json` in this repo, and downloads what you
   ask it to.
 
-A `↻` next to a setting means it only takes effect after restarting. Everything else applies
+A setting marked "needs restart" only takes effect the next time the game is launched. Everything else applies
 immediately, provided the mod reads its config at the point of use.
 
 The panel fills most of the screen (`WindowFill`) and scales with `UiScale` — raise the latter if

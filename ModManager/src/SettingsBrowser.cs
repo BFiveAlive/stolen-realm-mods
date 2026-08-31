@@ -375,6 +375,10 @@ namespace ModManager
                 return;
             }
 
+            // Before the rows: an open dropdown has to consume its click before any row control
+            // can take it, because IMGUI hands the mouse to whichever control was drawn first.
+            EntryDrawer.HandleMenuInput();
+
             float pitch = Searching ? Skin.ResultRowHeight : Skin.ListRowHeight;
             var content = new Rect(0f, 0f, view.width - 18f, rows.Count * pitch);
 
@@ -397,6 +401,9 @@ namespace ModManager
             }
 
             GUI.EndScrollView();
+
+            EntryDrawer.PlaceMenu(listScroll, view);
+            EntryDrawer.PaintMenu();
         }
 
         private static void DrawSectionHeader(Rect area)
@@ -468,9 +475,6 @@ namespace ModManager
             Skin.Text(name, row.Key, selected ? Skin.RowNameBold : Skin.RowName,
                 IsModified(row) ? Skin.Accent : Skin.Ink);
 
-            if (row.RequiresRestart)
-                Skin.Text(new Rect(name.xMax + 2f, rect.y, 22f, rect.height), "↻", Skin.Value, Skin.Accent);
-
             var control = new Rect(rect.xMax - Skin.ControlWidth - 18f, rect.y,
                 Skin.ControlWidth, rect.height);
 
@@ -503,9 +507,6 @@ namespace ModManager
             Skin.Text(name, row.Key, selected ? Skin.RowNameBold : Skin.RowName,
                 IsModified(row) ? Skin.Accent : Skin.Ink);
 
-            if (row.RequiresRestart)
-                Skin.Text(new Rect(name.xMax + 2f, name.y, 22f, name.height), "↻", Skin.Value, Skin.Accent);
-
             var control = new Rect(rect.xMax - Skin.ControlWidth - 18f, rect.y + 22f,
                 Skin.ControlWidth, 38f);
 
@@ -527,18 +528,31 @@ namespace ModManager
         /// </summary>
         private static void DrawBrief(SettingRow row, Rect name, float controlX, float y, float height)
         {
+            float x = name.xMax + 10f;
+            float right = controlX - 20f;
+
+            // Said in words at the end of the row rather than as a symbol next to the name. A
+            // glyph has to be learned before it means anything, and this is the one piece of
+            // information here that changes what the reader should expect to happen.
+            if (row.RequiresRestart)
+            {
+                var note = new Rect(right - RestartNoteWidth, y, RestartNoteWidth, height);
+                Skin.Text(note, "needs restart", Skin.NoteRight, Skin.AccentDim);
+                right -= RestartNoteWidth + 14f;
+            }
+
             if (string.IsNullOrEmpty(row.Brief))
                 return;
 
-            float x = name.xMax + (row.RequiresRestart ? 26f : 10f);
-            float width = controlX - 20f - x;
-
+            float width = right - x;
             if (width < 90f)
                 return;
 
             Skin.Text(new Rect(x, y, width, height),
                 Skin.Ellipsize(row.Brief, Skin.Value, width), Skin.Value, Skin.InkDim);
         }
+
+        private const float RestartNoteWidth = 104f;
 
         // --- detail panel -------------------------------------------------------------------
 
@@ -609,7 +623,7 @@ namespace ModManager
             if (row.RequiresRestart)
             {
                 y += 6f;
-                Skin.Text(new Rect(0f, y, width, 22f), "↻  Takes effect after a restart",
+                Skin.Text(new Rect(0f, y, width, 22f), "Takes effect after a restart",
                     Skin.Warning, Skin.Accent);
                 y += 28f;
             }
@@ -687,7 +701,7 @@ namespace ModManager
             int restarts = ConfigWriter.ChangedRequiringRestart.Count;
 
             string message = restarts > 0
-                ? "↻  " + restarts + (restarts == 1
+                ? restarts + (restarts == 1
                     ? " changed setting takes effect after restarting the game."
                     : " changed settings take effect after restarting the game.")
                 : "Changes are saved automatically.";

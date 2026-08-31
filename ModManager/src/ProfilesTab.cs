@@ -98,8 +98,12 @@ namespace ModManager
             if (GUI.Button(save, "Export", Skin.Button))
                 DoExport();
 
-            changedOnly = GUI.Toggle(new Rect(save.xMax + 20f, y + 3f, 340f, 26f), changedOnly,
-                "  only settings changed from default", Skin.Toggle);
+            // A two-option selector rather than a checkbox, to match the settings list.
+            var scope = new Rect(save.xMax + 20f, y, 320f, 32f);
+            int chosen = GUI.SelectionGrid(scope, changedOnly ? 1 : 0,
+                new[] { "every setting", "only what I changed" }, 2, Skin.Button);
+
+            changedOnly = chosen == 1;
 
             return y + 44f;
         }

@@ -39,6 +39,7 @@ namespace ModManager
             Buffers.Clear();
             BufferSource.Clear();
             listeningFor = null;
+            CloseMenu();
         }
 
         private const float ControlHeight = 28f;
@@ -96,13 +97,190 @@ namespace ModManager
             DrawSerialized(rect, row);
         }
 
+        // --- boolean dropdown ---------------------------------------------------------------
+        //
+        // A popup in IMGUI has an ordering problem: controls take the mouse in the order they are
+        // drawn, so a menu painted last - which is what puts it on top - would lose every click to
+        // the row controls underneath it. Input and painting are therefore split. The click is
+        // handled before the list is drawn, against the rectangle worked out on the previous
+        // frame, and the menu is only painted afterwards, with no controls in it at all.
+
+        private static string openMenu;
+        private static SettingRow menuRow;
+        private static bool menuValue;
+
+        /// <summary>Where the button was, in the scroll view's content space.</summary>
+        private static Rect menuAnchorContent;
+
+        /// <summary>The same rect in window space, and the two item rects under it.</summary>
+        private static Rect menuAnchor;
+        private static Rect menuOn;
+        private static Rect menuOff;
+        private static bool menuPlaced;
+
+        private static void CloseMenu()
+        {
+            openMenu = null;
+            menuRow = null;
+            menuPlaced = false;
+        }
+
+        /// <summary>
+        /// Two options in a dropdown rather than a checkbox, so a boolean reads as the same kind
+        /// of control as every other value in the column - a box showing its current setting -
+        /// instead of a tick whose meaning depends on how the setting happens to be named.
+        /// </summary>
         private static void DrawBool(Rect rect, SettingRow row, bool value)
         {
-            var box = new Rect(rect.x, rect.y, Mathf.Min(rect.width, 120f), rect.height);
+            var box = new Rect(rect.x, rect.y, Mathf.Min(rect.width, 130f), rect.height);
 
-            bool next = GUI.Toggle(box, value, value ? "  on" : "  off", Skin.Toggle);
-            if (next != value)
-                ConfigWriter.Set(row, next);
+            // While the menu is open its own handler owns the clicks, including the one that
+            // closes it again, so this must not also act on them.
+            if (openMenu == row.Id)
+            {
+                GUI.Label(box, value ? "on" : "off", Skin.DropdownOpen);
+                Skin.Caret(box);
+
+                menuAnchorContent = box;
+                menuRow = row;
+                menuValue = value;
+                return;
+            }
+
+            if (GUI.Button(box, value ? "on" : "off", Skin.Dropdown))
+            {
+                openMenu = row.Id;
+                menuRow = row;
+                menuValue = value;
+                menuAnchorContent = box;
+                menuPlaced = false;
+            }
+
+            Skin.Caret(box);
+        }
+
+        /// <summary>
+        /// Acts on a click in the open menu. Called before the list is drawn, so the click is
+        /// consumed before any row control can take it.
+        /// </summary>
+        public static void HandleMenuInput()
+        {
+            if (openMenu == null)
+                return;
+
+            var e = Event.current;
+            if (e == null)
+                return;
+
+            // Scrolling would move the anchor out from under the menu.
+            if (e.type == EventType.ScrollWheel)
+            {
+                CloseMenu();
+                return;
+            }
+
+            if (e.type == EventType.KeyDown && e.keyCode == KeyCode.Escape)
+            {
+                CloseMenu();
+                e.Use();
+                return;
+            }
+
+            if (e.type != EventType.MouseDown || e.button != 0 || !menuPlaced)
+                return;
+
+            if (menuOn.Contains(e.mousePosition))
+            {
+                if (!menuValue)
+                    ConfigWriter.Set(menuRow, true);
+
+                CloseMenu();
+                e.Use();
+                return;
+            }
+
+            if (menuOff.Contains(e.mousePosition))
+            {
+                if (menuValue)
+                    ConfigWriter.Set(menuRow, false);
+
+                CloseMenu();
+                e.Use();
+                return;
+            }
+
+            bool onButton = menuAnchor.Contains(e.mousePosition);
+            CloseMenu();
+
+            // Swallowed only when it landed on the button itself, so clicking the button while the
+            // menu is open closes it rather than closing and immediately reopening.
+            if (onButton)
+                e.Use();
+        }
+
+        /// <summary>
+        /// Works out where the menu sits in window space, from the anchor recorded while the row
+        /// was drawn inside the scroll view.
+        /// </summary>
+        public static void PlaceMenu(Vector2 scroll, Rect view)
+        {
+            if (openMenu == null || menuRow == null)
+                return;
+
+            var anchor = new Rect(menuAnchorContent.x + view.x - scroll.x,
+                menuAnchorContent.y + view.y - scroll.y,
+                menuAnchorContent.width, menuAnchorContent.height);
+
+            // A row scrolled out of sight takes its menu with it.
+            if (anchor.yMax < view.y || anchor.y > view.yMax)
+            {
+                CloseMenu();
+                return;
+            }
+
+            float itemHeight = anchor.height;
+            float below = anchor.yMax + 2f;
+
+            // Flipped above the button when there is no room under it, which is the usual case for
+            // the last rows of a long section.
+            if (below + itemHeight * 2f > view.yMax)
+                below = anchor.y - 2f - itemHeight * 2f;
+
+            menuAnchor = anchor;
+            menuOn = new Rect(anchor.x, below, anchor.width, itemHeight);
+            menuOff = new Rect(anchor.x, below + itemHeight, anchor.width, itemHeight);
+            menuPlaced = true;
+        }
+
+        /// <summary>
+        /// Paints the open menu on top of everything. Deliberately draws no controls - the clicks
+        /// were dealt with by <see cref="HandleMenuInput"/> before the list existed.
+        /// </summary>
+        public static void PaintMenu()
+        {
+            if (openMenu == null || !menuPlaced)
+                return;
+
+            var frame = new Rect(menuOn.x, menuOn.y, menuOn.width, menuOn.height + menuOff.height);
+
+            Skin.Fill(frame, Skin.PanelHigh);
+            Skin.Frame(frame, Skin.Accent);
+
+            PaintItem(menuOn, "on", menuValue);
+            PaintItem(menuOff, "off", !menuValue);
+        }
+
+        private static void PaintItem(Rect rect, string label, bool chosen)
+        {
+            bool hot = rect.Contains(Event.current.mousePosition);
+
+            if (chosen)
+                Skin.Fill(rect, Skin.Selected);
+            else if (hot)
+                Skin.Fill(rect, Skin.RowHover);
+
+            Skin.Text(rect, label, chosen ? Skin.MenuItemActive : Skin.MenuItem,
+                chosen ? Skin.Accent : Skin.Ink);
         }
 
         private static void DrawShortcut(Rect rect, SettingRow row, KeyboardShortcut value)

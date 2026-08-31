@@ -43,6 +43,10 @@ and anywhere else.
   a panel on the right.
 - **Search** (the box across the top) switches to a flat list of matches from every mod at once,
   with the rail becoming a scope filter. Useful when you know the word but not which mod owns it.
+- **Profiles** exports every mod's settings to a single shareable file, and imports one back.
+  Values are written in BepInEx's own format, so a profile round-trips any setting type and stays
+  legible enough to hand-edit. Settings for mods the importer doesn't have are skipped rather
+  than treated as an error. Profiles live in `BepInEx/config-profiles/`.
 - **Updates** compares what's installed against `mods.json` in this repo, and downloads what you
   ask it to.
 

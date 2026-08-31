@@ -45,6 +45,9 @@ namespace ModManager
 
         private static bool Searching => !string.IsNullOrEmpty(query.Trim());
 
+        /// <summary>The discovered plugins, shared with the profiles tab.</summary>
+        internal static List<PluginSettings> Plugins => plugins;
+
         public static void Refresh()
         {
             plugins = ConfigDiscovery.Collect();

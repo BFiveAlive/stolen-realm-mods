@@ -9,6 +9,7 @@ namespace ModManager
     {
         Settings,
         Updates,
+        Profiles,
         About
     }
 
@@ -49,6 +50,7 @@ namespace ModManager
         public static void Refresh()
         {
             SettingsBrowser.Refresh();
+            ProfilesTab.Refresh();
         }
 
         public static void Draw()
@@ -117,6 +119,10 @@ namespace ModManager
                     GUILayout.EndArea();
                     break;
 
+                case Tab.Profiles:
+                    ProfilesTab.Draw(body);
+                    break;
+
                 default:
                     DrawAbout(body);
                     break;
@@ -152,6 +158,7 @@ namespace ModManager
             int available = UpdateService.Statuses.Count(s => s.UpdateAvailable);
 
             x = DrawTab(x, area, Tab.About, "About", 92f);
+            x = DrawTab(x, area, Tab.Profiles, "Profiles", 110f);
             x = DrawTab(x, area, Tab.Updates,
                 available > 0 ? "Updates (" + available + ")" : "Updates", 132f);
             DrawTab(x, area, Tab.Settings, "Settings", 108f);

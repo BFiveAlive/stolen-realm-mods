@@ -32,6 +32,7 @@ Windows only. The installer is unsigned, so SmartScreen will ask before running 
 | [CumulativeStatsMod](CumulativeStatsMod/) | Toggles the post-battle stats window between the last battle and the whole run |
 | [StatusEffectsMod](StatusEffectsMod/) | Config-driven edits to status effect duration, potency and stacking |
 | [AutoEquipMod](AutoEquipMod/) | Offers to equip a better item as soon as you pick one up, from any source |
+| [SummonerMod](SummonerMod/) | Tunes summon damage, health, dodge and the summon limit |
 
 ## Mod manager
 

@@ -3,7 +3,7 @@
   "bepinex": {
     "version": "5.4.23.5",
     "url": "https://github.com/BepInEx/BepInEx/releases/download/v5.4.23.5/BepInEx_win_x64_5.4.23.5.zip",
-    "sha256": ""
+    "sha256": "82f9878551030f54657792c0740d9d51a09500eeae1fba21106b0c441e6732c4"
   },
   "mods": [
     {
@@ -12,8 +12,8 @@
       "folder": "AutoEquipMod",
       "version": "0.1.0",
       "description": "Offers to equip a better item as soon as you pick one up.",
-      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.0/AutoEquipMod-0.1.0.zip",
-      "sha256": "7bade81d699ded5a6d8b508d484f4b11d9458eee8f4cebb906d3acb092c8e5db",
+      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.1/AutoEquipMod-0.1.0.zip",
+      "sha256": "e35f4eb7a847c0a6dc3a5ffc755b5994f810d3a4819885c8f7890a0ea639ed2f",
       "recommended": true
     },
     {
@@ -22,18 +22,18 @@
       "folder": "CumulativeStatsMod",
       "version": "0.1.0",
       "description": "Toggles the post-battle stats window between the last battle and the whole run.",
-      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.0/CumulativeStatsMod-0.1.0.zip",
-      "sha256": "318ad767cd0acf804e9dd8a76a119677572ed68e0018b6a73bd5e01795023177",
+      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.1/CumulativeStatsMod-0.1.0.zip",
+      "sha256": "d7aeb5eeca17e8670499a2147a5699499e072ec9857f8704fe1ee52030ecec4c",
       "recommended": true
     },
     {
       "guid": "bfivealive.stolenrealm.modmanager",
       "name": "Mod Manager",
       "folder": "ModManager",
-      "version": "0.4.0",
+      "version": "0.4.1",
       "description": "In-game settings editor and updater for every mod here.",
-      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.0/ModManager-0.4.0.zip",
-      "sha256": "5a3663e0dcb10eb4782d25d08efe03f47a23f861cef711b0fbf10444e6ae1b4f",
+      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.1/ModManager-0.4.1.zip",
+      "sha256": "2abe76de81ec760c85d35024992393e5ceffbc0b166439ff58e4c8df4d1c78e5",
       "recommended": true
     },
     {
@@ -42,8 +42,8 @@
       "folder": "SkillWeightMod",
       "version": "0.3.0",
       "description": "Weights roguelike skill offers toward what your character already has.",
-      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.0/SkillWeightMod-0.3.0.zip",
-      "sha256": "4ac1990041e3c4c0eaa054d2ee095c5d5a2338b85ef348a7a7251cab87b344f0",
+      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.1/SkillWeightMod-0.3.0.zip",
+      "sha256": "584c3b66d21c959dff80f96d77b187519b6c832acd440c9e1e717719fa89edc2",
       "recommended": true
     },
     {
@@ -52,8 +52,8 @@
       "folder": "StatusEffectsMod",
       "version": "0.2.1",
       "description": "Config-driven edits to status effect duration, potency and stacking.",
-      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.0/StatusEffectsMod-0.2.1.zip",
-      "sha256": "7657ae8f3a30b1a35f795c29193e971121edf1d932fe3027c82443bf41bda026",
+      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.1/StatusEffectsMod-0.2.1.zip",
+      "sha256": "dbe6e270f26b88c170ee743b4ee937cba8e8107fb826095feca66c908134ebc7",
       "recommended": true
     },
     {
@@ -62,8 +62,8 @@
       "folder": "SummonerMod",
       "version": "0.1.0",
       "description": "Tunes how strong summons are: their scaling with the summoner's stats, their level curves and the summon limit.",
-      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.0/SummonerMod-0.1.0.zip",
-      "sha256": "912a3c8f9fdd6a2144447964c846c32cd4dd20ff2682a36e721a574aed0b8c8e",
+      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.1/SummonerMod-0.1.0.zip",
+      "sha256": "c3e79b866fc6936bab50a6248f4e3d1434d62c4aee940b3534510ebf3dce5411",
       "recommended": true
     }
   ]

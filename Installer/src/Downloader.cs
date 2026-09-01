@@ -59,15 +59,31 @@ internal sealed class Downloader : IDisposable
         return buffer.ToArray();
     }
 
+    /// <summary>
+    /// Refuses anything whose contents do not match the manifest.
+    ///
+    /// A missing hash is refused rather than skipped. Returning quietly when the manifest says
+    /// nothing turns a corrupt, truncated or substituted download into a silent install, and the
+    /// case where that matters most - a manifest that lost its hashes, however it lost them - is
+    /// exactly the case where skipping looks like success.
+    /// </summary>
     public static void VerifyChecksum(byte[] data, string? expected, string label)
     {
         if (string.IsNullOrWhiteSpace(expected))
-            return;
+        {
+            throw new InvalidDataException(
+                $"The mod list gives no checksum for {label}, so it cannot be verified. " +
+                "Nothing was installed.");
+        }
 
         string actual = Convert.ToHexString(SHA256.HashData(data)).ToLowerInvariant();
 
         if (!string.Equals(actual, expected.Trim(), StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException($"Checksum mismatch for {label}. Nothing was installed.");
+        {
+            throw new InvalidDataException(
+                $"Checksum mismatch for {label}: expected {expected.Trim()}, got {actual}. " +
+                "Nothing was installed.");
+        }
     }
 
     /// <summary>

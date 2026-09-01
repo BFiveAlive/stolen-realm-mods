@@ -203,12 +203,21 @@ Remove-Item $installerOut -Recurse -Force
 # silent way for every future install to start behaving differently from this one.
 $bepinexVersion = '5.4.23.5'
 
+# SHA-256 of BepInEx_win_x64_5.4.23.5.zip, recorded once and checked by the installer before it
+# unpacks anything over the game folder. Two independent sources agreed on it: hashing the
+# downloaded file, and the digest GitHub reports for that asset in its releases API.
+#
+# This must be updated deliberately whenever $bepinexVersion changes - a stale hash fails the
+# install loudly, which is the intended failure. Never "fix" a mismatch by regenerating this from
+# whatever the download happened to produce; that is the check answering its own question.
+$bepinexSha256 = '82f9878551030f54657792c0740d9d51a09500eeae1fba21106b0c441e6732c4'
+
 $manifest = [ordered]@{
     schemaVersion = 1
     bepinex       = [ordered]@{
         version = $bepinexVersion
         url     = "https://github.com/BepInEx/BepInEx/releases/download/v$bepinexVersion/BepInEx_win_x64_$bepinexVersion.zip"
-        sha256  = ''
+        sha256  = $bepinexSha256
     }
     mods          = $entries
 }

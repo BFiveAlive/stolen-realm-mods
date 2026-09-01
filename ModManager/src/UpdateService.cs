@@ -208,14 +208,20 @@ namespace ModManager
                 yield break;
             }
 
-            if (!string.IsNullOrEmpty(release.sha256))
+            // A missing checksum is refused rather than skipped. Skipping would turn a
+            // manifest that lost its hashes into an unverified download that still reports
+            // success, which is the one case where the check was worth having.
+            if (string.IsNullOrEmpty(release.sha256))
             {
-                string actual = Sha256(payload);
-                if (!string.Equals(actual, release.sha256.Trim(), StringComparison.OrdinalIgnoreCase))
-                {
-                    Fail("Checksum mismatch for " + status.DisplayName + "; the file was not saved.");
-                    yield break;
-                }
+                Fail("The mod list gives no checksum for " + status.DisplayName
+                     + ", so it cannot be verified. Nothing was saved.");
+                yield break;
+            }
+
+            if (!string.Equals(Sha256(payload), release.sha256.Trim(), StringComparison.OrdinalIgnoreCase))
+            {
+                Fail("Checksum mismatch for " + status.DisplayName + "; the file was not saved.");
+                yield break;
             }
 
             // Written only after the bytes are in hand and verified, so an interrupted download

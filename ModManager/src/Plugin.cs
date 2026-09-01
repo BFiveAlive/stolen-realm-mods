@@ -19,7 +19,7 @@ namespace ModManager
     {
         public const string Guid = "bfivealive.stolenrealm.modmanager";
         public const string Name = "Mod Manager";
-        public const string Version = "0.4.0";
+        public const string Version = "0.4.1";
 
         internal static ManualLogSource Log;
         internal static Plugin Instance { get; private set; }

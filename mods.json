@@ -10,10 +10,10 @@
       "guid": "bfivealive.stolenrealm.autoequipmod",
       "name": "Auto Equip Mod",
       "folder": "AutoEquipMod",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "description": "Offers to equip a better item as soon as you pick one up.",
-      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.2/AutoEquipMod-0.1.0.zip",
-      "sha256": "ed926868f34ea6f3e381d0086a246229828e439be0a532c1d7e90e8f98dd3858",
+      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.3/AutoEquipMod-0.2.0.zip",
+      "sha256": "7aac731b0a55c971997f9f6f1e3daae72595446f4bf238b41f3f6582f216f3ce",
       "recommended": true
     },
     {
@@ -22,18 +22,18 @@
       "folder": "CumulativeStatsMod",
       "version": "0.1.0",
       "description": "Toggles the post-battle stats window between the last battle and the whole run.",
-      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.2/CumulativeStatsMod-0.1.0.zip",
-      "sha256": "e9a09705ce745258c0d794ffb7ce71900721abf917a055072fe84f0a262a3a6e",
+      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.3/CumulativeStatsMod-0.1.0.zip",
+      "sha256": "f354ff5bc21d98790a69f06bacc3d4c1ebcd0b8ed6dc528d38d8e96843a351ce",
       "recommended": true
     },
     {
       "guid": "bfivealive.stolenrealm.modmanager",
       "name": "Mod Manager",
       "folder": "ModManager",
-      "version": "0.4.1",
+      "version": "0.4.2",
       "description": "In-game settings editor and updater for every mod here.",
-      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.2/ModManager-0.4.1.zip",
-      "sha256": "0c8b0a162294eee6f080c2f8c78e566869f601d42fae72e01a59db57fbc89626",
+      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.3/ModManager-0.4.2.zip",
+      "sha256": "34223d056b101a35a431afb1df4a14c228d41e36f37fee4542be83f02ec28be1",
       "recommended": true
     },
     {
@@ -42,8 +42,8 @@
       "folder": "SkillWeightMod",
       "version": "0.3.0",
       "description": "Weights roguelike skill offers toward what your character already has.",
-      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.2/SkillWeightMod-0.3.0.zip",
-      "sha256": "41dd3677fec0dbff187b5dd77dab3fd19ad9ac64c29c307ed12d1ea0c6d7a5cd",
+      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.3/SkillWeightMod-0.3.0.zip",
+      "sha256": "d0a50115f892bcd793a7861538db0a81c5054fb59cdf89eed6cf4722fe878235",
       "recommended": true
     },
     {
@@ -52,18 +52,18 @@
       "folder": "StatusEffectsMod",
       "version": "0.2.1",
       "description": "Config-driven edits to status effect duration, potency and stacking.",
-      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.2/StatusEffectsMod-0.2.1.zip",
-      "sha256": "ff5bbd8f550bcd6a7644f0c55954148ed1b5da53b35b0414a83d047464adbcac",
+      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.3/StatusEffectsMod-0.2.1.zip",
+      "sha256": "dd9745f241b4fbb8b308b55f12b47b2f6bf189a8bdffcf71d758ce718ad30852",
       "recommended": true
     },
     {
       "guid": "bfivealive.stolenrealm.summonermod",
       "name": "Summoner Mod",
       "folder": "SummonerMod",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "description": "Tunes how strong summons are: their scaling with the summoner's stats, their level curves and the summon limit.",
-      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.2/SummonerMod-0.1.0.zip",
-      "sha256": "d6fb756cdf5e119ce8b416d2c5db2510a52c3f82f8c0730628b5649360514abe",
+      "url": "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.5.3/SummonerMod-0.2.0.zip",
+      "sha256": "27fc05a496262b28354297a30694307216e1d3f670a92db7afb129bce701d7f0",
       "recommended": true
     }
   ]

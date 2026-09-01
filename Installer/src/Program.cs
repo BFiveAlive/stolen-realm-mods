@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace Installer;
 
 /// <summary>
-/// Installs BepInEx and a chosen set of Stolen Realm mods into the game folder.
+/// Installs BepInEx and the Stolen Realm mods into the game folder.
 ///
 /// Nothing in the game's own files is modified. BepInEx works by a proxy DLL sitting next to the
 /// executable, so uninstalling is deleting the files this put there - which is what --uninstall
@@ -88,6 +88,16 @@ internal static class Program
             Console.WriteLine();
             Ui.Info($"About to install {chosen.Count} mod(s) into:");
             Ui.Info("  " + gameDir);
+            Console.WriteLine();
+
+            // Listed rather than counted: without the picker this is the only place the user sees
+            // what they are agreeing to.
+            foreach (var mod in chosen)
+                Ui.Muted($"  - {mod.Name}  v{mod.Version}");
+
+            Console.WriteLine();
+            Ui.Muted("  Re-run with --choose to install only some of them.");
+            Console.WriteLine();
 
             if (!Ui.Confirm("Continue?"))
             {
@@ -183,13 +193,18 @@ internal static class Program
         return null;
     }
 
+    /// <summary>
+    /// Everything in the mod list, unless the user asked to pick.
+    ///
+    /// The mods are independent and each one does nothing until its settings are changed, so the
+    /// useful default is to have them all available and decide in game rather than to decide here,
+    /// before having seen any of them. Picking is still there behind --choose for anyone who wants
+    /// a smaller install.
+    /// </summary>
     private static List<ModRelease> ChooseMods(Manifest manifest, InstalledState installed, Options options)
     {
-        if (options.All)
+        if (!options.Choose)
             return manifest.Mods;
-
-        if (options.AssumeYes)
-            return manifest.Mods.Where(m => m.Recommended).ToList();
 
         return Ui.MultiSelect(
             "Choose what to install",
@@ -207,9 +222,9 @@ internal static class Program
 
                 return status;
             },
-            // Anything already installed stays ticked so a re-run updates rather than silently
-            // dropping it; otherwise fall back to what the manifest recommends.
-            m => installed.VersionOf(m.Guid) is not null || m.Recommended);
+            // All ticked to start with, matching what installing without --choose would do; the
+            // point of this screen is to take things off the list.
+            m => true);
     }
 
     private static bool IsBepInExInstalled(string gameDir)
@@ -330,7 +345,7 @@ internal sealed class Options
 {
     public string? GameDir { get; private set; }
     public string ManifestUrl { get; private set; } = "";
-    public bool All { get; private set; }
+    public bool Choose { get; private set; }
     public bool AssumeYes { get; private set; }
     public bool Uninstall { get; private set; }
     public bool ShowHelp { get; private set; }
@@ -349,8 +364,14 @@ internal sealed class Options
                 case "--manifest" when i + 1 < args.Length:
                     options.ManifestUrl = args[++i];
                     break;
+                case "--choose":
+                case "--pick":
+                    options.Choose = true;
+                    break;
                 case "--all":
-                    options.All = true;
+                    // Kept so older instructions still work; installing everything is now what
+                    // happens anyway.
+                    options.Choose = false;
                     break;
                 case "-y":
                 case "--yes":
@@ -377,11 +398,11 @@ internal sealed class Options
         Console.WriteLine("""
             Stolen Realm mod installer
 
-              (no arguments)      find the game, then pick mods from a list
+              (no arguments)      find the game and install every mod, after confirming
               --game <path>       use this Stolen Realm folder instead of searching
               --manifest <url>    read the mod list from somewhere else
-              --all               install everything in the list
-              -y, --yes           no prompts; installs the recommended set
+              --choose            pick which mods to install instead of installing all
+              -y, --yes           no prompts; installs everything
               --uninstall         remove BepInEx and all mods, leaving the game vanilla
               -h, --help          this text
             """);

@@ -30,6 +30,9 @@ internal sealed class ModRelease
     [JsonPropertyName("url")] public string Url { get; set; } = "";
     [JsonPropertyName("sha256")] public string Sha256 { get; set; } = "";
 
-    /// <summary>Ticked by default on a fresh install.</summary>
+    /// <summary>
+    /// Part of the manifest schema, which the in-game updater shares, but no longer consulted
+    /// here: the installer installs everything. Kept so the two readers agree on the format.
+    /// </summary>
     [JsonPropertyName("recommended")] public bool Recommended { get; set; }
 }

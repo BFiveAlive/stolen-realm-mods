@@ -1,15 +1,23 @@
 # Installer
 
-A standalone console app that sets up BepInEx and a chosen set of mods.
+A standalone console app that sets up BepInEx and the mods.
 
 ```
-StolenRealmModInstaller.exe               find the game, then pick mods from a list
+StolenRealmModInstaller.exe   find the game and install every mod, after confirming
   --game <path>       use this Stolen Realm folder instead of searching
   --manifest <url>    read the mod list from somewhere else
-  --all               install everything in the list
-  -y, --yes           no prompts; installs the recommended set
+  --choose            pick which mods to install instead of installing all
+  -y, --yes           no prompts; installs everything
   --uninstall         remove BepInEx and all mods, leaving the game vanilla
 ```
+
+## What gets installed
+
+Everything in the mod list. The mods are independent of one another and each one sits inert until
+its settings are changed, so installing all of them costs a few hundred kilobytes and decides
+nothing — which beats asking someone to choose between six mods they have not seen yet. The run
+lists what it is about to install and waits for confirmation, and `--choose` brings back the
+tick-list for anyone who wants a smaller install.
 
 ## Finding the game
 
@@ -29,7 +37,7 @@ Downloads are checked against the SHA-256 in `mods.json` where one is given. A m
 doesn't abandon the others — each is an independent set of files.
 
 What was installed is recorded in `BepInEx/mod-updates/installed.json`, so a later run can show
-which mods are already present and at what version, and pre-tick them.
+which mods are already present and at what version.
 
 ## Uninstalling
 

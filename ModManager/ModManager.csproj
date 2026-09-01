@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>ModManager</AssemblyName>
     <RootNamespace>ModManager</RootNamespace>
-    <Version>0.4.1</Version>
+    <Version>0.4.2</Version>
     <LangVersion>latest</LangVersion>
     <Description>In-game settings editor and updater for every mod here.</Description>
     <NoWarn>$(NoWarn);CS0436;MSB3277</NoWarn>

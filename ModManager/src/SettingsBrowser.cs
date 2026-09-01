@@ -88,6 +88,32 @@ namespace ModManager
             rowsKey = null;
         }
 
+        /// <summary>
+        /// Picks up settings bound after the panel was opened. Checked once per frame rather than
+        /// only on open, because the mods that bind late do so while the panel may already be
+        /// sitting open in front of the reader.
+        /// </summary>
+        public static void RefreshIfStale()
+        {
+            if (!ConfigDiscovery.HasChanged(plugins))
+                return;
+
+            string keepPlugin = selectedPlugin >= 0 && selectedPlugin < plugins.Count
+                ? plugins[selectedPlugin].Guid
+                : null;
+
+            Refresh();
+
+            // The rail is rebuilt and re-sorted, so holding the index would silently move the
+            // reader to a different mod. The GUID is what they actually selected.
+            if (keepPlugin != null)
+            {
+                int again = plugins.FindIndex(p => p.Guid == keepPlugin);
+                if (again >= 0)
+                    selectedPlugin = again;
+            }
+        }
+
         public static void Draw(Rect area)
         {
             if (plugins.Count == 0)

@@ -19,7 +19,7 @@ namespace ModManager
     {
         public const string Guid = "bfivealive.stolenrealm.modmanager";
         public const string Name = "Mod Manager";
-        public const string Version = "0.4.1";
+        public const string Version = "0.4.2";
 
         internal static ManualLogSource Log;
         internal static Plugin Instance { get; private set; }
@@ -76,7 +76,13 @@ namespace ModManager
                 ConfigWriter.Tick();
 
                 if (open)
+                {
+                    // Done here rather than inside OnGUI: a rebuild landing between the layout
+                    // and repaint passes of one frame would change the control set halfway
+                    // through drawing it.
+                    SettingsBrowser.RefreshIfStale();
                     EnforceCursor();
+                }
             }
             catch (Exception e)
             {

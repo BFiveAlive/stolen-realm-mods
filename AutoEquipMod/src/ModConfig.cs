@@ -32,8 +32,11 @@ namespace AutoEquipMod
 
         public static void Bind(ConfigFile cfg)
         {
-            Enabled = cfg.Bind("General", "Enabled", true,
-                "Master switch. Off means the game behaves exactly as it does without this mod.");
+            Enabled = cfg.Bind("General", "Enabled", false,
+                "Master switch. Off means the game behaves exactly as it does without this mod. " +
+                "This mod ships OFF, unlike the others here: it is the one that acts on its own " +
+                "rather than waiting to be configured, and equipping a character's gear for them " +
+                "uninvited is not a thing to do before being asked. Turn it on to use it.");
 
             AskBeforeReplacing = cfg.Bind("General", "AskBeforeReplacing", true,
                 "Ask before swapping something you are already wearing. Turn this off to equip " +

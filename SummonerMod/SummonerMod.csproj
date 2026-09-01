@@ -5,7 +5,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>SummonerMod</AssemblyName>
     <RootNamespace>SummonerMod</RootNamespace>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <LangVersion>latest</LangVersion>
     <Description>Tunes how strong summons are: their scaling with the summoner's stats, their level curves and the summon limit.</Description>
     <NoWarn>$(NoWarn);CS0436;MSB3277</NoWarn>

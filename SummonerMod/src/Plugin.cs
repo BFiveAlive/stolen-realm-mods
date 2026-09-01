@@ -19,7 +19,7 @@ namespace SummonerMod
     {
         public const string Guid = "bfivealive.stolenrealm.summonermod";
         public const string Name = "Summoner Mod";
-        public const string Version = "0.1.0";
+        public const string Version = "0.2.0";
 
         internal static ManualLogSource Log;
 

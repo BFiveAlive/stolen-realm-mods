@@ -5,7 +5,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>AutoEquipMod</AssemblyName>
     <RootNamespace>AutoEquipMod</RootNamespace>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <LangVersion>latest</LangVersion>
     <Description>Offers to equip a better item as soon as you pick one up.</Description>
     <NoWarn>$(NoWarn);CS0436;MSB3277</NoWarn>

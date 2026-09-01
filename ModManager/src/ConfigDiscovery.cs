@@ -62,6 +62,53 @@ namespace ModManager
                 ExtraFiles[pluginGuid] = file;
         }
 
+        /// <summary>
+        /// Whether any plugin has bound or unbound settings since these were collected.
+        ///
+        /// A mod may bind settings long after startup, because the data it describes is not there
+        /// at startup: Status Effects Mod binds 470 entries once the game's status table comes out
+        /// of the asset bundles, which is somewhere past ten seconds in and varies with load
+        /// speed. Opening the panel before that and leaving it open would otherwise show the five
+        /// settings that existed at the time, with no sign that the rest were on their way.
+        ///
+        /// Counting entries is enough to notice, and cheap enough to do every frame: it is one
+        /// dictionary Count per loaded plugin, not a rebuild. Only a change triggers the rebuild.
+        /// </summary>
+        public static bool HasChanged(List<PluginSettings> collected)
+        {
+            if (collected == null)
+                return true;
+
+            int seen = 0;
+
+            foreach (var pair in Chainloader.PluginInfos)
+            {
+                var instance = pair.Value != null ? pair.Value.Instance : null;
+                if (instance == null)
+                    continue;
+
+                var file = instance.Config;
+                if (file == null)
+                    ExtraFiles.TryGetValue(pair.Value.Metadata.GUID, out file);
+
+                if (file == null || file.Count == 0)
+                    continue;
+
+                seen++;
+
+                // Matched by GUID rather than by position, since the rail is sorted and a plugin
+                // that binds its first setting late arrives in the middle of the list.
+                var known = collected.Find(p => p.Guid == pair.Value.Metadata.GUID);
+
+                if (known == null || known.Rows.Count != file.Count)
+                    return true;
+            }
+
+            // A plugin dropping out of the list is not something BepInEx does, but comparing both
+            // directions costs nothing and means the check cannot answer "no change" wrongly.
+            return seen != collected.Count;
+        }
+
         public static List<PluginSettings> Collect()
         {
             var result = new List<PluginSettings>();

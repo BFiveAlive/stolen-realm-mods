@@ -31,9 +31,11 @@ namespace SummonerMod
 
         public static void Bind(ConfigFile cfg)
         {
-            Enabled = cfg.Bind("General", "Enabled", true,
+            Enabled = cfg.Bind("General", "Enabled", false,
                 "Master switch. When false every value is restored to what the game shipped and " +
-                "the rest of this file is ignored.");
+                "the rest of this file is ignored. This mod ships OFF: two of its settings scale " +
+                "crit for your whole party rather than for summons alone, so it is not a change " +
+                "that should arrive unannounced. Turn it on to use it.");
 
             HotReloadConfig = cfg.Bind("General", "HotReloadConfig", true,
                 "Watch this file and apply edits immediately, without restarting the game. " +

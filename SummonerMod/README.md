@@ -2,6 +2,10 @@
 
 Tunes how strong summons are.
 
+**Ships off.** `Enabled` starts `false`. Every multiplier defaults to 1, so switching it on
+changes nothing by itself - but two of the settings scale crit for your whole party rather than
+for summons alone, which is not a change that should arrive unannounced with an install.
+
 It patches nothing. Everything the game uses to decide a summon's damage, health, dodge and how
 many you may have at once is a value in a single global settings object, so this mod reads those,
 remembers what they were, and multiplies them. No Harmony patch means nothing here to break when

@@ -2,6 +2,11 @@
 
 Offers to equip an item as soon as you pick it up, from any source.
 
+**Ships off.** Every other mod here waits to be configured before it changes anything; this one
+acts on its own the moment an item lands, and with `FillEmptySlotsSilently` it equips without
+asking. That is not a thing to start doing to someone's characters uninvited, so `Enabled` starts
+`false` and the mod does nothing until you turn it on.
+
 ## How it hooks in
 
 One Harmony patch, on `Character.AddToItemList`. That is the single method every acquired item

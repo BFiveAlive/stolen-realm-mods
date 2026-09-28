@@ -11,10 +11,16 @@ namespace SkillWeightMod
     /// <summary>
     /// Replaces RoguelikeManager.GetSkillChoices with a synergy-weighted version.
     ///
-    /// The eligibility pool, the per-option tier roll and the per-tier maximums are all
-    /// reproduced exactly as vanilla computes them. The only behavioural change is the final
-    /// pick within a tier: vanilla orders the tier's candidates by Random.value and takes the
-    /// first (a uniform draw), while this picks by weight from <see cref="SkillWeighting"/>.
+    /// The eligibility pool, the player's blocked skill trees, the per-option tier roll, the
+    /// per-tier maximums and the empty-tier fallback are all reproduced as vanilla computes them.
+    /// The only behavioural change is the final pick: vanilla orders candidates by Random.value
+    /// and takes the first (a uniform draw), while this picks by weight from
+    /// <see cref="SkillWeighting"/>.
+    ///
+    /// Because the prefix returns false, NOTHING in the vanilla body runs. Anything the game adds
+    /// to that method later is silently skipped until it is mirrored here - which is exactly how
+    /// the skill-tree blocking added in the September 2026 update was first bypassed. The startup
+    /// check in <see cref="GameVersionCheck"/> exists to make that kind of drift loud.
     ///
     /// Any unexpected state makes the prefix return true, which runs the untouched original.
     /// A broken mod therefore degrades to vanilla rolls rather than to a crash.
@@ -54,7 +60,8 @@ namespace SkillWeightMod
 
             try
             {
-                List<SkillInfo> choices = BuildWeightedChoices(__instance, numOptions, level, alreadyObtained, forcedTier);
+                List<SkillInfo> choices = BuildWeightedChoices(__instance, numOptions, level,
+                                                               alreadyObtained, forcedTier);
                 if (choices == null)
                     return true;
 
@@ -80,13 +87,17 @@ namespace SkillWeightMod
             if (settings == null || Burst2Flame.Game.Instance == null || SteamManager.instance == null)
                 return null;
 
-            // Set by OpenSkillSelectWindow immediately before PopulateSkillChoices, so it is
-            // the character this roll belongs to. Null history simply disables the damping.
-            Dictionary<Guid, int> history = OfferHistory.For(manager.CurrentRoguelikeSkillSelectingCharacter);
+            // The 2026-09 build passes the rolling character to GetSkillChoices, but declaring
+            // that parameter on the prefix would make Harmony fail to bind on older builds and
+            // take the whole plugin down. OpenSkillSelectWindow assigns this immediately before
+            // calling PopulateSkillChoices, on every build, so it is the portable source.
+            // Null history simply disables the damping.
+            Character roller = manager.CurrentRoguelikeSkillSelectingCharacter;
+            Dictionary<Guid, int> history = OfferHistory.For(roller);
 
             LastRoll.Clear();
 
-            List<SkillInfo> pool = BuildEligiblePool(alreadyObtained);
+            List<SkillInfo> pool = BuildEligiblePool(alreadyObtained, roller);
             var chosenSkills = new List<SkillInfo>();
 
             for (int i = 0; i < numOptions; i++)
@@ -106,8 +117,8 @@ namespace SkillWeightMod
 
                 SkillInfo pick = PickFromTier(pool, chosenSkills, tierToRoll, alreadyObtained, history);
 
-                // Vanilla calls .First() here and throws when a tier is exhausted. Stopping
-                // early instead hands back the options we did manage to fill.
+                // Matches vanilla: nothing left anywhere in the pool ends the roll early with
+                // however many options were filled.
                 if (pick == null)
                     break;
 
@@ -122,8 +133,11 @@ namespace SkillWeightMod
             return chosenSkills;
         }
 
-        /// <summary>Mirrors vanilla's eligibility filter and its exclusion of owned/replaced/disabled skills.</summary>
-        private static List<SkillInfo> BuildEligiblePool(List<SkillInfo> alreadyObtained)
+        /// <summary>
+        /// Mirrors vanilla's eligibility filter, the player's blocked skill trees, and the
+        /// exclusion of owned/replaced/disabled skills.
+        /// </summary>
+        private static List<SkillInfo> BuildEligiblePool(List<SkillInfo> alreadyObtained, Character character)
         {
             List<SkillInfo> pool = Burst2Flame.Game.Instance.Skills.Where(x =>
                 !x.Disabled &&
@@ -132,6 +146,14 @@ namespace SkillWeightMod
                 !x.DontIncludeInTree &&
                 Burst2Flame.Game.Instance.FullReleaseModeEnabled(x) &&
                 SteamManager.instance.MeetsDLCRequirements(x.SkillType)).ToList();
+
+            // Skill trees the player has blocked for this character. Asked of the game rather
+            // than reimplemented: its own check also enforces the removal-point budget and the
+            // available-tree list, so the game stays the sole authority on what counts as
+            // blocked. Empty on game builds that predate the feature.
+            List<SkillType> blockedTrees = TreeBlocking.For(character);
+            if (blockedTrees.Count > 0)
+                pool.RemoveAll(x => blockedTrees.Contains(x.SkillType));
 
             var excluded = new List<SkillInfo>();
             foreach (SkillInfo skill in alreadyObtained)
@@ -166,8 +188,9 @@ namespace SkillWeightMod
         }
 
         /// <summary>
-        /// Weighted pick within a tier. Falls back down through lower tiers when a tier has been
-        /// exhausted, which is the case vanilla would throw on.
+        /// Weighted pick within the rolled tier, falling back to the whole remaining pool when
+        /// that tier is empty - the same two-step fallback vanilla uses. Blocked skill trees make
+        /// an empty tier far more likely than before, which is why the game added it.
         /// </summary>
         private static SkillInfo PickFromTier(
             List<SkillInfo> pool,
@@ -176,14 +199,17 @@ namespace SkillWeightMod
             List<SkillInfo> alreadyObtained,
             Dictionary<Guid, int> history)
         {
-            for (int t = tier; t >= 1; t--)
+            // Pass 0: the rolled tier. Pass 1: anything not already offered, any tier.
+            for (int pass = 0; pass < 2; pass++)
             {
                 List<SkillInfo> candidates = pool
-                    .Where(x => !chosenSkills.Contains(x) && x.Tier == t)
+                    .Where(x => !chosenSkills.Contains(x) && (pass == 1 || x.Tier == tier))
                     .ToList();
 
                 if (candidates.Count == 0)
                     continue;
+
+                int t = pass == 0 ? tier : 0;   // 0 marks the any-tier fallback in the roll log
 
                 List<float> weights = candidates
                     .Select(c => SkillWeighting.ComputeWeight(c, alreadyObtained, OfferHistory.TimesOffered(history, c)))
@@ -222,7 +248,9 @@ namespace SkillWeightMod
         {
             float total = weights.Sum();
             var sb = new StringBuilder();
-            sb.AppendLine($"Tier {tier} roll over {candidates.Count} candidates:");
+            sb.AppendLine(tier > 0
+                ? $"Tier {tier} roll over {candidates.Count} candidates:"
+                : $"Rolled tier was empty; any-tier fallback over {candidates.Count} candidates:");
 
             var ranked = candidates
                 .Select((c, i) => new { Skill = c, Weight = weights[i] })

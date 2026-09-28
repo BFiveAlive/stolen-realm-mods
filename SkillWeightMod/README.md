@@ -5,22 +5,26 @@ instead of vanilla's uniform draw within a tier.
 
 ## What it actually changes
 
-Vanilla `RoguelikeManager.GetSkillChoices` builds a pool of eligible skills, rolls a tier per
-option, then picks uniformly at random from that tier:
+Vanilla `RoguelikeManager.GetSkillChoices` builds a pool of eligible skills, removes any
+skill trees the player has blocked, rolls a tier per option, then picks uniformly at random
+from that tier:
 
 ```csharp
-chosenSkills.Add((from x in list
+SkillInfo skillInfo = (from x in list
     where !chosenSkills.Contains(x) && x.Tier == tierToRoll
     orderby UnityEngine.Random.value
-    select x).First());
+    select x).FirstOrDefault();
 ```
 
 This mod replaces the method with a Harmony prefix that reproduces the eligibility pool, the
-tier roll and the per-tier maximums **exactly**, and changes only that last line into a
-weighted pick.
+blocked trees, the tier roll, the per-tier maximums and the empty-tier fallback **exactly**, and
+changes only that pick into a weighted one.
 
 Deliberately unchanged: which tier you roll, how many options you get, per-tier caps,
-DLC/disabled/replaced filtering, and the exclusion of skills you already own.
+DLC/disabled/replaced filtering, the exclusion of skills you already own, and **skill trees you
+have blocked** — the mod asks the game which trees are blocked
+(`RoguelikeSkillTreeRemoval.GetValidatedExclusions`) rather than working it out itself, so the
+game's own rules for blocking always apply, including on rerolls.
 
 ## Installing / enabling
 
@@ -245,6 +249,74 @@ Two details the implementation has to handle:
 
 Toggling `HotReloadConfig` itself needs a restart, since the watcher is created at startup.
 
+## Roguelike planner
+
+`roguelike-planner.html` plans a whole roguelike character offline: twenty picks, one per level,
+with a build summary beside them and the offer odds for everything still in the pool.
+
+Open it in a browser. It reads `roguelike-planner-data.js` from the same folder as a plain script
+rather than fetching it, so it works from `file://` with no server, and the build is encoded in
+the URL hash so a link shares it.
+
+### What it reproduces
+
+The page rebuilds `GetSkillChoices` in JavaScript rather than approximating it:
+
+- The eligible pool: skills already taken, skills in a removed tree, skills locked out by an
+  owned skill's `DisablingSkills`, and skills superseded by an owned upgrade are all removed,
+  the same four ways the game removes them.
+- Removed trees are budgeted the way `GetValidatedExclusions` budgets them: ticked trees count in
+  the order they were ticked, up to the removal points owned, and the rest are ignored rather
+  than rejected. `MaxRemovalsPossible` is the eleven trees minus the four the game always keeps.
+- The tier roll, per-tier maximums, and the tier walk-down that `TierLimitRulePassed` performs
+  when the rolled tier is full.
+- The empty-tier fallback: when the rolled tier has nothing left, the draw comes from the whole
+  remaining pool.
+- This mod's weighting, off by default, with the four master levers and the clamp exposed and
+  starting at the values in [`ModConfig`](src/ModConfig.cs). The category weights come from
+  `src/CategoryWeights.cs`, parsed at build time by `tools/build_planner_data.py`, so the
+  planner's defaults cannot drift away from the mod's.
+
+Each skill's number is its chance of appearing among that level-up's three options, which is
+`1 - (1 - p)^3` over the per-option chance. Options within one roll are not quite independent -
+the game will not offer the same skill twice - so that slightly overstates it; the error is small
+while the pool is large and grows as the pool shrinks.
+
+### What it does not reproduce
+
+- **Repetition damping.** `OfferedDecay` keys on how many times a skill has been *shown* to you,
+  which only exists inside a live run. The planner weights as though nothing had been declined.
+- **The tier chance curves and the per-tier maximums.** Both live in the `RoguelikeSettings`
+  asset, not in `Assembly-CSharp`, so they cannot be decompiled, and the dumper that would read
+  them cannot currently run (see below). The page ships an **estimate** that ramps linearly with
+  level, with the level-1 and level-20 ends editable, and says so on screen. Everything else on
+  the page is exact; these four numbers are the one place to correct it.
+
+### Regenerating the data
+
+```sh
+python tools/build_planner_data.py
+```
+
+Merges `skill-categories.json` (categories), `skill-dump.json` (the replace-links the categories
+file drops) and `src/CategoryWeights.cs` (default weights) into `roguelike-planner-data.js`.
+Re-run it after a game update changes the skill table.
+
+### `DumpSkillData` does not currently run
+
+`SkillDumper` now also writes `roguelike-settings.json` - the tier chance curves, the per-tier
+maximums, `NumSkillOptions` and the removal budget - which is what would replace the estimate
+above. It has never produced that file, because **`Plugin.Update` never runs**.
+
+Measured, not guessed: a probe written from `Awake` appears, and a probe written from `Update`
+never does, across repeated launches in which the game ran for minutes. Harmony patches are
+unaffected, which is why this was invisible - the weighting works, while everything hung off
+`Update` silently does not. That includes `HotReloadConfig`, which this README describes as
+working.
+
+Attaching the tick to a freshly created `DontDestroyOnLoad` GameObject instead of to the plugin
+did not help either, so it is not simply BepInEx's manager object being destroyed. Unresolved.
+
 ## Sharing it with other people
 
 `dist/SkillWeightMod-0.1.0.zip` is a drop-in package: BepInEx plus this mod, laid out so it
@@ -299,6 +371,56 @@ dotnet build -c Release -p:GameDir="D:\SteamLibrary\steamapps\common\Stolen Real
 The prefix is wrapped in a try/catch and validates its inputs. On any unexpected state it
 returns `true`, which runs the untouched original method. A broken mod degrades to vanilla
 rolls rather than to a crash. Errors are logged once per occurrence to the BepInEx console.
+
+### Game version compatibility
+
+One build runs on both the pre- and post-blocking versions of the game.
+
+Skill-tree blocking arrived in the September 2026 update. The mod reaches it by reflection
+rather than a direct call, so on an older build the feature is simply absent instead of
+breaking anything. For the same reason the weighting prefix does **not** declare the
+`character` parameter that update added: Harmony matches prefix parameters by name against the
+original method, so declaring it would fail to bind on an older build and take the whole plugin
+down with it. The character is read from `RoguelikeManager.CurrentRoguelikeSkillSelectingCharacter`
+instead, which is set immediately before the roll on every version.
+
+The log says which case you are in:
+
+```
+Skill-tree blocking detected; blocked trees will be respected.
+```
+```
+Running on a game build from before skill-tree blocking was added.
+```
+
+### After a game update
+
+Because the prefix *replaces* `GetSkillChoices`, anything a game update adds to that method is
+skipped until the mod mirrors it. That is not a hypothetical: the September 2026 update added
+skill-tree blocking there, and the mod silently overrode it until it was fixed.
+
+So on every launch the mod fingerprints the game's `GetSkillChoices` before patching it, and
+compares against the version it was written for. A match logs:
+
+```
+GetSkillChoices matches the version this mod mirrors.
+```
+
+A mismatch logs a boxed warning naming what changed. The mod keeps running — a changed
+fingerprint means *review needed*, not necessarily broken — but it is the signal to update. To
+hand rolls back to the game entirely in the meantime, set `SynergyStrength = 0` and
+`OfferedDecay = 1`.
+
+After mirroring a new game version, re-baseline the check:
+
+```sh
+dotnet run --project tools/ilhash -c Release -- "<game>/Stolen Realm_Data/Managed/Assembly-CSharp.dll" RoguelikeManager GetSkillChoices
+```
+
+and paste the printed hash into `ExpectedHash` in `src/GameVersionCheck.cs`.
+
+A game update can also change the skills themselves. Re-run the skill dump
+(`DumpSkillData = true`) and `tools/taxonomy.py` so new or renamed skills get categories.
 
 ## Known limitations
 

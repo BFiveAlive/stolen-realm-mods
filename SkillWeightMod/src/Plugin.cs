@@ -51,6 +51,9 @@ namespace SkillWeightMod
             ModConfig.Bind(Config);
             CategoryWeights.Bind(Config);
 
+            // Before PatchAll, so the IL it fingerprints is the game's own rather than a detour.
+            GameVersionCheck.Run();
+
             var harmony = new Harmony(Guid);
             harmony.PatchAll(typeof(GetSkillChoicesPatch));
             harmony.PatchAll(typeof(RerollPatches));

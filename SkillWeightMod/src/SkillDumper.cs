@@ -19,6 +19,7 @@ namespace SkillWeightMod
     internal static class SkillDumper
     {
         private static bool done;
+        private static bool waitingLogged;
 
         public static void TryDump()
         {
@@ -27,7 +28,15 @@ namespace SkillWeightMod
 
             List<SkillInfo> skills = SafeSkills();
             if (skills == null || skills.Count == 0)
+            {
+                if (!waitingLogged)
+                {
+                    waitingLogged = true;
+                    Plugin.Log.LogInfo("Dump requested; waiting for the game's skill data to load.");
+                }
+
                 return; // data not loaded yet; try again next frame
+            }
 
             done = true;
 
@@ -44,6 +53,87 @@ namespace SkillWeightMod
             {
                 Plugin.Log.LogError($"Skill dump failed: {e}");
             }
+
+            TryDumpRoguelikeSettings();
+        }
+
+        /// <summary>
+        /// Exports the roguelike roll tuning - tier chance curves, per-tier maximums, option count
+        /// and the removal-point budget - which lives in the RoguelikeSettings asset rather than in
+        /// Assembly-CSharp, so it cannot be read from a decompile. Needed by anything that has to
+        /// reproduce the offer odds outside the game.
+        /// </summary>
+        private static void TryDumpRoguelikeSettings()
+        {
+            try
+            {
+                RoguelikeSettings settings = GlobalSettingsManager.instance?.roguelikeManager;
+                if (settings == null)
+                {
+                    Plugin.Log.LogWarning("Roguelike settings not loaded; skipped the settings dump.");
+                    return;
+                }
+
+                var sb = new StringBuilder();
+                sb.Append("{\n");
+                sb.Append($"  \"numSkillOptions\": {settings.NumSkillOptions},\n");
+                sb.Append($"  \"roguelikeMaxLevel\": {settings.RoguelikeMaxLevel},\n");
+                sb.Append($"  \"numBattlesToBoss\": {settings.NumBattlesToBoss},\n");
+                sb.Append($"  \"usePresetTierSystem\": {(settings.UsePresetTierSystem ? "true" : "false")},\n");
+
+                sb.Append("  \"maximumSkillsPerTier\": [");
+                if (settings.MaximumSkillsPerTierSettings != null)
+                {
+                    for (int i = 0; i < settings.MaximumSkillsPerTierSettings.Length; i++)
+                    {
+                        MaximumSkillsPerTier max = settings.MaximumSkillsPerTierSettings[i];
+                        sb.Append(i > 0 ? ", " : string.Empty);
+                        sb.Append($"{{\"tier\": {max.Tier}, \"max\": {max.Max}}}");
+                    }
+                }
+                sb.Append("],\n");
+
+                AppendNodes(sb, "tier2ChanceNodes", settings.Tier2ChanceNodes);
+                AppendNodes(sb, "tier3ChanceNodes", settings.Tier3ChanceNodes);
+                AppendNodes(sb, "tier4ChanceNodes", settings.Tier4ChanceNodes);
+                AppendNodes(sb, "tier5ChanceNodes", settings.Tier5ChanceNodes);
+
+                sb.Append("  \"availableSkillTrees\": [");
+                List<SkillType> trees = RoguelikeSkillTreeRemoval.AvailableSkillTrees;
+                for (int i = 0; i < trees.Count; i++)
+                    sb.Append((i > 0 ? ", " : string.Empty) + "\"" + trees[i] + "\"");
+                sb.Append("],\n");
+
+                sb.Append($"  \"maxRemovalsPossible\": {RoguelikeSkillTreeRemoval.MaxRemovalsPossible},\n");
+                sb.Append($"  \"minimumTreesRemaining\": {4}\n");
+                sb.Append("}\n");
+
+                string path = Path.Combine(
+                    Path.GetDirectoryName(typeof(SkillDumper).Assembly.Location) ?? ".",
+                    "roguelike-settings.json");
+
+                File.WriteAllText(path, sb.ToString(), Encoding.UTF8);
+                Plugin.Log.LogInfo($"Dumped roguelike settings to {path}");
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogError($"Roguelike settings dump failed: {e}");
+            }
+        }
+
+        private static void AppendNodes(StringBuilder sb, string name, LevelMultiplerNode[] nodes)
+        {
+            sb.Append("  \"" + name + "\": [");
+            if (nodes != null)
+            {
+                for (int i = 0; i < nodes.Length; i++)
+                {
+                    sb.Append(i > 0 ? ", " : string.Empty);
+                    sb.Append("{\"level\": " + nodes[i].level + ", \"value\": "
+                              + nodes[i].mutlipler.ToString("R", CultureInfo.InvariantCulture) + "}");
+                }
+            }
+            sb.Append("],\n");
         }
 
         private static List<SkillInfo> SafeSkills()

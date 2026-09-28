@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stolen Realm Roguelike Planner</title>
+<style>
+  :root {
+    --bg: #14110e;
+    --panel: #1d1915;
+    --panel-2: #262019;
+    --line: #3a3128;
+    --ink: #e8dfd0;
+    --ink-dim: #a1927c;
+    --gold: #cbb396;
+    --accent: #d8a657;
+    --bad: #d4645d;
+    --good: #7fb069;
+    --radius: 6px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 14px/1.45 "Segoe UI", system-ui, sans-serif;
+  }
+
+  h1, h2, h3 { font-weight: 600; margin: 0; }
+  h1 { font-size: 19px; letter-spacing: .02em; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .09em; color: var(--gold); }
+  h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--ink-dim); }
+
+  a { color: var(--accent); }
+
+  header {
+    display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--line);
+    background: var(--panel);
+    position: sticky; top: 0; z-index: 30;
+  }
+  header .sub { color: var(--ink-dim); font-size: 12px; }
+  header .spacer { flex: 1 1 auto; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 290px minmax(0, 1fr) 330px;
+    gap: 14px;
+    padding: 14px 18px 60px;
+    align-items: start;
+  }
+
+  .col-left, .col-right {
+    position: sticky; top: 58px; max-height: calc(100vh - 74px);
+    overflow-y: auto; overflow-x: hidden;   /* nothing here should ever scroll sideways */
+    padding-right: 4px;                     /* room for the bar, so it never sits over content */
+  }
+
+  /* Slim, themed, and invisible until the pointer is over something scrollable. Firefox gets the
+     standard properties; Chromium needs the -webkit- pseudo-elements for the colour. */
+  .col-left, .col-right, #catalogue, .tier-body .grid {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+  .col-left:hover, .col-right:hover { scrollbar-color: var(--line) transparent; }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: transparent; border-radius: 4px;
+    border: 2px solid transparent; background-clip: content-box;
+  }
+  :hover::-webkit-scrollbar-thumb { background: var(--line); background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--ink-dim); background-clip: content-box; }
+  ::-webkit-scrollbar-corner { background: transparent; }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  .card > h2 { margin-bottom: 10px; }
+
+  label.row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 3px 0; cursor: pointer; font-size: 13px;
+  }
+  label.row.disabled { opacity: .4; cursor: not-allowed; }
+  label.row input { accent-color: var(--accent); }
+
+  .field { display: flex; align-items: center; gap: 8px; margin: 6px 0; font-size: 13px; }
+  /* The label keeps its full width and the auto margin does the spacing, so a slider shrinks
+     before "DependencyBonus" starts losing letters. */
+  .field > span:first-child { flex: 0 1 auto; margin-right: auto; color: var(--ink-dim); white-space: nowrap; }
+  .field { min-width: 0; }
+  .field input[type=number] {
+    width: 72px; min-width: 0; flex: 0 1 auto;
+    background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 4px; padding: 3px 5px; font: inherit;
+  }
+  /* Two inputs on one line share what is left after the label rather than each insisting on
+     72px, which is what forced the sideways scroll. */
+  .field.pair input[type=number] { flex: 1 1 0; width: auto; }
+  .field.pair > span:first-child { flex: 0 0 52px; margin-right: 0; }
+  .field input[type=range] { flex: 1 1 40px; min-width: 40px; accent-color: var(--accent); }
+  .field .val { width: 42px; text-align: right; color: var(--gold); font-variant-numeric: tabular-nums; }
+
+  input[type=search], select {
+    width: 100%; background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 4px; padding: 5px 7px; font: inherit;
+  }
+
+  button {
+    background: var(--panel-2); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 4px; padding: 5px 9px; font: inherit; cursor: pointer;
+  }
+  button:hover { border-color: var(--accent); color: #fff; }
+  button.primary { border-color: var(--accent); color: var(--accent); }
+
+  .note {
+    font-size: 11.5px; color: var(--ink-dim); line-height: 1.4;
+    border-left: 2px solid var(--line); padding-left: 8px; margin-top: 8px;
+  }
+  .note.warn { border-left-color: var(--accent); color: var(--gold); }
+
+  /* ---- skill catalogue ---- */
+  .toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+  .toolbar > * { flex: 0 0 auto; }
+  .toolbar .grow { flex: 1 1 180px; }
+
+  .tree-group { margin-bottom: 14px; }
+  .tree-head {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 0 6px; border-bottom: 1px solid var(--line); margin-bottom: 8px;
+  }
+  .tree-head .dot { width: 9px; height: 9px; border-radius: 50%; }
+  .tree-head .count { color: var(--ink-dim); font-size: 11.5px; }
+  .tree-head.excluded { opacity: .45; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 6px; }
+
+  .tier-row { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 7px; }
+  .tier-row:last-child { margin-bottom: 0; }
+  .tier-row .tier-label {
+    flex: 0 0 38px; padding-top: 6px;
+    font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--ink-dim); text-align: right;
+  }
+  .tier-row .tier-body { flex: 1 1 auto; min-width: 0; display: flex; align-items: stretch; gap: 9px; }
+  /* stretch keeps the rule the height of the row; align-content stops the tiles themselves from
+     growing to match a neighbouring block that wrapped onto more lines. */
+  .tier-body .grid { flex: 1 1 auto; min-width: 0; align-content: start; }
+
+  /* Skills already taken sit ahead of the rest of their own tier, fenced off by a rule that is
+     only as tall as that row. */
+  .tier-body .grid.taken { flex: 0 0 auto; }
+  .tier-split { flex: 0 0 1px; background: var(--line); border-radius: 1px; }
+
+  @media (max-width: 620px) {
+    .tier-row { display: block; }
+    .tier-row .tier-label { text-align: left; padding: 0 0 3px; }
+    .tier-row .tier-body { display: block; }
+    .tier-body .grid.taken { margin-bottom: 6px; }
+    .tier-split { display: none; }
+  }
+
+  .skill {
+    position: relative; text-align: left; padding: 6px 8px 6px 10px;
+    border: 1px solid var(--line); border-left-width: 3px; border-radius: 4px;
+    background: var(--panel); cursor: pointer; overflow: hidden;
+  }
+  .skill:hover { border-color: var(--accent); }
+  .skill .name { display: block; font-size: 12.5px; line-height: 1.25; }
+  .skill .meta { display: block; font-size: 11px; color: var(--ink-dim); margin-top: 2px; }
+  .skill .odds { float: right; font-size: 11px; color: var(--gold); font-variant-numeric: tabular-nums; }
+  .skill .oddsbar {
+    position: absolute; left: 0; bottom: 0; height: 2px; background: var(--accent); opacity: .65;
+  }
+  .skill.owned { background: #2b2a18; border-color: var(--accent); }
+  .skill.locked { opacity: .35; cursor: not-allowed; }
+  .skill.locked:hover { border-color: var(--line); }
+
+  /* ---- build summary ---- */
+  .picks { list-style: none; margin: 0; padding: 0; }
+  .picks li {
+    display: flex; align-items: center; gap: 7px;
+    padding: 3px 4px; border-radius: 3px; font-size: 12.5px; cursor: pointer;
+    border-left: 3px solid transparent;
+  }
+  .picks li:hover { background: var(--panel-2); }
+  .picks li .lvl { width: 20px; color: var(--ink-dim); font-variant-numeric: tabular-nums; font-size: 11px; }
+  .picks li .nm { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .picks li .tr { color: var(--ink-dim); font-size: 11px; }
+  .picks li.empty { color: var(--ink-dim); font-style: italic; cursor: default; }
+  .picks li.empty:hover { background: none; }
+  .picks li.rerolling { background: var(--panel-2); border-left-color: var(--accent) !important; }
+
+  .reroll-btn {
+    padding: 0 5px; line-height: 1.4; font-size: 13px;
+    background: transparent; border-color: transparent; color: var(--ink-dim);
+    opacity: 0; transition: opacity .1s;
+  }
+  .picks li:hover .reroll-btn, .picks li.rerolling .reroll-btn { opacity: 1; }
+  .reroll-btn:hover { color: var(--accent); border-color: var(--line); }
+
+  .reroll-row {
+    display: flex; align-items: center; gap: 7px;
+    padding: 2px 4px; border-radius: 3px; font-size: 12.5px; cursor: pointer;
+    border-left: 3px solid transparent;
+  }
+  .reroll-row:hover { background: var(--panel-2); }
+  .reroll-row .nm { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .reroll-row .pc { color: var(--gold); font-variant-numeric: tabular-nums; font-size: 11.5px; }
+  .reroll-row.was { color: var(--accent); }
+  #reroll-body { max-height: 46vh; overflow-y: auto; }
+
+  .bars { margin: 0; }
+  .bar-row { display: flex; align-items: center; gap: 7px; margin: 3px 0; font-size: 12px; }
+  .bar-row .lab { width: 74px; color: var(--ink-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar-row .track { flex: 1 1 auto; height: 8px; background: var(--panel-2); border-radius: 2px; overflow: hidden; }
+  .bar-row .fill { height: 100%; }
+  .bar-row .n { width: 22px; text-align: right; color: var(--gold); font-variant-numeric: tabular-nums; }
+
+  .stat { display: flex; justify-content: space-between; font-size: 12.5px; padding: 2px 0; }
+  .stat span:last-child { color: var(--gold); font-variant-numeric: tabular-nums; }
+
+  /* ---- tooltip ---- */
+  #tip {
+    position: fixed; z-index: 100; max-width: 340px; pointer-events: none;
+    background: #100e0b; border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 9px 11px; box-shadow: 0 8px 24px rgba(0,0,0,.6);
+    font-size: 12.5px; display: none;
+  }
+  #tip .t-name { font-size: 13.5px; color: #fff; }
+  #tip .t-meta { color: var(--ink-dim); font-size: 11.5px; margin-bottom: 6px; }
+  #tip .t-desc { margin-bottom: 6px; }
+  #tip .t-line { font-size: 11.5px; color: var(--ink-dim); }
+  #tip .t-line b { color: var(--gold); font-weight: 600; }
+  #tip hr { border: 0; border-top: 1px solid var(--line); margin: 6px 0; }
+
+  .tag {
+    display: inline-block; font-size: 10.5px; padding: 0 4px; border-radius: 3px;
+    background: var(--panel-2); color: var(--ink-dim); margin: 1px 2px 1px 0;
+  }
+
+  @media (max-width: 1100px) {
+    .layout { grid-template-columns: 1fr; }
+    .col-left, .col-right { position: static; max-height: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Roguelike Skill Planner</h1>
+  <span class="sub">Stolen Realm &mdash; 20 levels, one skill each</span>
+  <span class="spacer"></span>
+  <button id="copy-link">Copy build link</button>
+  <button id="reset">Reset</button>
+</header>
+
+<div class="layout">
+
+  <!-- ================= LEFT: controls ================= -->
+  <div class="col-left">
+
+    <div class="card">
+      <h2>Build</h2>
+      <div class="field">
+        <span>Skills picked</span>
+        <span class="val" id="picked-count">0</span>
+        <span style="color:var(--ink-dim)">/ <span id="capacity">22</span></span>
+      </div>
+      <div class="field">
+        <span>Starting skills</span>
+        <input type="number" id="starting-skills" min="0" max="12" step="1" value="2">
+      </div>
+      <div class="note">
+        A roguelike character levels to 20 and is offered <b id="opt-count-note">3</b> skills at each
+        level-up, keeping one &mdash; on top of whatever its preset already knows, which differs from
+        character to character. Set that count here and the build has room for it. Click a skill to
+        add it as your next pick; click it again, or a row in the build list, to take it back off.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Removed skill trees</h2>
+      <div class="field">
+        <span>Removal points</span>
+        <input type="number" id="removal-points" min="0" max="7" step="1" value="0">
+      </div>
+      <div id="tree-exclusions"></div>
+      <div class="note" id="exclusion-note"></div>
+    </div>
+
+    <div class="card">
+      <h2>Offer odds</h2>
+      <label class="row"><input type="checkbox" id="weighting-on"> Use Skill Weight Mod weighting</label>
+      <div class="note">
+        Off: vanilla, a uniform draw inside the rolled tier. On: the mod's synergy weighting, so
+        skills that fit what you have already picked are likelier to be offered.
+      </div>
+
+      <div id="weight-controls" hidden>
+        <h3 style="margin-top:12px">Master levers</h3>
+        <div class="field"><span>SynergyStrength</span><input type="range" id="p-synergy" min="-2" max="4" step="0.05" value="1"><span class="val" id="v-synergy">1</span></div>
+        <div class="field"><span>TreeAffinity</span><input type="range" id="p-tree" min="0" max="2" step="0.05" value="0.35"><span class="val" id="v-tree">0.35</span></div>
+        <div class="field"><span>BroadAffinity</span><input type="range" id="p-broad" min="0" max="1" step="0.01" value="0.05"><span class="val" id="v-broad">0.05</span></div>
+        <div class="field"><span>NarrowAffinity</span><input type="range" id="p-narrow" min="0" max="2" step="0.01" value="0.2"><span class="val" id="v-narrow">0.2</span></div>
+        <div class="field"><span>DependencyBonus</span><input type="range" id="p-dep" min="0" max="5" step="0.1" value="1"><span class="val" id="v-dep">1</span></div>
+        <div class="field"><span>MinWeight</span><input type="number" id="p-min" step="0.01" value="0.05"></div>
+        <div class="field"><span>MaxWeight</span><input type="number" id="p-max" step="0.5" value="20"></div>
+        <div class="note">
+          Defaults match the mod's shipped config. Repetition damping (<code>OfferedDecay</code>) is
+          not modelled here: it depends on which skills you were actually shown and declined, which
+          only exists inside a live run.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Tier roll</h2>
+      <div class="field"><span>At level</span><input type="number" id="tier-level" min="1" max="20" step="1" value="1"></div>
+      <div id="tier-thresholds"></div>
+      <div id="tier-odds-readout" class="bars" style="margin-top:8px"></div>
+      <div class="note">
+        The game's own <code>TierNChanceNodes</code>, read out of its settings asset: one
+        1&ndash;100 roll is tested against each threshold in turn, highest tier first. Tier 3 cannot
+        appear before level&nbsp;3, tier 4 before level&nbsp;6, or tier 5 before level&nbsp;11.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Per-tier maximums</h2>
+      <div id="tier-caps"></div>
+      <div class="note">
+        The game walks the rolled tier down one step at a time while that tier is already full
+        (<code>TierLimitRulePassed</code>). Blank means no cap, which is what the game currently
+        ships: <code>MaximumSkillsPerTierSettings</code> is empty, so no tier is ever capped. These
+        are here to model a build under a cap, not to describe one.
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MIDDLE: catalogue ================= -->
+  <div class="col-mid">
+    <div class="card">
+      <div class="toolbar">
+        <input type="search" id="search" class="grow" placeholder="Search name, description or category&hellip;">
+        <select id="sort" style="width:auto">
+          <option value="odds">Sort: offer chance</option>
+          <option value="name">Sort: name</option>
+        </select>
+        <select id="tier-filter" style="width:auto">
+          <option value="">All tiers</option>
+          <option value="1">Tier 1</option>
+          <option value="2">Tier 2</option>
+          <option value="3">Tier 3</option>
+          <option value="4">Tier 4</option>
+          <option value="5">Tier 5</option>
+        </select>
+        <label class="row" style="padding:0"><input type="checkbox" id="hide-locked" checked> Hide unreachable</label>
+      </div>
+      <div id="catalogue"></div>
+    </div>
+  </div>
+
+  <!-- ================= RIGHT: build summary ================= -->
+  <div class="col-right">
+    <div class="card">
+      <h2>Your build</h2>
+      <ul class="picks" id="pick-list"></ul>
+      <div class="note" id="reroll-hint" hidden>
+        The <span style="color:var(--gold)">&#8635;</span> beside a pick simulates rerolling it at a
+        campfire.
+      </div>
+    </div>
+
+    <div class="card" id="reroll-card" hidden>
+      <h2 id="reroll-title">Campfire reroll</h2>
+      <div id="reroll-body"></div>
+      <button id="reroll-close" style="margin-top:9px">Close</button>
+    </div>
+
+    <div class="card">
+      <h2>Trees</h2>
+      <div class="bars" id="tree-bars"></div>
+    </div>
+
+    <div class="card">
+      <h2>Tiers</h2>
+      <div class="bars" id="tier-bars"></div>
+    </div>
+
+    <div class="card">
+      <h2>Shape</h2>
+      <div class="stat"><span>Active skills</span><span id="s-active">0</span></div>
+      <div class="stat"><span>Passive skills</span><span id="s-passive">0</span></div>
+      <div class="stat"><span>Trees touched</span><span id="s-trees">0</span></div>
+      <div class="stat"><span>Prerequisites met</span><span id="s-deps">0</span></div>
+      <div class="stat"><span>Skills still rollable</span><span id="s-pool">0</span></div>
+      <div id="warnings"></div>
+    </div>
+
+    <div class="card">
+      <h2>Themes</h2>
+      <h3>Broad</h3>
+      <div class="bars" id="broad-bars"></div>
+      <h3 style="margin-top:10px">Narrow</h3>
+      <div class="bars" id="narrow-bars"></div>
+    </div>
+  </div>
+</div>
+
+<div id="tip"></div>
+
+<script src="roguelike-planner-data.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var DATA = window.ROGUELIKE_DATA;
+  var SKILLS = DATA.skills;
+  SKILLS.forEach(function (s, i) { s.id = i; });
+
+  var MAX_LEVEL = 20;              // RoguelikeSettings.RoguelikeMaxLevel
+  var NUM_OPTIONS = 4;             // RoguelikeSettings.NumSkillOptions
+  var MIN_TREES_REMAINING = 4;     // RoguelikeSkillTreeRemoval.MinimumTreesRemaining
+
+  var TREES = ["Fire", "Lightning", "Cold", "Warrior", "Light", "Ranger",
+               "Shadow", "Thief", "Monk", "Nature", "Chaos"];
+
+  var TREE_COLOUR = {
+    Fire: "#e2603a", Lightning: "#e6c84a", Cold: "#67bcd8", Warrior: "#c9a36a",
+    Light: "#f2e6b8", Ranger: "#7fbf6a", Shadow: "#9b7fd4", Thief: "#8fa3b8",
+    Monk: "#e09a55", Nature: "#59b08a", Chaos: "#d45d8f"
+  };
+
+  var MAX_REMOVALS = TREES.length - MIN_TREES_REMAINING;   // MaxRemovalsPossible
+
+  // ---------------------------------------------------------------- state
+
+  var state = {
+    picks: [],                     // skill ids, in the order they were taken
+    excluded: [],                  // tree names, in the order they were ticked
+    removalPoints: 0,
+    startingSkills: 2,
+    reroll: null,                  // index into picks currently being rerolled
+    weighting: false,
+    params: { synergy: 1, tree: 0.35, broad: 0.05, narrow: 0.2, dep: 1, min: 0.05, max: 20 },
+    tierLevel: 1,
+    caps: { 1: "", 2: "", 3: "", 4: "", 5: "" },
+    search: "",
+    sort: "odds",
+    tierFilter: "",
+    hideLocked: true
+  };
+
+  // ------------------------------------------------------------ lookups
+
+  var byName = {};
+  SKILLS.forEach(function (s) { (byName[s.name] = byName[s.name] || []).push(s); });
+
+  function categoryWeight(name, fallbackCount) {
+    if (Object.prototype.hasOwnProperty.call(DATA.tunedWeights, name)) return DATA.tunedWeights[name];
+    return fallbackCount ? DATA.skillCount / fallbackCount : 1;
+  }
+
+  var BROAD_W = {}, NARROW_W = {};
+  DATA.broadCategories.forEach(function (c) { BROAD_W[c] = categoryWeight(c, DATA.broadCounts[c]); });
+  DATA.narrowCategories.forEach(function (c) { NARROW_W[c] = categoryWeight(c, DATA.narrowCounts[c]); });
+
+  function owned() { return state.picks.map(function (id) { return SKILLS[id]; }); }
+
+  /**
+   * How many skills the build can hold: the twenty taken on the way to max level, plus whatever
+   * the character's preset started it with. Presets differ, so the starting count is a setting
+   * rather than a constant.
+   */
+  function capacity() { return MAX_LEVEL + state.startingSkills; }
+
+  /** Which level-up a pick represents. The first few picks are the preset, before any level-up. */
+  function levelOfPick(index) { return index - state.startingSkills + 1; }
+
+  // ------------------------------------------------- exclusions and pool
+
+  /**
+   * The trees that actually count as removed. Mirrors GetValidatedExclusions: ticked trees in
+   * order, capped by the removal points owned. Anything past the budget is simply ignored.
+   */
+  function activeExclusions() {
+    return state.excluded.slice(0, Math.min(state.removalPoints, MAX_REMOVALS));
+  }
+
+  /**
+   * The eligible pool as GetSkillChoices builds it: everything not already owned, not in a
+   * removed tree, not locked out by an owned skill's DisablingSkills, and not superseded by
+   * an owned upgrade.
+   */
+  function eligiblePool(picks) {
+    picks = picks || state.picks;
+    var held = picks.map(function (id) { return SKILLS[id]; });
+
+    var have = {};
+    picks.forEach(function (id) { have[id] = true; });
+
+    var gone = {};
+    var removed = {};
+    activeExclusions().forEach(function (t) { removed[t] = true; });
+
+    held.forEach(function (s) {
+      s.excludes.forEach(function (n) {
+        (byName[n] || []).forEach(function (x) { gone[x.id] = true; });
+      });
+    });
+
+    var ownedNames = {};
+    held.forEach(function (s) { ownedNames[s.name] = true; });
+
+    return SKILLS.filter(function (s) {
+      if (have[s.id] || gone[s.id] || removed[s.tree]) return false;
+      for (var i = 0; i < s.replacedBy.length; i++) {
+        if (ownedNames[s.replacedBy[i]]) return false;
+      }
+      return true;
+    });
+  }
+
+  // ------------------------------------------------------------ weighting
+
+  /** SkillWeighting.ComputeWeight, without the repetition decay (see the UI note). */
+  function weightOf(candidate, ownedList) {
+    if (!state.weighting) return 1;
+    if (!ownedList.length) return clamp(1);
+
+    var p = state.params;
+    var treeMatches = 0, dependencyOwned = false;
+
+    for (var i = 0; i < ownedList.length; i++) {
+      if (ownedList[i].tree === candidate.tree) treeMatches++;
+      if (candidate.dependency && ownedList[i].name === candidate.dependency) dependencyOwned = true;
+    }
+
+    var synergy = p.tree * treeMatches;
+    synergy += p.broad * categoryScore(candidate.broad, ownedList, "broad", BROAD_W);
+    synergy += p.narrow * categoryScore(candidate.narrow, ownedList, "narrow", NARROW_W);
+    if (dependencyOwned) synergy += p.dep;
+
+    return clamp(1 + p.synergy * synergy);
+  }
+
+  function categoryScore(categories, ownedList, field, weights) {
+    var total = 0;
+    for (var c = 0; c < categories.length; c++) {
+      var w = weights[categories[c]] || 0;
+      if (!w) continue;
+      var shared = 0;
+      for (var i = 0; i < ownedList.length; i++) {
+        if (ownedList[i][field].indexOf(categories[c]) !== -1) shared++;
+      }
+      total += w * shared;
+    }
+    return total;
+  }
+
+  function clamp(w) { return Math.min(state.params.max, Math.max(state.params.min, w)); }
+
+  /** Why a candidate weighs what it does, for the tooltip. */
+  function weightBreakdown(candidate, ownedList) {
+    var p = state.params, lines = [];
+    var treeMatches = ownedList.filter(function (s) { return s.tree === candidate.tree; }).length;
+    if (treeMatches) lines.push("Tree (" + candidate.tree + " &times;" + treeMatches + "): +" + fmt(p.tree * treeMatches));
+
+    var broad = categoryScore(candidate.broad, ownedList, "broad", BROAD_W);
+    if (broad) lines.push("Broad categories: +" + fmt(p.broad * broad));
+
+    var narrow = categoryScore(candidate.narrow, ownedList, "narrow", NARROW_W);
+    if (narrow) lines.push("Narrow categories: +" + fmt(p.narrow * narrow));
+
+    if (candidate.dependency && ownedList.some(function (s) { return s.name === candidate.dependency; })) {
+      lines.push("Prerequisite owned: +" + fmt(p.dep));
+    }
+    return lines;
+  }
+
+  // ---------------------------------------------------------- tier odds
+
+  /**
+   * The game's own tier chance curves, read out of the RoguelikeSettings asset.
+   *
+   * Each is a list of (level, value) nodes holding the cumulative 1-100 threshold for that tier:
+   * a roll at or under tier5's value gives tier 5, else at or under tier4's gives tier 4, and so
+   * on down. Note what they say - no tier 3 before level 3, no tier 4 before level 6, no tier 5
+   * before level 11 - and that they are authored out to level 30 while a roguelike character
+   * stops at 20, so the top of the curve is never reached in a run.
+   */
+  var TIER_NODES = {
+    t2: [{ level: 1, value: 30 }, { level: 2, value: 40 }, { level: 30, value: 100 }],
+    t3: [{ level: 0, value: 0 }, { level: 2, value: 0 }, { level: 3, value: 20 }, { level: 30, value: 100 }],
+    t4: [{ level: 0, value: 0 }, { level: 5, value: 0 }, { level: 6, value: 5 }, { level: 30, value: 50 }],
+    t5: [{ level: 0, value: 0 }, { level: 11, value: 0 }, { level: 30, value: 10 }]
+  };
+
+  /** GlobalExtensions.GetMultipler: exact node hit, else linear between the bracketing pair. */
+  function thresholdAt(level, key) {
+    var nodes = TIER_NODES[key];
+    var previous = null;
+
+    for (var i = 0; i < nodes.length; i++) {
+      if (nodes[i].level === level) return nodes[i].value;
+
+      if (nodes[i].level > level) {
+        if (previous === null) return nodes[i].value;
+        return lerp(previous, nodes[i], level);
+      }
+
+      previous = nodes[i];
+    }
+
+    return nodes.length >= 2 ? lerp(nodes[nodes.length - 2], nodes[nodes.length - 1], level)
+                             : nodes[nodes.length - 1].value;
+  }
+
+  function lerp(a, b, level) {
+    return a.value + (b.value - a.value) * (level - a.level) / (b.level - a.level);
+  }
+
+  /** P(the 1-100 roll lands on each tier) at a level, before any per-tier cap is applied. */
+  function tierRollOdds(level) {
+    var t5 = clampPct(thresholdAt(level, "t5"));
+    var t4 = Math.max(t5, clampPct(thresholdAt(level, "t4")));
+    var t3 = Math.max(t4, clampPct(thresholdAt(level, "t3")));
+    var t2 = Math.max(t3, clampPct(thresholdAt(level, "t2")));
+    return {
+      5: t5 / 100,
+      4: (t4 - t5) / 100,
+      3: (t3 - t4) / 100,
+      2: (t2 - t3) / 100,
+      1: (100 - t2) / 100
+    };
+  }
+
+  function clampPct(v) { return Math.min(100, Math.max(0, v)); }
+
+  /** TierLimitRulePassed: walk the rolled tier down while that tier is already full. */
+  function effectiveTier(tier, ownedList) {
+    var t = tier;
+    while (t > 1) {
+      var cap = parseInt(state.caps[t], 10);
+      if (isNaN(cap)) break;
+      var held = ownedList.filter(function (s) { return s.tier === t; }).length;
+      if (held < cap) break;
+      t--;
+    }
+    return t;
+  }
+
+  /**
+   * Chance each eligible skill is the pick for a single one of the level-up's options.
+   *
+   * Reproduces the roll: pick a tier, then draw within it by weight, falling back to the whole
+   * remaining pool when the rolled tier has nothing left in it.
+   */
+  function offerOdds() {
+    var pool = eligiblePool();
+    var ownedList = owned();
+    var rollOdds = tierRollOdds(state.tierLevel);
+
+    var weights = {}, totalAll = 0;
+    var byTier = { 1: [], 2: [], 3: [], 4: [], 5: [] };
+    pool.forEach(function (s) {
+      var w = weightOf(s, ownedList);
+      weights[s.id] = w;
+      totalAll += w;
+      byTier[s.tier].push(s);
+    });
+
+    var tierTotals = {};
+    for (var t = 1; t <= 5; t++) {
+      tierTotals[t] = byTier[t].reduce(function (sum, s) { return sum + weights[s.id]; }, 0);
+    }
+
+    var odds = {};
+    pool.forEach(function (s) { odds[s.id] = 0; });
+
+    for (var rolled = 1; rolled <= 5; rolled++) {
+      var chance = rollOdds[rolled];
+      if (!chance) continue;
+
+      var eff = effectiveTier(rolled, ownedList);
+      var group = byTier[eff], total = tierTotals[eff];
+
+      if (group.length && total > 0) {
+        group.forEach(function (s) { odds[s.id] += chance * weights[s.id] / total; });
+      } else if (totalAll > 0) {
+        // The rolled tier is empty, so the game draws from the whole remaining pool instead.
+        pool.forEach(function (s) { odds[s.id] += chance * weights[s.id] / totalAll; });
+      }
+    }
+
+    return { odds: odds, weights: weights, pool: pool, tierTotals: tierTotals, rollOdds: rollOdds };
+  }
+
+  /**
+   * A campfire reroll of one skill already taken.
+   *
+   * The game removes the skill first and re-offers at that skill's own tier: RerollSkill reads
+   * SelectedSkillOption.SkillInfo.Tier, calls RemoveSkill, then queues the selection again with
+   * that tier forced. So the skill being rerolled is back in the pool and can come round again,
+   * the weighting no longer counts it as owned, and there is no tier roll at all.
+   */
+  function rerollOdds(pickIndex) {
+    var target = SKILLS[state.picks[pickIndex]];
+    var remaining = state.picks.filter(function (_, i) { return i !== pickIndex; });
+    var ownedList = remaining.map(function (id) { return SKILLS[id]; });
+
+    var tierPool = eligiblePool(remaining).filter(function (s) { return s.tier === target.tier; });
+
+    var total = 0;
+    var weights = {};
+    tierPool.forEach(function (s) {
+      weights[s.id] = weightOf(s, ownedList);
+      total += weights[s.id];
+    });
+
+    var rows = tierPool.map(function (s) {
+      var p = total > 0 ? weights[s.id] / total : 0;
+      return { skill: s, p: p, weight: weights[s.id] };
+    });
+    rows.sort(function (a, b) { return b.p - a.p || a.skill.name.localeCompare(b.skill.name); });
+
+    return { target: target, tier: target.tier, rows: rows, total: total };
+  }
+
+  /** Chance of seeing a skill at all among this level-up's options. */
+  function chanceAmongOptions(p) { return 1 - Math.pow(1 - p, NUM_OPTIONS); }
+
+  // ------------------------------------------------------------ rendering
+
+  var el = {};
+  ["picked-count", "capacity", "starting-skills", "tree-exclusions", "exclusion-note", "removal-points", "weighting-on",
+   "weight-controls", "tier-level", "tier-thresholds", "tier-odds-readout", "tier-caps",
+   "catalogue", "pick-list", "reroll-hint", "reroll-card", "reroll-title", "reroll-body",
+   "reroll-close", "tree-bars", "tier-bars", "broad-bars", "narrow-bars",
+   "s-active", "s-passive", "s-trees", "s-deps", "s-pool", "warnings", "search", "sort",
+   "tier-filter", "hide-locked", "tip", "copy-link", "reset", "opt-count-note"]
+    .forEach(function (id) { el[id] = document.getElementById(id); });
+
+  function fmt(n) { return (Math.round(n * 100) / 100).toString(); }
+  function pct(n) { return (n * 100).toFixed(n >= 0.1 ? 1 : 2) + "%"; }
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+
+  function renderExclusions() {
+    var budget = Math.min(state.removalPoints, MAX_REMOVALS);
+    var active = activeExclusions();
+
+    el["tree-exclusions"].innerHTML = TREES.map(function (t) {
+      var on = state.excluded.indexOf(t) !== -1;
+      var counted = active.indexOf(t) !== -1;
+      var blocked = !on && active.length >= budget;
+      return '<label class="row' + (blocked ? " disabled" : "") + '">' +
+        '<input type="checkbox" data-tree="' + t + '"' + (on ? " checked" : "") +
+        (blocked ? " disabled" : "") + '>' +
+        '<span style="color:' + TREE_COLOUR[t] + '">&#9679;</span> ' + t +
+        (on && !counted ? ' <span class="tag">over budget</span>' : "") +
+        "</label>";
+    }).join("");
+
+    var note = budget === 0
+      ? "No removal points, so no tree can be removed. The points come from the roguelike powerup that caps levels to skill-tree removals."
+      : active.length + " of " + budget + " removal point" + (budget === 1 ? "" : "s") + " spent. " +
+        (TREES.length - active.length) + " trees left in the pool (the game never allows fewer than " +
+        MIN_TREES_REMAINING + ").";
+    el["exclusion-note"].textContent = note;
+  }
+
+  function renderTierControls() {
+    if (!el["tier-caps"].childElementCount) {
+      el["tier-caps"].innerHTML = [1, 2, 3, 4, 5].map(function (t) {
+        return '<div class="field"><span>Tier ' + t + ' max</span>' +
+          '<input type="number" data-cap="' + t + '" min="0" step="1" placeholder="none"></div>';
+      }).join("");
+
+      el["tier-caps"].addEventListener("input", function (e) {
+        var t = e.target.getAttribute("data-cap");
+        if (!t) return;
+        state.caps[t] = e.target.value;
+        render();
+      });
+    }
+
+    el["tier-thresholds"].innerHTML = [["t5", "Tier 5"], ["t4", "Tier 4"], ["t3", "Tier 3"], ["t2", "Tier 2"]]
+      .map(function (r) {
+        return '<div class="field"><span>' + r[1] + ' rolls at or under</span>' +
+          '<span class="val">' + thresholdAt(state.tierLevel, r[0]).toFixed(1) + "</span></div>";
+      }).join("");
+
+    el["tier-caps"].querySelectorAll("input[data-cap]").forEach(function (input) {
+      input.value = state.caps[input.getAttribute("data-cap")];
+    });
+  }
+
+  function renderTierReadout(rollOdds, ownedList) {
+    var rows = [5, 4, 3, 2, 1].map(function (t) {
+      var eff = effectiveTier(t, ownedList);
+      var label = "Tier " + t + (eff !== t ? " &rarr; " + eff : "");
+      return barRow(label, rollOdds[t], 1, "var(--accent)", pct(rollOdds[t]));
+    });
+    el["tier-odds-readout"].innerHTML = rows.join("");
+  }
+
+  function barRow(label, value, max, colour, text) {
+    var w = max > 0 ? Math.min(100, value / max * 100) : 0;
+    return '<div class="bar-row"><span class="lab">' + label + '</span>' +
+      '<span class="track"><span class="fill" style="width:' + w.toFixed(1) + '%;background:' + colour + '"></span></span>' +
+      '<span class="n">' + text + "</span></div>";
+  }
+
+  function renderCatalogue(result) {
+    var removed = {};
+    activeExclusions().forEach(function (t) { removed[t] = true; });
+
+    var poolIds = {};
+    result.pool.forEach(function (s) { poolIds[s.id] = true; });
+
+    var ownedIds = {};
+    state.picks.forEach(function (id) { ownedIds[id] = true; });
+
+    var needle = state.search.trim().toLowerCase();
+    var visible = SKILLS.filter(function (s) {
+      if (state.tierFilter && String(s.tier) !== state.tierFilter) return false;
+      if (state.hideLocked && !poolIds[s.id] && !ownedIds[s.id]) return false;
+      if (!needle) return true;
+      return (s.name + " " + s.description + " " + s.broad.join(" ") + " " + s.narrow.join(" "))
+        .toLowerCase().indexOf(needle) !== -1;
+    });
+
+    var groups = {};
+    visible.forEach(function (s) { (groups[s.tree] = groups[s.tree] || []).push(s); });
+
+    var html = TREES.filter(function (t) { return groups[t]; }).map(function (tree) {
+      var list = groups[tree];
+      var held = list.filter(function (s) { return ownedIds[s.id]; }).length;
+      var colour = TREE_COLOUR[tree];
+
+      // A tier to a line: the tiers are what a run is actually rolling between, so keeping them
+      // on separate rows makes a tree readable as the five pools it really is.
+      var perTier = { 1: [], 2: [], 3: [], 4: [], 5: [] };
+      list.forEach(function (s) { perTier[s.tier].push(s); });
+
+      var rows = [1, 2, 3, 4, 5].filter(function (t) { return perTier[t].length; }).map(function (t) {
+        var taken = perTier[t].filter(function (s) { return ownedIds[s.id]; });
+        var rest = perTier[t].filter(function (s) { return !ownedIds[s.id]; });
+
+        [taken, rest].forEach(function (group) {
+          group.sort(function (a, b) {
+            if (state.sort === "name") return a.name.localeCompare(b.name);
+            return (result.odds[b.id] || 0) - (result.odds[a.id] || 0) || a.name.localeCompare(b.name);
+          });
+        });
+
+        var body = "";
+        if (taken.length) {
+          // Fixed columns, so the taken block is exactly as wide as it needs to be and the rule
+          // lands right after it rather than at some column boundary of the main grid.
+          var columns = Math.min(taken.length, 5);
+          body += '<div class="grid taken" style="grid-template-columns:repeat(' + columns + ',168px)">' +
+            taken.map(function (s) { return tile(s, result, ownedIds, poolIds); }).join("") + "</div>";
+          if (rest.length) body += '<div class="tier-split"></div>';
+        }
+        if (rest.length) {
+          body += '<div class="grid">' + rest.map(function (s) { return tile(s, result, ownedIds, poolIds); }).join("") + "</div>";
+        }
+
+        return '<div class="tier-row">' +
+          '<span class="tier-label">Tier ' + t + "</span>" +
+          '<div class="tier-body">' + body + "</div>" +
+        "</div>";
+      });
+
+      return '<div class="tree-group">' +
+        '<div class="tree-head' + (removed[tree] ? " excluded" : "") + '">' +
+          '<span class="dot" style="background:' + colour + '"></span>' +
+          '<strong>' + tree + '</strong>' +
+          '<span class="count">' + list.length + " shown" +
+            (held ? " &middot; " + held + " picked" : "") +
+            (removed[tree] ? " &middot; removed" : "") + "</span>" +
+        "</div>" +
+        rows.join("") +
+      "</div>";
+    }).join("");
+
+    el.catalogue.innerHTML = html || '<p style="color:var(--ink-dim)">Nothing matches that search.</p>';
+  }
+
+  function tile(s, result, ownedIds, poolIds) {
+    var isOwned = !!ownedIds[s.id];
+    var inPool = !!poolIds[s.id];
+    var p = result.odds[s.id] || 0;
+    var seen = chanceAmongOptions(p);
+    var full = state.picks.length >= capacity();
+
+    var cls = "skill" + (isOwned ? " owned" : "") + (!isOwned && (!inPool || full) ? " locked" : "");
+    var odds = isOwned ? "picked" : (inPool ? pct(seen) : "&mdash;");
+
+    return '<button class="' + cls + '" data-id="' + s.id + '" style="border-left-color:' + TREE_COLOUR[s.tree] + '">' +
+      '<span class="odds">' + odds + "</span>" +
+      '<span class="name">' + esc(s.name) + "</span>" +
+      '<span class="meta">' + (s.passive ? "Passive" : "Active") + "</span>" +
+      (inPool && !isOwned ? '<span class="oddsbar" style="width:' + Math.min(100, seen * 100).toFixed(1) + '%"></span>' : "") +
+      "</button>";
+  }
+
+  function renderPicks() {
+    var rows = state.picks.map(function (id, i) {
+      var s = SKILLS[id];
+      return '<li data-pick="' + i + '"' + (state.reroll === i ? ' class="rerolling"' : "") +
+        ' style="border-left-color:' + TREE_COLOUR[s.tree] + '">' +
+        '<span class="lvl">' + (levelOfPick(i) > 0 ? levelOfPick(i) : "&bull;") + "</span>" +
+        '<span class="nm">' + esc(s.name) + "</span>" +
+        '<span class="tr">T' + s.tier + "</span>" +
+        '<button class="reroll-btn" data-reroll="' + i + '" title="Simulate a campfire reroll">&#8635;</button>' +
+        "</li>";
+    });
+
+    if (!rows.length) rows.push('<li class="empty">No skills picked yet.</li>');
+    el["pick-list"].innerHTML = rows.join("");
+    el["reroll-hint"].hidden = !state.picks.length;
+    el["picked-count"].textContent = state.picks.length;
+    el.capacity.textContent = capacity();
+  }
+
+  function renderSummary(result) {
+    var list = owned();
+
+    var treeCounts = {};
+    list.forEach(function (s) { treeCounts[s.tree] = (treeCounts[s.tree] || 0) + 1; });
+    var maxTree = Math.max(1, Math.max.apply(null, [0].concat(Object.keys(treeCounts).map(function (k) { return treeCounts[k]; }))));
+    el["tree-bars"].innerHTML = TREES.filter(function (t) { return treeCounts[t]; })
+      .sort(function (a, b) { return treeCounts[b] - treeCounts[a]; })
+      .map(function (t) { return barRow(t, treeCounts[t], maxTree, TREE_COLOUR[t], treeCounts[t]); })
+      .join("") || '<span style="color:var(--ink-dim);font-size:12px">&mdash;</span>';
+
+    var tierCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    list.forEach(function (s) { tierCounts[s.tier]++; });
+    var maxTier = Math.max(1, Math.max(tierCounts[1], tierCounts[2], tierCounts[3], tierCounts[4], tierCounts[5]));
+    el["tier-bars"].innerHTML = [1, 2, 3, 4, 5].map(function (t) {
+      var cap = parseInt(state.caps[t], 10);
+      var label = "Tier " + t + (isNaN(cap) ? "" : " /" + cap);
+      var colour = !isNaN(cap) && tierCounts[t] >= cap ? "var(--bad)" : "var(--gold)";
+      return barRow(label, tierCounts[t], maxTier, colour, tierCounts[t]);
+    }).join("");
+
+    el["s-active"].textContent = list.filter(function (s) { return !s.passive; }).length;
+    el["s-passive"].textContent = list.filter(function (s) { return s.passive; }).length;
+    el["s-trees"].textContent = Object.keys(treeCounts).length;
+
+    var names = {};
+    list.forEach(function (s) { names[s.name] = true; });
+    el["s-deps"].textContent = list.filter(function (s) { return s.dependency && names[s.dependency]; }).length +
+      " / " + list.filter(function (s) { return s.dependency; }).length;
+    el["s-pool"].textContent = result.pool.length;
+
+    el["broad-bars"].innerHTML = categoryBars(list, "broad");
+    el["narrow-bars"].innerHTML = categoryBars(list, "narrow");
+
+    renderWarnings(list, result);
+  }
+
+  function categoryBars(list, field) {
+    var counts = {};
+    list.forEach(function (s) { s[field].forEach(function (c) { counts[c] = (counts[c] || 0) + 1; }); });
+    var keys = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a] || a.localeCompare(b); }).slice(0, 8);
+    if (!keys.length) return '<span style="color:var(--ink-dim);font-size:12px">&mdash;</span>';
+    var max = counts[keys[0]];
+    return keys.map(function (k) { return barRow(k, counts[k], max, "var(--ink-dim)", counts[k]); }).join("");
+  }
+
+  function renderWarnings(list, result) {
+    var out = [];
+
+    if (state.picks.length >= capacity()) {
+      out.push("This build is full at " + capacity() + " skills: " + state.startingSkills +
+               " from the preset plus " + MAX_LEVEL + " level-ups.");
+    }
+    if (state.excluded.length > Math.min(state.removalPoints, MAX_REMOVALS)) {
+      out.push("More trees are ticked than there are removal points; the extras are ignored, exactly as the game ignores them.");
+    }
+    [1, 2, 3, 4, 5].forEach(function (t) {
+      var cap = parseInt(state.caps[t], 10);
+      if (isNaN(cap)) return;
+      var held = list.filter(function (s) { return s.tier === t; }).length;
+      if (held >= cap) out.push("Tier " + t + " is at its maximum, so rolls of it fall through to tier " + Math.max(1, t - 1) + ".");
+    });
+    if (result.pool.length < 20) {
+      out.push("Only " + result.pool.length + " skills are still rollable.");
+    }
+
+    el.warnings.innerHTML = out.map(function (w) { return '<div class="note warn">' + w + "</div>"; }).join("");
+  }
+
+  // ------------------------------------------------------------- tooltip
+
+  function showTip(s, result, event) {
+    var ownedList = owned();
+    var inPool = result.pool.some(function (x) { return x.id === s.id; });
+    var isOwned = state.picks.indexOf(s.id) !== -1;
+
+    var parts = ['<div class="t-name">' + esc(s.name) + "</div>",
+      '<div class="t-meta">' + s.tree + " &middot; Tier " + s.tier + " &middot; " +
+        (s.passive ? "Passive" : "Active") + "</div>",
+      '<div class="t-desc">' + esc(s.description) + "</div>"];
+
+    if (s.dependency) {
+      var have = ownedList.some(function (x) { return x.name === s.dependency; });
+      parts.push('<div class="t-line">Requires <b>' + esc(s.dependency) + "</b>" +
+        (have ? " &mdash; owned" : "") + "</div>");
+    }
+    if (s.excludes.length) {
+      parts.push('<div class="t-line">Taking it locks out: ' + s.excludes.map(esc).join(", ") + "</div>");
+    }
+    if (s.replacedBy.length) {
+      parts.push('<div class="t-line">Superseded by: ' + s.replacedBy.map(esc).join(", ") + "</div>");
+    }
+
+    parts.push("<hr>");
+
+    if (isOwned) {
+      parts.push('<div class="t-line">Already picked &mdash; click to remove.</div>');
+    } else if (!inPool) {
+      parts.push('<div class="t-line">Not rollable: ' + esc(whyLocked(s, ownedList)) + "</div>");
+    } else {
+      var p = result.odds[s.id] || 0;
+      parts.push('<div class="t-line">Chance to appear this level-up: <b>' + pct(chanceAmongOptions(p)) + "</b>" +
+        " (" + pct(p) + " per option)</div>");
+
+      if (state.weighting) {
+        parts.push('<div class="t-line">Weight <b>' + fmt(result.weights[s.id]) + "</b>" +
+          " of " + fmt(result.tierTotals[s.tier]) + " in tier " + s.tier + "</div>");
+        weightBreakdown(s, ownedList).forEach(function (line) {
+          parts.push('<div class="t-line">&nbsp;&nbsp;' + line + "</div>");
+        });
+      }
+    }
+
+    var tags = s.broad.concat(s.narrow).map(function (c) { return '<span class="tag">' + esc(c) + "</span>"; });
+    parts.push('<div style="margin-top:6px">' + tags.join("") + "</div>");
+
+    el.tip.innerHTML = parts.join("");
+    el.tip.style.display = "block";
+    moveTip(event);
+  }
+
+  function whyLocked(s, ownedList) {
+    if (activeExclusions().indexOf(s.tree) !== -1) return "the " + s.tree + " tree is removed.";
+    for (var i = 0; i < ownedList.length; i++) {
+      if (ownedList[i].excludes.indexOf(s.name) !== -1) return "locked out by " + ownedList[i].name + ".";
+      if (s.replacedBy.indexOf(ownedList[i].name) !== -1) return "superseded by " + ownedList[i].name + ".";
+    }
+    if (state.picks.length >= capacity()) return "the build is already full at " + capacity() + " skills.";
+    return "not in the pool.";
+  }
+
+  function moveTip(event) {
+    var pad = 14;
+    var rect = el.tip.getBoundingClientRect();
+    var x = event.clientX + pad;
+    var y = event.clientY + pad;
+    if (x + rect.width > window.innerWidth - 8) x = event.clientX - rect.width - pad;
+    if (y + rect.height > window.innerHeight - 8) y = Math.max(8, event.clientY - rect.height - pad);
+    el.tip.style.left = x + "px";
+    el.tip.style.top = y + "px";
+  }
+
+  function hideTip() { el.tip.style.display = "none"; }
+
+  // --------------------------------------------------------------- render
+
+  var lastResult = null;
+
+  function renderReroll() {
+    if (state.reroll === null || state.reroll >= state.picks.length) {
+      state.reroll = null;
+      el["reroll-card"].hidden = true;
+      return;
+    }
+
+    var sim = rerollOdds(state.reroll);
+    el["reroll-card"].hidden = false;
+    el["reroll-title"].textContent = "Reroll: " + sim.target.name;
+
+    if (!sim.rows.length) {
+      el["reroll-body"].innerHTML = '<div class="note">Nothing else is left at tier ' + sim.tier +
+        ", so the game would fall back to the whole remaining pool.</div>";
+      return;
+    }
+
+    var head = '<div class="note">Tier ' + sim.tier + " is forced, so there is no tier roll: " +
+      sim.rows.length + " candidates, each shown with its share of one option" +
+      (state.weighting ? " under the current weighting" : " (uniform, weighting off)") +
+      ". Click one to swap the pick to it.</div><div style=\"height:8px\"></div>";
+
+    el["reroll-body"].innerHTML = head + sim.rows.map(function (row) {
+      var s = row.skill;
+      var was = s.id === sim.target.id;
+      return '<div class="reroll-row' + (was ? " was" : "") + '" data-swap="' + s.id + '"' +
+        ' style="border-left-color:' + TREE_COLOUR[s.tree] + '">' +
+        '<span class="nm">' + esc(s.name) + (was ? " (current)" : "") + "</span>" +
+        '<span class="pc">' + pct(row.p) + "</span></div>";
+    }).join("");
+  }
+
+  function render() {
+    // The tier level follows the build unless it has been set by hand past it.
+    el["tier-level"].value = state.tierLevel;
+    el["opt-count-note"].textContent = NUM_OPTIONS;
+
+    renderExclusions();
+    renderTierControls();
+
+    var result = offerOdds();
+    lastResult = result;
+
+    renderTierReadout(result.rollOdds, owned());
+    renderCatalogue(result);
+    renderPicks();
+    renderReroll();
+    renderSummary(result);
+    writeHash();
+  }
+
+  // ---------------------------------------------------------------- events
+
+  el.catalogue.addEventListener("click", function (e) {
+    var button = e.target.closest(".skill");
+    if (!button) return;
+    var id = Number(button.getAttribute("data-id"));
+    var at = state.picks.indexOf(id);
+
+    if (at !== -1) {
+      state.picks.splice(at, 1);
+    } else {
+      if (button.classList.contains("locked")) return;
+      state.picks.push(id);
+      var next = Math.max(1, Math.min(MAX_LEVEL, levelOfPick(state.picks.length)));
+      if (state.tierLevel < next) state.tierLevel = next;
+    }
+    hideTip();
+    render();
+  });
+
+  el.catalogue.addEventListener("mouseover", function (e) {
+    var button = e.target.closest(".skill");
+    if (!button || !lastResult) return;
+    showTip(SKILLS[Number(button.getAttribute("data-id"))], lastResult, e);
+  });
+  el.catalogue.addEventListener("mousemove", function (e) {
+    if (el.tip.style.display === "block") moveTip(e);
+  });
+  el.catalogue.addEventListener("mouseout", function (e) {
+    if (e.target.closest(".skill")) hideTip();
+  });
+
+  el["pick-list"].addEventListener("click", function (e) {
+    var reroll = e.target.closest(".reroll-btn");
+    if (reroll) {
+      var index = Number(reroll.getAttribute("data-reroll"));
+      state.reroll = state.reroll === index ? null : index;
+      render();
+      return;
+    }
+
+    var li = e.target.closest("li[data-pick]");
+    if (!li) return;
+    var at = Number(li.getAttribute("data-pick"));
+    state.picks.splice(at, 1);
+    if (state.reroll !== null && state.reroll >= at) state.reroll = null;
+    render();
+  });
+
+  el["reroll-body"].addEventListener("click", function (e) {
+    var row = e.target.closest("[data-swap]");
+    if (!row || state.reroll === null) return;
+    state.picks[state.reroll] = Number(row.getAttribute("data-swap"));
+    state.reroll = null;
+    render();
+  });
+
+  el["reroll-close"].addEventListener("click", function () {
+    state.reroll = null;
+    render();
+  });
+
+  el["tree-exclusions"].addEventListener("change", function (e) {
+    var tree = e.target.getAttribute("data-tree");
+    if (!tree) return;
+    var at = state.excluded.indexOf(tree);
+    if (e.target.checked && at === -1) state.excluded.push(tree);
+    if (!e.target.checked && at !== -1) state.excluded.splice(at, 1);
+    render();
+  });
+
+  el["starting-skills"].addEventListener("input", function () {
+    state.startingSkills = Math.max(0, Math.min(12, Number(this.value) || 0));
+    this.value = state.startingSkills;
+    render();
+  });
+
+  el["removal-points"].addEventListener("input", function () {
+    state.removalPoints = Math.max(0, Math.min(MAX_REMOVALS, Number(this.value) || 0));
+    this.value = state.removalPoints;
+    render();
+  });
+
+  el["weighting-on"].addEventListener("change", function () {
+    state.weighting = this.checked;
+    el["weight-controls"].hidden = !this.checked;
+    render();
+  });
+
+  [["p-synergy", "synergy", "v-synergy"], ["p-tree", "tree", "v-tree"],
+   ["p-broad", "broad", "v-broad"], ["p-narrow", "narrow", "v-narrow"],
+   ["p-dep", "dep", "v-dep"]].forEach(function (pair) {
+    var input = document.getElementById(pair[0]);
+    input.addEventListener("input", function () {
+      state.params[pair[1]] = Number(this.value);
+      document.getElementById(pair[2]).textContent = this.value;
+      render();
+    });
+  });
+
+  ["p-min", "p-max"].forEach(function (id) {
+    document.getElementById(id).addEventListener("input", function () {
+      state.params[id === "p-min" ? "min" : "max"] = Number(this.value);
+      render();
+    });
+  });
+
+  el["tier-level"].addEventListener("input", function () {
+    state.tierLevel = Math.max(1, Math.min(MAX_LEVEL, Number(this.value) || 1));
+    render();
+  });
+
+  el.search.addEventListener("input", function () { state.search = this.value; render(); });
+  el.sort.addEventListener("change", function () { state.sort = this.value; render(); });
+  el["tier-filter"].addEventListener("change", function () { state.tierFilter = this.value; render(); });
+  el["hide-locked"].addEventListener("change", function () { state.hideLocked = this.checked; render(); });
+
+  el.reset.addEventListener("click", function () {
+    state.picks = [];
+    state.excluded = [];
+    state.tierLevel = 1;
+    render();
+  });
+
+  el["copy-link"].addEventListener("click", function () {
+    var url = location.href;
+    if (navigator.clipboard) navigator.clipboard.writeText(url);
+    this.textContent = "Copied";
+    var self = this;
+    setTimeout(function () { self.textContent = "Copy build link"; }, 1200);
+  });
+
+  // ------------------------------------------------------- share in the URL
+
+  function writeHash() {
+    var parts = [];
+    if (state.picks.length) parts.push("s=" + state.picks.join("."));
+    if (state.excluded.length) parts.push("x=" + state.excluded.join("."));
+    if (state.removalPoints) parts.push("r=" + state.removalPoints);
+    if (state.startingSkills !== 2) parts.push("b=" + state.startingSkills);
+    if (state.weighting) parts.push("w=1");
+    if (state.tierLevel !== 1) parts.push("l=" + state.tierLevel);
+    if (state.reroll !== null) parts.push("rr=" + state.reroll);
+    var hash = parts.join("&");
+    if (hash !== location.hash.replace(/^#/, "")) {
+      history.replaceState(null, "", hash ? "#" + hash : location.pathname);
+    }
+  }
+
+  function readHash() {
+    var hash = location.hash.replace(/^#/, "");
+    if (!hash) return;
+    hash.split("&").forEach(function (part) {
+      var bits = part.split("="), key = bits[0], value = bits.slice(1).join("=");
+      if (key === "s" && value) {
+        state.picks = value.split(".").map(Number)
+          .filter(function (n) { return n >= 0 && n < SKILLS.length; })
+          .slice(0, capacity());
+      } else if (key === "x" && value) {
+        state.excluded = value.split(".").filter(function (t) { return TREES.indexOf(t) !== -1; });
+      } else if (key === "r") {
+        state.removalPoints = Math.max(0, Math.min(MAX_REMOVALS, Number(value) || 0));
+      } else if (key === "b") {
+        state.startingSkills = Math.max(0, Math.min(12, Number(value) || 0));
+      } else if (key === "w") {
+        state.weighting = value === "1";
+      } else if (key === "rr") {
+        var index = Number(value);
+        state.reroll = index >= 0 ? index : null;
+      } else if (key === "l") {
+        state.tierLevel = Math.max(1, Math.min(MAX_LEVEL, Number(value) || 1));
+      }
+    });
+  }
+
+  // ------------------------------------------------------------------ boot
+
+  readHash();
+  el["removal-points"].value = state.removalPoints;
+  el["starting-skills"].value = state.startingSkills;
+  el["hide-locked"].checked = state.hideLocked;
+  el["weighting-on"].checked = state.weighting;
+  el["weight-controls"].hidden = !state.weighting;
+  render();
+})();
+</script>
+</body>
+</html>

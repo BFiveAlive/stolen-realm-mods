@@ -13,7 +13,7 @@
                      "version":  "0.1.0",
                      "description":  "View a character\u0027s stats, inventory, skills and fortunes from the character selection screen.",
                      "url":  "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.6.0/CharacterViewerMod-0.1.0.zip",
-                     "sha256":  "97dfe3bbdf0edcab90875712f09843162572d6c5dedb07d5a47e0e699129abbc",
+                     "sha256":  "e8d4d183964fa6fc788051b83c5b573e8ddf9147c857a7aa7e6f418a556eee71",
                      "recommended":  true
                  },
                  {
@@ -23,7 +23,7 @@
                      "version":  "0.1.0",
                      "description":  "Toggles the post-battle stats window between the last battle and the whole run.",
                      "url":  "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.6.0/CumulativeStatsMod-0.1.0.zip",
-                     "sha256":  "2156910c64e705d94f7e34d9bd04192ab7eae0683b544ed4afd40750d929b0a3",
+                     "sha256":  "186afec0c255bd7a67134d30822c1d66c9ede7937e8ca8c9a27fbc739ae3fbe3",
                      "recommended":  true
                  },
                  {
@@ -33,7 +33,7 @@
                      "version":  "0.4.2",
                      "description":  "In-game settings editor and updater for every mod here.",
                      "url":  "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.6.0/ModManager-0.4.2.zip",
-                     "sha256":  "4746e599b2d36af81bc5b4c0badcb8b2554c61e2da0311afd423c12cf468da23",
+                     "sha256":  "93bf20011df8b22daafb7c22e663005e7bff154166feb373e414cf001148f0ec",
                      "recommended":  true
                  },
                  {
@@ -43,7 +43,7 @@
                      "version":  "0.1.0",
                      "description":  "Adds new roguelike starting classes, slotted into the game\u0027s own unlock ladder.",
                      "url":  "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.6.0/RoguelikeClassesMod-0.1.0.zip",
-                     "sha256":  "18c52dd3d8f89cae24b2a046a7b43928f7e0158cd33635ee1c2207598652234d",
+                     "sha256":  "b89cda46f667de6f3802cb1284ee67e350dd56ede5fa7109748c2c73799a81d8",
                      "recommended":  true
                  },
                  {
@@ -53,7 +53,7 @@
                      "version":  "0.3.0",
                      "description":  "Weights roguelike skill offers toward what your character already has.",
                      "url":  "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.6.0/SkillWeightMod-0.3.0.zip",
-                     "sha256":  "3f81d1803a434af9abbc96fc5ba25f49af6eacc5d612ba70d0785dac7907f12d",
+                     "sha256":  "e512450ed5aadfd2bbca6d20fc40ae18708d6cdd1e2a47ae518306f43126fd07",
                      "recommended":  true
                  },
                  {
@@ -63,7 +63,7 @@
                      "version":  "0.2.1",
                      "description":  "Config-driven edits to status effect duration, potency and stacking.",
                      "url":  "https://github.com/BFiveAlive/stolen-realm-mods/releases/download/v0.6.0/StatusEffectsMod-0.2.1.zip",
-                     "sha256":  "6d7af33543a18b8c2cd410ab22638a2a6270f2e3528709f25fdcfc6b076045e1",
+                     "sha256":  "d4e0f2cb7bd151812447d3cca502aa34bca262744bcc35a8dc3d4f6c8cb1cd1c",
                      "recommended":  true
                  }
              ]

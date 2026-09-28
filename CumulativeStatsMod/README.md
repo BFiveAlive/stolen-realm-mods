@@ -7,6 +7,10 @@ the current roguelike run.
 Nothing else about the window changes: same sections, same rows, same layout, same formatting.
 Only the values move.
 
+It also adds a **Battle Stats** button to the adventure rewards screen — the summary shown once a
+run ends, in victory or defeat — because that screen is the one place the game gives no route to
+the stats window at all.
+
 ## What it actually changes
 
 Vanilla keeps battle stats in `Root.BattleStats`, a list of `CharacterBattleStats`, each holding
@@ -46,6 +50,24 @@ correct *while the post-battle menu is open* — the battle you just fought is i
 yet folded — and it means a run resumed in a later session cannot double count: whether or not
 the game still has the last battle's stats in memory on load, the same boundary rule produces
 the same answer.
+
+## The rewards screen
+
+When a run ends, `AdventureRewards` reports the run as a whole: damage and healing totals, kills
+by enemy rank, the items and fortunes collected. What it has no route to is `StatManager`, the
+per-character breakdown every *other* post-battle screen can open — so the final fight is the one
+fight of a run whose stats cannot be looked at.
+
+The button opens that same window, which means the This Battle / Run Total toggle is already on
+it: the last fight and the whole run, from one place.
+
+It is built the way the toggle is — cloned from a button already on the screen so it inherits the
+game's styling, stripped of the localisers and tooltip carriers a clone drags along, and pinned
+to the top-right corner by anchor rather than by measurement. Replacing the whole
+`onClick` event matters more here than usual: the button it clones from is "To Town" or "Retry",
+and `RemoveAllListeners` does not clear listeners wired up in the inspector.
+
+Turn it off with `ShowOnRewardsScreen = false`.
 
 ## Scope: one run, not all runs
 
@@ -113,6 +135,8 @@ into place without restarting.
 | `Button.ButtonMarginX` / `Y` | `24` / `16` | Distance in pixels from the panel's right and top edges. |
 | `Button.ButtonScale` | `0.8` | Size multiplier. The button is cloned from one sized for a more prominent role. |
 | `Button.ButtonOffsetX` / `Y` | `0` | Extra nudge on top of the margins. `+X` right, `+Y` up. |
+| `Button.ShowOnRewardsScreen` | `true` | Add the Battle Stats button to the end-of-run rewards screen. |
+| `Button.RewardsButtonMarginX` / `Y` | `24` / `16` | Distance in pixels from that screen's right and top edges. |
 | `Button.SubtextScale` | `65` | Size of the small second line, as a percentage of the first. |
 | `Display.CompactNumberThreshold` | `1000000` | Abbreviate run totals at or above this (`1.2M`, `345K`). `0` always prints the exact figure. |
 | `Data.PersistBetweenSessions` | `true` | Save totals to disk so they survive quitting and reloading a run. |

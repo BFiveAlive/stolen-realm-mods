@@ -12,7 +12,7 @@ namespace CumulativeStatsMod
     {
         public const string Guid = "bfivealive.stolenrealm.cumulativestatsmod";
         public const string Name = "Cumulative Stats Mod";
-        public const string Version = "0.1.0";
+        public const string Version = "0.2.0";
 
         internal static ManualLogSource Log;
 
@@ -43,11 +43,14 @@ namespace CumulativeStatsMod
         private void Awake()
         {
             Log = Logger;
+            instance = this;
             ModConfig.Bind(Config);
 
             // PatchAll throws if a target method cannot be resolved, so logging *after* it makes
             // the log line itself proof that every patch bound successfully.
-            new Harmony(Guid).PatchAll(typeof(StatManagerPatches));
+            var harmony = new Harmony(Guid);
+            harmony.PatchAll(typeof(StatManagerPatches));
+            harmony.PatchAll(typeof(Ticker));
 
             if (ModConfig.HotReloadConfig.Value)
                 StartWatchingConfig();
@@ -55,7 +58,25 @@ namespace CumulativeStatsMod
             Log.LogInfo(Name + " " + Version + " loaded.");
         }
 
-        private void Update()
+        /// <summary>
+        /// Held as a plain static reference and never compared with Unity's <c>==</c>. The game
+        /// destroys the object BepInEx puts plugins on, and a destroyed component compares equal
+        /// to null under that operator while the managed instance is alive and perfectly able to
+        /// do config and bookkeeping work.
+        /// </summary>
+        private static Plugin instance;
+
+        /// <summary>
+        /// One frame's work, driven by <see cref="Ticker"/> rather than by Unity calling Update
+        /// on this plugin - see that class for why Update is not available.
+        /// </summary>
+        internal static void TickFromGame()
+        {
+            if (!ReferenceEquals(instance, null))
+                instance.Frame();
+        }
+
+        private void Frame()
         {
             HandleConfigReload();
 
@@ -69,6 +90,8 @@ namespace CumulativeStatsMod
                     StatsToggle.Ensure(manager);
                     StatsToggle.UpdateState(manager);
                 }
+
+                RewardsStatsButton.Tick();
             }
             catch (Exception e)
             {

@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>CumulativeStatsMod</AssemblyName>
     <RootNamespace>CumulativeStatsMod</RootNamespace>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <LangVersion>latest</LangVersion>
     <Description>Toggles the post-battle stats window between the last battle and the whole run.</Description>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>

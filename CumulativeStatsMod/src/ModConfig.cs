@@ -20,6 +20,10 @@ namespace CumulativeStatsMod
         public static ConfigEntry<float> ButtonOffsetY;
         public static ConfigEntry<int> SubtextScale;
 
+        public static ConfigEntry<bool> ShowOnRewardsScreen;
+        public static ConfigEntry<float> RewardsButtonMarginX;
+        public static ConfigEntry<float> RewardsButtonMarginY;
+
         public static ConfigEntry<float> CompactNumberThreshold;
 
         public static ConfigEntry<bool> PersistBetweenSessions;
@@ -63,6 +67,19 @@ namespace CumulativeStatsMod
 
             SubtextScale = cfg.Bind("Button", "SubtextScale", 65,
                 "Size of the small second line on the button, as a percentage of the main line.");
+
+            ShowOnRewardsScreen = cfg.Bind("Button", "ShowOnRewardsScreen", true,
+                "Add a Battle Stats button to the adventure rewards screen - the summary shown " +
+                "once a run ends, in victory or defeat. The game shows run-wide totals there but " +
+                "no way to reach the per-character stats window, so the last fight's numbers are " +
+                "otherwise unreachable. The window it opens carries the same This Battle / Run " +
+                "Total toggle.");
+
+            RewardsButtonMarginX = cfg.Bind("Button", "RewardsButtonMarginX", 24f,
+                "Distance from the right edge of the rewards screen to the Battle Stats button.");
+
+            RewardsButtonMarginY = cfg.Bind("Button", "RewardsButtonMarginY", 16f,
+                "Distance from the top edge of the rewards screen to the Battle Stats button.");
 
             CompactNumberThreshold = cfg.Bind("Display", "CompactNumberThreshold", 1000000f,
                 "In the run-total view only, values at or above this are abbreviated (1.2M, " +

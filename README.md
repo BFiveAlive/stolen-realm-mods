@@ -33,6 +33,23 @@ Windows only. The installer is unsigned, so SmartScreen will ask before running 
 | [StatusEffectsMod](StatusEffectsMod/) | Config-driven edits to status effect duration, potency and stacking |
 | [AutoEquipMod](AutoEquipMod/) | Offers to equip a better item as soon as you pick one up, from any source |
 | [SummonerMod](SummonerMod/) | Tunes summon damage, health, dodge and the summon limit |
+| [RoguelikeClassesMod](RoguelikeClassesMod/) | Adds roguelike starting classes, written in JSON and slotted into the game's own unlock ladder |
+| [CharacterViewerMod](CharacterViewerMod/) | View a character's stats, inventory, skills and fortunes from the character selection screen, campaign or roguelike |
+
+## Roguelike planner
+
+[`SkillWeightMod/roguelike-planner.html`](SkillWeightMod/roguelike-planner.html) is a character
+planner for roguelike runs: pick the twenty skills a character takes on its way to level 20, with
+every skill's description, its prerequisites and what taking it locks out, and a running readout
+of what the build has become.
+
+It also models the offer roll, so it answers the question a planner usually cannot — *how likely
+am I to actually be offered this?* Tick the trees you have removed and the odds redistribute
+across what is left; turn on Skill Weight Mod weighting and they shift again toward whatever the
+build already leans into, using the mod's own formula and shipped defaults.
+
+Open the file in a browser; it needs no server and no install. The build lives in the URL, so a
+link shares it.
 
 ## Mod manager
 

@@ -51,13 +51,18 @@ function Get-ModProjects([string] $root) {
     # A mod is a folder with a matching csproj whose plugin declares [BepInPlugin]. That rules
     # out ModUpdatePatcher, which is a preloader patcher rather than a plugin, and the installer,
     # which is a console app - without either of them needing to be named here.
+    #
+    # A mod opts out of releases with <PublishMod>false</PublishMod> in its csproj. Kept as a
+    # property on the mod rather than an exclusion list here, for the same reason nothing else
+    # about a mod is listed here: a second place to remember is a place to forget.
     Get-ChildItem -LiteralPath $root -Directory |
         Where-Object {
             $csproj = Join-Path $_.FullName ($_.Name + '.csproj')
             $plugin = Join-Path $_.FullName 'src\Plugin.cs'
 
             (Test-Path $csproj) -and (Test-Path $plugin) -and
-                (Select-String -LiteralPath $plugin -Pattern '\[BepInPlugin' -Quiet)
+                (Select-String -LiteralPath $plugin -Pattern '\[BepInPlugin' -Quiet) -and
+                ((Get-CsprojProperty $csproj 'PublishMod') -ne 'false')
         } |
         Sort-Object Name |
         ForEach-Object { $_.Name }

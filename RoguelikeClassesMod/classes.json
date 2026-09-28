@@ -1,0 +1,539 @@
+{
+  "schema": 1,
+  "defaults": {
+    "tier": 2
+  },
+  "classes": [
+    {
+      "id": "stormreaver",
+      "name": "Stormreaver",
+      "description": "A storm caller who opens with the lightning tree's whole opening hand.",
+      "tier": 2,
+      "unlock": {
+        "difficulty": 1
+      },
+      "stats": {
+        "might": 6,
+        "dexterity": 8,
+        "vitality": 10,
+        "intelligence": 18,
+        "reflex": 8
+      },
+      "skills": [
+        "Dazzling Darts",
+        "Discharge",
+        "Thunder Bolt"
+      ],
+      "gearNote": "Lightning Staff with Intelligence",
+      "equipment": {
+        "head": "Traveler's Hat",
+        "armor": "Traveler's Coat",
+        "mainHand": "Staff"
+      }
+    },
+    {
+      "id": "aura",
+      "name": "Aura",
+      "description": "Three auras at once. Stands still, hurts everything nearby.",
+      "tier": 2,
+      "unlock": {
+        "difficulty": 2
+      },
+      "stats": {
+        "might": 6,
+        "dexterity": 8,
+        "vitality": 12,
+        "intelligence": 16,
+        "reflex": 8
+      },
+      "skills": [
+        "Aura of Flame",
+        "Aura of Lightning",
+        "Aura Of Frost"
+      ],
+      "gearNote": "Fire Wand and Lightning Wand",
+      "equipment": {
+        "armor": "Simple Robe",
+        "mainHand": "Gemstone Wand",
+        "offHand": "Gemstone Wand"
+      }
+    },
+    {
+      "id": "iron-foot",
+      "name": "Iron Foot",
+      "description": "Every problem is solved by kicking it somewhere else.",
+      "tier": 2,
+      "unlock": {
+        "difficulty": 2
+      },
+      "stats": {
+        "might": 14,
+        "dexterity": 10,
+        "vitality": 12,
+        "intelligence": 6,
+        "reflex": 8
+      },
+      "skills": [
+        "Force Kick",
+        "Sweeping Kick",
+        "Cyclone Kick"
+      ],
+      "gearNote": "Staff",
+      "equipment": {
+        "armor": "Novice Gi",
+        "mainHand": "Staff"
+      }
+    },
+    {
+      "id": "good-witch",
+      "name": "Good Witch",
+      "description": "Chaos turned outward as help rather than harm.",
+      "tier": 2,
+      "unlock": {
+        "difficulty": 2
+      },
+      "stats": {
+        "might": 6,
+        "dexterity": 8,
+        "vitality": 12,
+        "intelligence": 16,
+        "reflex": 8
+      },
+      "skills": [
+        "Helping",
+        "Aid",
+        "Benevolence"
+      ],
+      "gearNote": "Healing Staff",
+      "equipment": {
+        "armor": "Simple Robe",
+        "mainHand": "Wand",
+        "offHand": "Heater"
+      }
+    },
+    {
+      "id": "wicked-witch",
+      "name": "Wicked Witch",
+      "description": "The same chaos, pointed the other way.",
+      "tier": 2,
+      "unlock": {
+        "difficulty": 2
+      },
+      "stats": {
+        "might": 6,
+        "dexterity": 8,
+        "vitality": 10,
+        "intelligence": 18,
+        "reflex": 8
+      },
+      "skills": [
+        "Hurting",
+        "Harm",
+        "Malevolence"
+      ],
+      "gearNote": "Shadow Staff",
+      "equipment": {
+        "armor": "Cultist Robes",
+        "mainHand": "Gemstone Ritual Staff"
+      }
+    },
+    {
+      "id": "florist",
+      "name": "Florist",
+      "description": "Grows one of everything and lets the garden fight.",
+      "tier": 2,
+      "unlock": {
+        "difficulty": 2
+      },
+      "stats": {
+        "might": 6,
+        "dexterity": 8,
+        "vitality": 12,
+        "intelligence": 16,
+        "reflex": 8
+      },
+      "skills": [
+        "The Good Bloom",
+        "The Bad Bloom",
+        "Circle of Life"
+      ],
+      "gearNote": "Healing Staff",
+      "equipment": {
+        "head": "Traveler's Hat",
+        "armor": "Traveler's Coat",
+        "mainHand": "Staff"
+      }
+    },
+    {
+      "id": "bloodletter",
+      "name": "Bloodletter",
+      "description": "Opens wounds and waits. Bleeding does the work.",
+      "tier": 2,
+      "unlock": {
+        "difficulty": 2
+      },
+      "stats": {
+        "might": 10,
+        "dexterity": 16,
+        "vitality": 10,
+        "intelligence": 6,
+        "reflex": 8
+      },
+      "skills": [
+        "Gouge",
+        "Bleeding Cleave",
+        "Rupture"
+      ],
+      "gearNote": "1h melee weapon with bleed effect x 2",
+      "equipment": {
+        "armor": "Leather Doublet",
+        "mainHand": "Boot Blade",
+        "offHand": "Boot Blade"
+      }
+    },
+    {
+      "id": "beastmaster",
+      "name": "Beastmaster",
+      "description": "Arrives with the whole summoning chain already learned.",
+      "tier": 3,
+      "unlock": {
+        "difficulty": 3
+      },
+      "stats": {
+        "might": 6,
+        "dexterity": 10,
+        "vitality": 12,
+        "intelligence": 14,
+        "reflex": 8
+      },
+      "skills": [
+        "Nature Summoning I",
+        "Nature Summoning II",
+        "Nature Summoning III"
+      ],
+      "gearNote": "weapon with summoning bonus",
+      "equipment": {
+        "head": "Traveler's Hat",
+        "armor": "Traveler's Coat",
+        "mainHand": "Staff"
+      }
+    },
+    {
+      "id": "paladin",
+      "name": "Paladin",
+      "description": "Three seals, held at once, for whoever stands closest.",
+      "tier": 3,
+      "unlock": {
+        "difficulty": 3
+      },
+      "stats": {
+        "might": 14,
+        "dexterity": 8,
+        "vitality": 14,
+        "intelligence": 8,
+        "reflex": 6
+      },
+      "skills": [
+        "Seal of Protection",
+        "Seal of Might",
+        "Seal of Salvation"
+      ],
+      "gearNote": "1h Sword and Shield",
+      "equipment": {
+        "armor": "Leather Jerkin",
+        "mainHand": "Broadsword",
+        "offHand": "Heater"
+      }
+    },
+    {
+      "id": "cryomancer",
+      "name": "Cryomancer",
+      "description": "Cold from the first turn to the last.",
+      "tier": 3,
+      "unlock": {
+        "difficulty": 3
+      },
+      "stats": {
+        "might": 6,
+        "dexterity": 8,
+        "vitality": 10,
+        "intelligence": 18,
+        "reflex": 8
+      },
+      "skills": [
+        "Enchant Cold",
+        "Aura Of Frost",
+        "Master Of Ice"
+      ],
+      "gearNote": "Ice Wand x 2",
+      "equipment": {
+        "armor": "Simple Robe",
+        "mainHand": "Gemstone Wand",
+        "offHand": "Gemstone Wand"
+      }
+    },
+    {
+      "id": "shadowbringer",
+      "name": "Shadowbringer",
+      "description": "Feeds on what it kills and puts out the lights.",
+      "tier": 3,
+      "unlock": {
+        "difficulty": 3
+      },
+      "stats": {
+        "might": 6,
+        "dexterity": 8,
+        "vitality": 10,
+        "intelligence": 18,
+        "reflex": 8
+      },
+      "skills": [
+        "Haunt",
+        "Consumption",
+        "Endless Night"
+      ],
+      "gearNote": "weapon that does shadow damage",
+      "equipment": {
+        "head": "Simple Hood",
+        "armor": "Cultist Robes",
+        "mainHand": "Gemstone Ritual Staff"
+      }
+    },
+    {
+      "id": "draconic-soul",
+      "name": "Draconic Soul",
+      "description": "Starts the run already able to stop being a person.",
+      "tier": 3,
+      "unlock": {
+        "difficulty": 3
+      },
+      "stats": {
+        "might": 14,
+        "dexterity": 8,
+        "vitality": 14,
+        "intelligence": 8,
+        "reflex": 6
+      },
+      "skills": [
+        "Shapeshift Dragonkin",
+        "Skin Walker"
+      ],
+      "gearNote": "2h melee weapon",
+      "equipment": {
+        "armor": "Primitive Rags",
+        "mainHand": "Two-Handed Axe"
+      }
+    },
+    {
+      "id": "fist-of-the-north-star",
+      "name": "Fist of the North Star",
+      "description": "Two skills. One of them is One Punch Monk.",
+      "tier": 3,
+      "unlock": {
+        "difficulty": 3
+      },
+      "stats": {
+        "might": 16,
+        "dexterity": 10,
+        "vitality": 12,
+        "intelligence": 6,
+        "reflex": 6
+      },
+      "skills": [
+        "Chi Strike",
+        "One Punch Monk"
+      ],
+      "gearNote": "Fist Weapon (just one)",
+      "equipment": {
+        "armor": "Novice Gi",
+        "mainHand": "Brass Knuckles"
+      }
+    },
+    {
+      "id": "masher",
+      "name": "Masher",
+      "description": "A hammer, a tier five, and no subtlety whatsoever.",
+      "tier": 3,
+      "unlock": {
+        "difficulty": 3
+      },
+      "stats": {
+        "might": 18,
+        "dexterity": 6,
+        "vitality": 14,
+        "intelligence": 6,
+        "reflex": 6
+      },
+      "skills": [
+        "Quaking Fist",
+        "Tricks of the Trade"
+      ],
+      "gearNote": "2h Hammer",
+      "equipment": {
+        "armor": "Primitive Rags",
+        "mainHand": "Battle Hammer"
+      }
+    },
+    {
+      "id": "time-mage",
+      "name": "Time Mage",
+      "description": "Buys turns rather than damage.",
+      "tier": 3,
+      "unlock": {
+        "difficulty": 4
+      },
+      "stats": {
+        "might": 6,
+        "dexterity": 8,
+        "vitality": 10,
+        "intelligence": 16,
+        "reflex": 10
+      },
+      "skills": [
+        "Kindling",
+        "Haste",
+        "Mass Haste"
+      ],
+      "gearNote": "Staff",
+      "equipment": {
+        "armor": "Scarlet Robes",
+        "mainHand": "Mystic Staff"
+      }
+    },
+    {
+      "id": "burglar",
+      "name": "Burglar",
+      "description": "Takes the enemy's turn, then the enemy's buffs.",
+      "tier": 3,
+      "unlock": {
+        "difficulty": 4
+      },
+      "stats": {
+        "might": 8,
+        "dexterity": 16,
+        "vitality": 10,
+        "intelligence": 6,
+        "reflex": 10
+      },
+      "skills": [
+        "Steal Action",
+        "Steal Status",
+        "Sleight of Hand"
+      ],
+      "gearNote": "Dagger x 2",
+      "equipment": {
+        "head": "Simple Hood",
+        "armor": "Leather Jerkin",
+        "mainHand": "Boot Blade",
+        "offHand": "Boot Blade"
+      }
+    },
+    {
+      "id": "trickshot",
+      "name": "Trickshot",
+      "description": "Bleeds at range and strips what it cannot bleed.",
+      "tier": 3,
+      "unlock": {
+        "difficulty": 4
+      },
+      "stats": {
+        "might": 8,
+        "dexterity": 16,
+        "vitality": 10,
+        "intelligence": 6,
+        "reflex": 10
+      },
+      "skills": [
+        "Bleeding Shot",
+        "Dispelling Shot",
+        "Tricks of the Trade"
+      ],
+      "gearNote": "Bow or Rifle",
+      "equipment": {
+        "head": "Simple Hood",
+        "armor": "Leather Doublet",
+        "mainHand": "Shortbow"
+      }
+    },
+    {
+      "id": "bounty-hunter",
+      "name": "Bounty Hunter",
+      "description": "Picks a target and makes it personal.",
+      "tier": 3,
+      "unlock": {
+        "difficulty": 4
+      },
+      "stats": {
+        "might": 8,
+        "dexterity": 16,
+        "vitality": 10,
+        "intelligence": 6,
+        "reflex": 10
+      },
+      "skills": [
+        "Bounty Hunter's Mark",
+        "Quick Draw",
+        "Marked Prey"
+      ],
+      "gearNote": "Pistol x 2",
+      "equipment": {
+        "head": "Outlaw Mask",
+        "armor": "Outlaw Coat",
+        "mainHand": "Flintlock Pistol",
+        "offHand": "Flintlock Pistol"
+      }
+    },
+    {
+      "id": "butcher",
+      "name": "Butcher",
+      "description": "Heals by hurting. Stops only when the room is empty.",
+      "tier": 3,
+      "unlock": {
+        "difficulty": 4
+      },
+      "stats": {
+        "might": 18,
+        "dexterity": 6,
+        "vitality": 14,
+        "intelligence": 6,
+        "reflex": 6
+      },
+      "skills": [
+        "Life Cleave",
+        "Blood Drinker",
+        "Colossus"
+      ],
+      "gearNote": "2h Axe with Life Steal",
+      "equipment": {
+        "armor": "Leather Jerkin",
+        "mainHand": "Two-Handed Axe"
+      }
+    },
+    {
+      "id": "chosen-one",
+      "name": "Chosen One",
+      "description": "Three trees, two tier fives, no theme but power.",
+      "tier": 3,
+      "unlock": {
+        "difficulty": 4
+      },
+      "stats": {
+        "might": 6,
+        "dexterity": 8,
+        "vitality": 10,
+        "intelligence": 18,
+        "reflex": 8
+      },
+      "skills": [
+        "Kindling",
+        "Conduit",
+        "Reverberate"
+      ],
+      "gearNote": "2h Sword",
+      "equipment": {
+        "armor": "Primitive Rags",
+        "mainHand": "Iron Greatsword"
+      }
+    }
+  ]
+}

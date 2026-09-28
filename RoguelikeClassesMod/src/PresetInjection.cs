@@ -62,6 +62,30 @@ namespace RoguelikeClassesMod
             }
         }
 
+        /// <summary>
+        /// Makes a saved character resolve back to the modded class it was created from, by
+        /// adding our presets to the guid lookup the game keeps.
+        ///
+        /// Emphatically NOT by clearing that lookup so it rebuilds. GetFromCharacterPresetFileDict
+        /// assigns the dictionary, fills it by reading the CharacterPresetFiles property - which
+        /// is where this patch runs - and then reads the field again to answer the query. Clearing
+        /// it from in here therefore pulls the field out from under the caller mid-method, and the
+        /// caller's next line throws a NullReferenceException. Adding to the dictionary instead is
+        /// safe from re-entry: the caller is iterating the array, not the dictionary.
+        /// </summary>
+        private static void AddToGuidLookup(Burst2Flame.Game game)
+        {
+            var field = AccessTools.Field(typeof(Burst2Flame.Game), "_CharacterPresetFile_Dict");
+            if (field?.GetValue(game) is Dictionary<Guid, CharacterPresetFile> lookup)
+            {
+                foreach (CharacterPresetFile preset in Injected)
+                    lookup[preset.Guid] = preset;
+            }
+
+            // A null lookup needs nothing: it is built on next use, from the array we just
+            // enlarged, and so contains our presets already.
+        }
+
         private static void Inject(Burst2Flame.Game game, ref CharacterPresetFile[] result)
         {
             if (Injected.Count == 0)
@@ -83,10 +107,7 @@ namespace RoguelikeClassesMod
             // this call allocating a fresh one each time.
             AccessTools.Field(typeof(Burst2Flame.Game), "_CharacterPresetFiles")?.SetValue(game, combined);
 
-            // The guid lookup builds its dictionary from the array once and keeps it. Dropping it
-            // makes the next lookup rebuild, which is what lets a saved character resolve back to
-            // the modded class it was created from.
-            AccessTools.Field(typeof(Burst2Flame.Game), "_CharacterPresetFile_Dict")?.SetValue(game, null);
+            AddToGuidLookup(game);
 
             result = combined;
 

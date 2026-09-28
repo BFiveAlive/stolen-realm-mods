@@ -12,7 +12,7 @@ namespace SkillWeightMod
     {
         public const string Guid = "bfivealive.stolenrealm.skillweightmod";
         public const string Name = "Skill Weight Mod";
-        public const string Version = "0.3.0";
+        public const string Version = "0.3.1";
 
         internal static ManualLogSource Log;
 
@@ -41,6 +41,13 @@ namespace SkillWeightMod
 
         private float ignoreEventsUntil;
 
+        /// <summary>
+        /// Held as a plain static reference and never compared with Unity's <c>==</c>: the game
+        /// destroys the object BepInEx puts plugins on, after which a destroyed component reads as
+        /// null under that operator while the managed instance is alive and perfectly usable.
+        /// </summary>
+        private static Plugin instance;
+
         private void Awake()
         {
             Log = Logger;
@@ -61,6 +68,9 @@ namespace SkillWeightMod
 
             if (ModConfig.HotReloadConfig.Value)
                 StartWatchingConfig();
+
+            instance = this;
+            Ticker.Install();
 
             Log.LogInfo($"{Name} {Version} loaded. SynergyStrength={ModConfig.SynergyStrength.Value}");
         }
@@ -103,7 +113,14 @@ namespace SkillWeightMod
             reloadRequested = true;
         }
 
-        private void Update()
+        /// <summary>One frame's work, driven by <see cref="Ticker"/> - see there for why.</summary>
+        internal static void Frame()
+        {
+            if (!ReferenceEquals(instance, null))
+                instance.FrameInstance();
+        }
+
+        private void FrameInstance()
         {
             SkillDumper.TryDump();
 

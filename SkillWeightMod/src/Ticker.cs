@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace CumulativeStatsMod
+namespace SkillWeightMod
 {
     /// <summary>
     /// Gives the mod a per-frame clock, because a BepInEx plugin's own <c>Update</c> is not one in
@@ -14,15 +14,12 @@ namespace CumulativeStatsMod
     /// is the object BepInEx puts plugins on that stops being driven rather than the callbacks
     /// being gone.
     ///
-    /// Everything this mod does per frame hangs off that clock: sampling <c>Root.BattleStats</c>
-    /// into the run totals, and creating and refreshing its buttons. Without it the mod loaded,
-    /// logged, patched - and then silently did nothing, which is exactly what it had been doing.
-    /// Harmony patches are unaffected, because they run inside the game's own call stack, which is
-    /// why the GetStatDisplay prefix kept working and made a dead mod look like a display quirk.
+    /// Harmony patches are unaffected, because they run inside the game's own call stack. That is
+    /// why the weighting kept working while everything hung off Update silently did not: the
+    /// config watcher this mod's README describes, and the skill dump, had both been dead.
     ///
     /// <see cref="Application.onBeforeRender"/> is a static event, so it keeps firing no matter
-    /// what happens to the object the plugin lives on, and it needs no Harmony patch and no game
-    /// type of its own.
+    /// what happens to the object the plugin lives on.
     /// </summary>
     internal static class Ticker
     {
@@ -41,13 +38,13 @@ namespace CumulativeStatsMod
         {
             try
             {
-                Plugin.TickFromGame();
+                Plugin.Frame();
             }
             catch (Exception e)
             {
                 // Abandon the frame rather than throw out of a delegate on this event, which
                 // would otherwise do the same thing again on every frame that follows.
-                Plugin.Log.LogError("Cumulative stats update failed: " + e);
+                Plugin.Log.LogError("Skill weight update failed: " + e);
             }
         }
     }

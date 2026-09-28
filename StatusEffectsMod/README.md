@@ -36,6 +36,21 @@ Leave a line empty and that status is untouched.
 
 ---
 
+## Where the per-frame work runs
+
+The status table comes out of the game's asset bundles well after plugins start, so binding the
+per-status settings and applying them has to wait for it. That wait used to live in `Update` — and
+**a BepInEx plugin's `Update` is never called in this game**, so the mod logged "Waiting for the
+game's status data" and waited forever: nothing was bound and no override was ever applied.
+
+Measured, not guessed: a probe in `Awake` fires every launch, probes in `Update` and `OnGUI` never
+fire, while the same component on a GameObject the *game* owns receives both normally. It is the
+object BepInEx puts plugins on that stops being driven, not the callbacks.
+
+`Ticker` subscribes to `Application.onBeforeRender`, a static event that keeps firing regardless
+of what happens to the plugin's object. It needs no Harmony patch and no game type, so this mod
+still has neither.
+
 ## The override language
 
 One line per status. Several settings on a line, separated by **semicolons**:

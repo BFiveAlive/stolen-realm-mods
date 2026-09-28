@@ -302,20 +302,23 @@ Merges `skill-categories.json` (categories), `skill-dump.json` (the replace-link
 file drops) and `src/CategoryWeights.cs` (default weights) into `roguelike-planner-data.js`.
 Re-run it after a game update changes the skill table.
 
-### `DumpSkillData` does not currently run
+### Where the per-frame work runs
 
-`SkillDumper` now also writes `roguelike-settings.json` - the tier chance curves, the per-tier
-maximums, `NumSkillOptions` and the removal budget - which is what would replace the estimate
-above. It has never produced that file, because **`Plugin.Update` never runs**.
+`SkillDumper` also writes `roguelike-settings.json` - the tier chance curves, the per-tier
+maximums, `NumSkillOptions` and the removal budget.
 
-Measured, not guessed: a probe written from `Awake` appears, and a probe written from `Update`
-never does, across repeated launches in which the game ran for minutes. Harmony patches are
-unaffected, which is why this was invisible - the weighting works, while everything hung off
-`Update` silently does not. That includes `HotReloadConfig`, which this README describes as
-working.
+Neither it nor `HotReloadConfig` used to run at all, because **a BepInEx plugin's `Update` is
+never called in this game**. Measured, not guessed: a probe in `Awake` fires every launch, probes
+in `Update` and `OnGUI` never fire - not on a later frame, not on the first - while the same
+component on a GameObject the *game* owns receives both normally, and one on an object the mod
+creates for itself and marks `DontDestroyOnLoad` receives neither. It is the object BepInEx puts
+plugins on that stops being driven, not the callbacks.
 
-Attaching the tick to a freshly created `DontDestroyOnLoad` GameObject instead of to the plugin
-did not help either, so it is not simply BepInEx's manager object being destroyed. Unresolved.
+Harmony patches are unaffected, since they run inside the game's own call stack. That is exactly
+why this stayed invisible: the weighting worked while the watcher and the dumper did not.
+
+`Ticker` subscribes to `Application.onBeforeRender`, a static event that keeps firing regardless
+of what happens to the plugin's object, and drives the frame work from there.
 
 ## Sharing it with other people
 

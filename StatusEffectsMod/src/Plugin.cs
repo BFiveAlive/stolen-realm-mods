@@ -18,7 +18,7 @@ namespace StatusEffectsMod
     {
         public const string Guid = "bfivealive.stolenrealm.statuseffectsmod";
         public const string Name = "Status Effects Mod";
-        public const string Version = "0.2.1";
+        public const string Version = "0.3.0";
 
         internal static ManualLogSource Log;
 
@@ -48,11 +48,21 @@ namespace StatusEffectsMod
 
         private bool applied;
 
+        /// <summary>
+        /// Held as a plain static reference and never compared with Unity's <c>==</c>: the game
+        /// destroys the object BepInEx puts plugins on, after which a destroyed component reads as
+        /// null under that operator while the managed instance is alive and perfectly usable.
+        /// </summary>
+        private static Plugin instance;
+
         private void Awake()
         {
             Log = Logger;
+            instance = this;
 
             ModConfig.Bind(Config);
+
+            Ticker.Install();
 
             if (ModConfig.HotReloadConfig.Value)
                 StartWatchingConfig();
@@ -63,7 +73,14 @@ namespace StatusEffectsMod
             Log.LogInfo($"{Name} {Version} loaded. Waiting for the game's status data.");
         }
 
-        private void Update()
+        /// <summary>One frame's work, driven by <see cref="Ticker"/> - see there for why.</summary>
+        internal static void Frame()
+        {
+            if (!ReferenceEquals(instance, null))
+                instance.FrameInstance();
+        }
+
+        private void FrameInstance()
         {
             if (!applied)
                 TryFirstApply();

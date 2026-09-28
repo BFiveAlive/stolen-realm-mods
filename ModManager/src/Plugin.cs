@@ -13,13 +13,17 @@ namespace ModManager
     /// It deliberately patches nothing. Settings come from BepInEx's own plugin and config
     /// registries, and the panel is IMGUI, so there is no Harmony patch here to break when the
     /// game updates and no game type this assembly needs to resolve.
+    ///
+    /// What it does need is somewhere to run: this game stops calling Unity callbacks on the
+    /// object BepInEx puts plugins on, so the per-frame work and the panel itself live on
+    /// <see cref="ManagerHost"/> instead. See that class for the measurements.
     /// </summary>
     [BepInPlugin(Guid, Name, Version)]
     public class Plugin : BaseUnityPlugin
     {
         public const string Guid = "bfivealive.stolenrealm.modmanager";
         public const string Name = "Mod Manager";
-        public const string Version = "0.4.2";
+        public const string Version = "0.5.0";
 
         internal static ManualLogSource Log;
         internal static Plugin Instance { get; private set; }
@@ -39,11 +43,18 @@ namespace ModManager
 
             ModConfig.Bind(Config);
 
+            ManagerHost.Install();
+
             Log.LogInfo(Name + " " + Version + " loaded. Press "
                 + ModConfig.ToggleKey.Value + " to open.");
         }
 
-        private IEnumerator Start()
+        /// <summary>
+        /// Run by <see cref="ManagerHost"/> rather than by Unity. A coroutine is continued by the
+        /// same loop that calls Update, so started from the plugin's own object it would never get
+        /// past its first yield.
+        /// </summary>
+        internal static IEnumerator Startup()
         {
             // Chainloader is still working through the plugin list during Awake, so waiting a
             // frame is what makes the discovered plugin set complete.
@@ -63,7 +74,17 @@ namespace ModManager
                 Log.LogMessage(UpdateService.Message + " Press " + ModConfig.ToggleKey.Value + " to review.");
         }
 
-        private void Update()
+        /// <summary>One frame's work, driven by <see cref="ManagerHost"/>.</summary>
+        internal static void Frame()
+        {
+            Plugin plugin = Instance;
+            if (ReferenceEquals(plugin, null))
+                return;
+
+            plugin.FrameInstance();
+        }
+
+        private void FrameInstance()
         {
             try
             {
@@ -92,9 +113,11 @@ namespace ModManager
             }
         }
 
-        private void OnGUI()
+        /// <summary>Drawn by <see cref="ManagerHost"/>, for the same reason.</summary>
+        internal static void DrawGui()
         {
-            if (!open)
+            Plugin plugin = Instance;
+            if (ReferenceEquals(plugin, null) || !plugin.open)
                 return;
 
             try
@@ -104,7 +127,7 @@ namespace ModManager
             catch (Exception e)
             {
                 Log.LogError("Mod manager draw failed, closing the window: " + e);
-                CloseWindow();
+                plugin.CloseWindow();
             }
         }
 

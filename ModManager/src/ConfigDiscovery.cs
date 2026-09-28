@@ -84,7 +84,12 @@ namespace ModManager
             foreach (var pair in Chainloader.PluginInfos)
             {
                 var instance = pair.Value != null ? pair.Value.Instance : null;
-                if (instance == null)
+
+                // ReferenceEquals, not ==. A plugin's Instance is a Component, and this game
+                // destroys the object BepInEx puts plugins on - after which Unity's == reports
+                // every one of them as null and the manager finds no settings at all, while the
+                // managed objects are alive and their Config is perfectly readable.
+                if (ReferenceEquals(instance, null))
                     continue;
 
                 var file = instance.Config;
@@ -178,10 +183,12 @@ namespace ModManager
 
         private static PluginSettings Build(BepInEx.PluginInfo info)
         {
-            // Instance is null when a plugin threw during construction. It is still listed by
-            // BepInEx, but it has no config to show.
+            // Instance is genuinely null when a plugin threw during construction: still listed by
+            // BepInEx, but with no config to show. Tested with ReferenceEquals so that a merely
+            // *destroyed* component - which this game does to every plugin - is not mistaken for
+            // one that never constructed.
             var instance = info?.Instance;
-            if (instance == null)
+            if (ReferenceEquals(instance, null))
                 return null;
 
             var file = instance.Config;

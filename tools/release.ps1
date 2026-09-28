@@ -228,7 +228,11 @@ $manifest = [ordered]@{
 }
 
 $manifestPath = Join-Path $root 'mods.json'
-$manifest | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $manifestPath -Encoding utf8
+# Written without a byte-order mark. Set-Content -Encoding utf8 emits one under Windows
+# PowerShell, and the in-game updater's JSON parser rejected the published manifest because of it
+# - "Expected a value at position 0", about a byte nobody can see in a diff.
+$json = $manifest | ConvertTo-Json -Depth 6
+[System.IO.File]::WriteAllText($manifestPath, $json, (New-Object System.Text.UTF8Encoding($false)))
 
 Write-Host "Wrote $manifestPath" -ForegroundColor Green
 

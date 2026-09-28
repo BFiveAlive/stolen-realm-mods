@@ -76,7 +76,12 @@ namespace ModManager
                     yield break;
                 }
 
-                string body = request.downloadHandler.text ?? string.Empty;
+                // A UTF-8 BOM survives into downloadHandler.text as U+FEFF, and a JSON parser is
+                // entitled to reject it as a stray character before the opening brace. Windows
+                // PowerShell's Set-Content -Encoding utf8 writes one, so a manifest published from
+                // a release script is a realistic thing to receive - and the failure it caused
+                // ("Expected a value at position 0") says nothing about a byte nobody can see.
+                string body = (request.downloadHandler.text ?? string.Empty).TrimStart('﻿', '​').Trim();
 
                 Manifest manifest;
                 try

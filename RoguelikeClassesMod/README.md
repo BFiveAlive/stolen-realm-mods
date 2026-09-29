@@ -55,13 +55,32 @@ between the editor and the mod's ordinary settings.
 
 | Tab | What it holds |
 |---|---|
-| Character | Name, description, unlock gate, tile tier, the five attributes with a running total, and the six gear slots — each checked against the item table as you type, so a name that does not resolve says so immediately rather than at save time. |
-| Skills | The starting skills with their tree and tier, and a search over the game's own skill table to add more. |
+| Character | Name, description, unlock gate, tile tier, the five attributes with a running total, and the six gear slots. Clicking a slot lists what the game actually has for it, with the stats of what is in it beside the list. |
+| Skills | The starting skills, and the trees to add more from — one tree at a time, in rows by tier, as icons, with what a skill does shown beside them. |
 | Appearance | Gender, and "start from an existing look" — any of the game's classes, or **any character you have already made**. |
 
 **Save changes** writes `classes.json` and pushes the values onto the presets the game is already
 holding, so the next character created from a class uses them. No restart. Characters already made
 are left alone — an edit should not quietly rewrite a roster.
+
+### Choosing skills and gear
+
+Both are browsers rather than text fields, and for the same reason: there are 422 skills and 905
+items, and neither set has guessable names. Typing one meant knowing the answer before asking the
+question, and a typo only announced itself after the fact.
+
+Skills are laid out the way the game's own skill screen lays them out — one tree, rows by tier,
+icons — so the tab answers "what could a Cold character start with" without knowing a single name.
+Clicking a skill both selects it, which shows what it does, and adds or removes it.
+
+Descriptions are the stored text with the markup taken out. The game fills in `*0` and
+`{STA=Bleeding}` against a real character at a real level, and there is neither here, so the
+markers come out rather than showing numbers that would be wrong. What a skill does is the question
+this pane is for; what it hits for depends on who casts it.
+
+Gear offers what fits the slot: head, armour, ring and amulet by item type, the main hand anything
+wieldable, and the off hand shields plus one-handed weapons. Stats are read off the item at level 1,
+which is what a class starts at.
 
 ### Copying a look from one of your characters
 
@@ -95,6 +114,12 @@ its picture is captured and kept on disk under the save folder, for good.
 
 Taking it ourselves would mean asking the creator to show a preset, which would change what the
 player is looking at. This only photographs something they chose to look at anyway.
+
+Pictures of the game's own classes ship in `previews/`, so the "start from an existing look" list
+arrives illustrated rather than blank. A capture taken on this machine wins over a shipped one, so
+editing a look replaces its picture rather than being masked by it. Both are trimmed to the figure:
+the cameras frame a fixed 512-pixel square that the model fills about a quarter of, and cropping the
+rest away both shrinks the files and lets the editor draw the figure at the size of its box.
 
 There is no per-feature editing yet, and no 3D preview. The game's own customiser cannot be reused
 here: it drives a spawned model by switching GameObjects, keeps its own private indices, and never

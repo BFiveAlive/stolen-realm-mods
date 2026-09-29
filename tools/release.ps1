@@ -151,8 +151,14 @@ foreach ($name in $modProjects) {
 
     foreach ($extra in $dataFiles) {
         $source = Join-Path $modDir $extra
-        if (Test-Path $source) { Copy-Item $source $pluginDir }
-        else { Write-Warning "$name declares data file '$extra' but it is missing" }
+        if (-not (Test-Path $source)) {
+            Write-Warning "$name declares data file '$extra' but it is missing"
+            continue
+        }
+
+        # A folder ships whole - Copy-Item without -Recurse would stage an empty directory.
+        if (Test-Path $source -PathType Container) { Copy-Item $source $pluginDir -Recurse -Force }
+        else { Copy-Item $source $pluginDir }
     }
 
     # The manager is the one mod that also needs the preloader patcher, which is what actually

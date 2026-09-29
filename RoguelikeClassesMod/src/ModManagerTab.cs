@@ -31,12 +31,29 @@ namespace RoguelikeClassesMod
         private static int selected;
         private static Vector2 listScroll, bodyScroll;
         private static string status = string.Empty;
-        private static string skillSearch = string.Empty;
         private static string lookSearch = string.Empty;
+
+        /// <summary>
+        /// The look most recently copied in, so the preview can show what was taken rather than
+        /// the class's own older picture - which, after a copy, is no longer what it looks like.
+        /// Held per class id, so switching classes falls back to that class's own picture.
+        /// </summary>
+        private static string copiedForClass;
+        private static string copiedLabel;
+        private static Shot copiedShot;
+
+        /// <summary>Width of each "start from an existing look" column, set from the panel width.</summary>
+        private static float copyColumnWidth = 280f;
 
         public static void Refresh()
         {
             ClassStore.EnsureLoaded();
+
+            // Both pickers index the game's tables once and keep the result. Dropping those here
+            // means reopening the manager picks up a table that was not loaded the first time.
+            SkillPicker.Reset();
+            ItemPicker.Reset();
+
             status = ClassStore.LastError ?? string.Empty;
         }
 
@@ -63,7 +80,7 @@ namespace RoguelikeClassesMod
         /// <summary>A flat 1x1 texture, so a filled rect costs nothing to draw.</summary>
         private static Texture2D fill;
 
-        private static void Fill(Rect rect, Color colour)
+        internal static void Fill(Rect rect, Color colour)
         {
             if (fill == null)
             {
@@ -79,6 +96,15 @@ namespace RoguelikeClassesMod
             GUI.color = previous;
         }
 
+        /// <summary>An outline, for marking a tile as chosen without hiding the icon under it.</summary>
+        internal static void Frame(Rect rect, Color colour, float thickness)
+        {
+            Fill(new Rect(rect.x, rect.y, rect.width, thickness), colour);
+            Fill(new Rect(rect.x, rect.yMax - thickness, rect.width, thickness), colour);
+            Fill(new Rect(rect.x, rect.y, thickness, rect.height), colour);
+            Fill(new Rect(rect.xMax - thickness, rect.y, thickness, rect.height), colour);
+        }
+
         // Taken from the manager's own palette so the selected row reads the same as its rail.
         private static readonly Color RowSelected = new Color(0.169f, 0.196f, 0.259f);
         private static readonly Color AccentBar = new Color(0.847f, 0.651f, 0.341f);
@@ -86,7 +112,7 @@ namespace RoguelikeClassesMod
 
         private static void DrawList(Rect area, IList<ClassDefinition> classes)
         {
-            var view = new Rect(area.x, area.y, area.width, area.height - 40f);
+            var view = new Rect(area.x, area.y, area.width, area.height - 74f);
             float rowHeight = 42f;
             var content = new Rect(0f, 0f, area.width - 20f, classes.Count * rowHeight);
 
@@ -117,12 +143,15 @@ namespace RoguelikeClassesMod
                 if (e != null && e.type == EventType.MouseDown && e.button == 0 && row.Contains(e.mousePosition))
                 {
                     selected = i;
-                    skillSearch = string.Empty;
+                    SkillPicker.Forget();
                     e.Use();
                 }
             }
 
             GUI.EndScrollView();
+
+            if (GUI.Button(new Rect(area.x + 10f, area.yMax - 66f, area.width - 20f, 26f), "New class"))
+                NewClass();
 
             // Save sits with the list rather than in a sub-tab: it commits every class, not the
             // one being looked at.
@@ -134,6 +163,56 @@ namespace RoguelikeClassesMod
             {
                 ClassStore.Reload();
                 status = "Reloaded classes.json from disk.";
+            }
+        }
+
+        /// <summary>
+        /// Starts a class off with the shape every shipped one has: 50 attribute points spread
+        /// evenly, available from the start, no gear and no skills. It is not playable until it
+        /// has at least one skill - a preset with none is refused rather than added half-built -
+        /// and it reaches the game on Save, like every other edit.
+        /// </summary>
+        private static void NewClass()
+        {
+            var definition = new ClassDefinition
+            {
+                Id = FreshId(),
+                Name = "New class",
+                Description = string.Empty,
+                Tier = 2,
+                Unlock = new UnlockDefinition(),
+                Stats = new StatBlock { Might = 10, Dexterity = 10, Vitality = 10, Intelligence = 10, Reflex = 10 },
+                Skills = new List<string>(),
+                Equipment = new EquipmentBlock(),
+            };
+
+            ClassStore.Add(definition);
+
+            selected = ClassStore.Classes.Count - 1;
+            section = Section.Character;
+            SkillPicker.Forget();
+            bodyScroll = Vector2.zero;
+            listScroll.y = float.MaxValue;      // clamped by the scroll view; puts the new row in sight
+
+            status = "Added a class. Give it a name and at least one skill, then Save changes.";
+        }
+
+        /// <summary>
+        /// An id no existing class uses. It is not cosmetic: the preset's Guid is derived from it
+        /// and written into every character made from the class, so it has to be settled before
+        /// anyone plays the class and left alone afterwards.
+        /// </summary>
+        private static string FreshId()
+        {
+            var taken = new HashSet<string>(
+                ClassStore.Classes.Where(c => c != null && c.Id != null).Select(c => c.Id),
+                StringComparer.OrdinalIgnoreCase);
+
+            for (int i = 1; ; i++)
+            {
+                string candidate = "custom-" + i;
+                if (!taken.Contains(candidate))
+                    return candidate;
             }
         }
 
@@ -188,8 +267,29 @@ namespace RoguelikeClassesMod
 
         private static void DrawCharacter(Rect area, ClassDefinition definition)
         {
-            GUILayout.BeginArea(area);
+            // Same shape as the Appearance tab: the editable fields scroll on the left, and a fixed
+            // column on the right shows what the gear slot being edited can hold and what it does.
+            float panelWidth = Mathf.Min(340f, area.width * 0.36f);
+            var content = new Rect(area.x, area.y, area.width - panelWidth - 20f, area.height);
+
+            ItemPicker.DrawPanel(new Rect(content.xMax + 20f, area.y, panelWidth, area.height),
+                definition, ClassStore.Touch);
+
+            GUILayout.BeginArea(content);
             bodyScroll = GUILayout.BeginScrollView(bodyScroll);
+
+            Header("Identity");
+
+            // Shown, not editable: characters already made resolve back to their class by a Guid
+            // derived from this, so changing it would orphan them.
+            GUILayout.BeginHorizontal(GUILayout.Height(RowHeight));
+            GUILayout.Label("Id", GUILayout.Width(150f), GUILayout.Height(RowHeight));
+            GUILayout.Label(definition.Id ?? "-", GUILayout.Width(200f), GUILayout.Height(RowHeight));
+            GUILayout.Label("fixed; characters made from this class are tied to it", noteStyle ?? GUI.skin.label,
+                GUILayout.Height(RowHeight));
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+            GUILayout.Space(3f);
 
             definition.Name = Field("Name", definition.Name);
             definition.Description = Field("Description", definition.Description);
@@ -202,8 +302,7 @@ namespace RoguelikeClassesMod
 
             definition.Tier = IntField("Tile tier", definition.Tier ?? 2, "1, 2 or 3. Cosmetic.");
 
-            GUILayout.Space(8f);
-            GUILayout.Label("Starting attributes  (every shipped class totals 50)");
+            Header("Starting attributes", "every shipped class totals 50");
 
             definition.Stats = definition.Stats ?? new StatBlock();
             definition.Stats.Might = IntField("Might", definition.Stats.Might, null);
@@ -213,16 +312,17 @@ namespace RoguelikeClassesMod
             definition.Stats.Reflex = IntField("Reflex", definition.Stats.Reflex, null);
             GUILayout.Label("    total " + definition.Stats.Total);
 
-            GUILayout.Space(8f);
-            GUILayout.Label("Starting gear  (item names; blank leaves the slot empty)");
+            Header("Starting gear", "click a slot to choose from what the game has");
 
             definition.Equipment = definition.Equipment ?? new EquipmentBlock();
-            definition.Equipment.Head = ItemField("Head", definition.Equipment.Head);
-            definition.Equipment.Armor = ItemField("Armor", definition.Equipment.Armor);
-            definition.Equipment.MainHand = ItemField("Main hand", definition.Equipment.MainHand);
-            definition.Equipment.OffHand = ItemField("Off hand", definition.Equipment.OffHand);
-            definition.Equipment.Ring = ItemField("Ring", definition.Equipment.Ring);
-            definition.Equipment.Amulet = ItemField("Amulet", definition.Equipment.Amulet);
+            EquipmentBlock gear = definition.Equipment;
+
+            gear.Head = ItemPicker.DrawSlot(GearSlot.Head, "Head", gear.Head, ClassStore.Touch);
+            gear.Armor = ItemPicker.DrawSlot(GearSlot.Armor, "Armor", gear.Armor, ClassStore.Touch);
+            gear.MainHand = ItemPicker.DrawSlot(GearSlot.MainHand, "Main hand", gear.MainHand, ClassStore.Touch);
+            gear.OffHand = ItemPicker.DrawSlot(GearSlot.OffHand, "Off hand", gear.OffHand, ClassStore.Touch);
+            gear.Ring = ItemPicker.DrawSlot(GearSlot.Ring, "Ring", gear.Ring, ClassStore.Touch);
+            gear.Amulet = ItemPicker.DrawSlot(GearSlot.Amulet, "Amulet", gear.Amulet, ClassStore.Touch);
 
             GUILayout.EndScrollView();
             GUILayout.EndArea();
@@ -230,91 +330,51 @@ namespace RoguelikeClassesMod
 
         // -------------------------------------------------------------------- Skills
 
+        /// <summary>Width the skill grid has to lay tiles out in; set as the tab is drawn.</summary>
+        internal static float SkillRowWidth = 400f;
+
         private static void DrawSkills(Rect area, ClassDefinition definition)
         {
-            GUILayout.BeginArea(area);
+            float panelWidth = Mathf.Min(340f, area.width * 0.36f);
+            var content = new Rect(area.x, area.y, area.width - panelWidth - 20f, area.height);
 
-            definition.Skills = definition.Skills ?? new List<string>();
+            SkillPicker.DrawDetail(new Rect(content.xMax + 20f, area.y, panelWidth, area.height),
+                definition, ClassStore.Touch);
 
-            GUILayout.Label("Starting skills  (granted at level 1, whatever their tier or prerequisite)");
+            // The tile grid needs a width before GUILayout would report one, and the tier rows sit
+            // behind a label, so it is worked out here rather than measured.
+            SkillRowWidth = content.width - 90f;
 
-            for (int i = 0; i < definition.Skills.Count; i++)
-            {
-                GUILayout.BeginHorizontal();
-                GUILayout.Label(Describe(definition.Skills[i]), GUILayout.Width(420f));
+            GUILayout.BeginArea(content);
 
-                bool remove = GUILayout.Button("Remove", GUILayout.Width(70f));
-                GUILayout.FlexibleSpace();
-                GUILayout.EndHorizontal();
+            Header("Starting skills", "granted at level 1, whatever their tier or prerequisite");
+            SkillPicker.DrawChosen(definition, ClassStore.Touch);
 
-                if (remove)
-                {
-                    definition.Skills.RemoveAt(i);
-                    ClassStore.Touch();
-                    break;
-                }
-            }
+            Header("Add from a tree", "click to add or remove");
+            SkillPicker.DrawTree(definition, ClassStore.Touch);
 
-            GUILayout.Space(10f);
-            GUILayout.Label("Add a skill");
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Search", GUILayout.Width(60f));
-            skillSearch = GUILayout.TextField(skillSearch ?? string.Empty);
-            GUILayout.EndHorizontal();
-
-            bodyScroll = GUILayout.BeginScrollView(bodyScroll);
-
-            if (!string.IsNullOrEmpty(skillSearch) && skillSearch.Length >= 2)
-            {
-                foreach (SkillInfo skill in Search(skillSearch))
-                {
-                    if (!GUILayout.Button(skill.SkillName + "   [" + skill.SkillType + " T" + skill.Tier + "]"))
-                        continue;
-
-                    definition.Skills.Add(skill.SkillName);
-                    ClassStore.Touch();
-                    break;
-                }
-            }
-            else
-            {
-                GUILayout.Label("Type at least two characters to search the game's skill table.");
-            }
-
-            GUILayout.EndScrollView();
             GUILayout.EndArea();
-        }
-
-        private static IEnumerable<SkillInfo> Search(string needle)
-        {
-            if (!GameData.Ready)
-                return new SkillInfo[0];
-
-            return Burst2Flame.Game.Instance.Skills
-                .Where(x => x != null && !x.Disabled && x.SkillType != SkillType.Basic && x.SkillType != SkillType.Innate
-                            && !x.DontIncludeInTree && !string.IsNullOrEmpty(x.SkillName)
-                            && x.SkillName.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0)
-                .OrderBy(x => x.SkillName)
-                .Take(40);
-        }
-
-        private static string Describe(string skillName)
-        {
-            SkillInfo skill = GameData.Ready ? GameData.FindSkill(skillName, out _) : null;
-            return skill == null
-                ? skillName + "   [not found]"
-                : skillName + "   [" + skill.SkillType + " T" + skill.Tier + "]";
         }
 
         // ---------------------------------------------------------------- Appearance
 
         private static void DrawAppearance(Rect area, ClassDefinition definition)
         {
-            GUILayout.BeginArea(area);
+            // The preview is a column of its own rather than a row inside the scrolling content:
+            // it is what the copy lists below are for, so it should stay in sight while they are
+            // scrolled, and a fixed column is the only place tall enough to show it at a useful size.
+            float previewWidth = Mathf.Min(300f, area.width * 0.32f);
+            var content = new Rect(area.x, area.y, area.width - previewWidth - 20f, area.height);
+            DrawClassPreview(new Rect(content.xMax + 20f, area.y, previewWidth, area.height), definition);
+
+            // The two copy lists share whatever the preview column left, rather than each taking a
+            // fixed 300, which no longer fits beside it.
+            copyColumnWidth = Mathf.Max(170f, (content.width - 60f) * 0.5f);
+
+            GUILayout.BeginArea(content);
             bodyScroll = GUILayout.BeginScrollView(bodyScroll);
 
-            GUILayout.Label("Gender");
+            Header("Gender");
             GUILayout.BeginHorizontal();
             if (GUILayout.Toggle(IsMale(definition), "Male", GUI.skin.button, GUILayout.Width(90f)) && !IsMale(definition))
             {
@@ -331,19 +391,9 @@ namespace RoguelikeClassesMod
             GUILayout.EndHorizontal();
 
             GUILayout.Space(12f);
-
-            GUILayout.BeginHorizontal();
-            GUILayout.BeginVertical(GUILayout.Width(420f));
             DrawCurrentAppearance(definition);
-            GUILayout.EndVertical();
 
-            GUILayout.Space(20f);
-            DrawClassPreview(definition);
-            GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal();
-
-            GUILayout.Space(14f);
-            GUILayout.Label("Start from an existing look");
+            Header("Start from an existing look", "the look is copied in; the class keeps it from then on");
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Filter", GUILayout.Width(50f));
@@ -358,14 +408,14 @@ namespace RoguelikeClassesMod
 
             GUILayout.BeginHorizontal();
 
-            GUILayout.BeginVertical(GUILayout.Width(300f));
+            GUILayout.BeginVertical(GUILayout.Width(copyColumnWidth));
             GUILayout.Label("The game's own classes");
             DrawPresetCopies(definition);
             GUILayout.EndVertical();
 
             GUILayout.Space(24f);
 
-            GUILayout.BeginVertical(GUILayout.Width(300f));
+            GUILayout.BeginVertical(GUILayout.Width(copyColumnWidth));
             GUILayout.Label("Your characters");
             DrawCharacterCopies(definition);
             GUILayout.EndVertical();
@@ -378,29 +428,128 @@ namespace RoguelikeClassesMod
         }
 
         /// <summary>
-        /// The class as the game draws it, if it has ever been shown in the character creator.
-        /// There is no way to produce one without that: a class is a preset, and the game's
-        /// renderer photographs a live model rather than building one from data.
+        /// What the class looks like: its own picture normally, or the look just copied in from
+        /// the list below, since after a copy the class's own older picture is no longer accurate.
+        ///
+        /// The face sits above the body, and the body gets whatever height is left, because the
+        /// body is the one worth looking at closely and a face reads fine small.
+        ///
+        /// A picture only exists for something the character creator has shown, here or in normal
+        /// play. There is no way to produce one otherwise: a class is a preset, and the game's
+        /// renderer photographs a live model rather than building one from data. Characters of
+        /// yours are the exception - the game renders and caches both views of every one of those.
         /// </summary>
-        private static void DrawClassPreview(ClassDefinition definition)
+        private static void DrawClassPreview(Rect area, ClassDefinition definition)
         {
-            GUILayout.BeginVertical(GUILayout.Width(200f));
+            bool copied = string.Equals(copiedForClass, definition.Id, StringComparison.Ordinal);
+            Shot shot = copied ? copiedShot : Preview.ForClass(definition.Id);
 
-            Texture2D shot = Preview.ForClass(definition.Id);
-            if (shot != null)
+            const float gap = 10f;
+            const float captionHeight = 56f;
+
+            float available = Mathf.Max(200f, area.height - captionHeight - gap * 2f);
+            float faceHeight = Mathf.Min(area.width, available * 0.36f);
+            float bodyHeight = available - faceHeight - gap;
+
+            DrawShot(new Rect(area.x, area.y, area.width, faceHeight), shot == null ? null : shot.Face);
+            DrawShot(new Rect(area.x, area.y + faceHeight + gap, area.width, bodyHeight),
+                shot == null ? null : shot.Body);
+
+            GUI.Label(new Rect(area.x, area.y + available + gap * 2f, area.width, captionHeight),
+                Caption(copied, shot != null), CaptionStyle());
+        }
+
+        private static string Caption(bool copied, bool havePicture)
+        {
+            if (havePicture)
+                return copied ? "Copied from " + copiedLabel : "As it looks in game";
+
+            return copied
+                ? "Copied from " + copiedLabel + " - no picture of that one yet. Open it once in the "
+                  + "character creator and one is taken and kept."
+                : "No picture yet - pick this class once in the character creator and it is taken and kept.";
+        }
+
+        private static GUIStyle wrappedStyle, listItemStyle;
+
+        /// <summary>Body text that wraps - the skin's own label does not.</summary>
+        internal static GUIStyle WrappedStyle()
+        {
+            if (wrappedStyle == null)
             {
-                Rect rect = GUILayoutUtility.GetRect(180f, 180f, GUILayout.Width(180f), GUILayout.Height(180f));
-                GUI.DrawTexture(rect, shot, ScaleMode.ScaleToFit);
-                GUILayout.Label("As it looks in game");
-            }
-            else
-            {
-                Rect rect = GUILayoutUtility.GetRect(180f, 180f, GUILayout.Width(180f), GUILayout.Height(180f));
-                Fill(rect, new Color(1f, 1f, 1f, 0.03f));
-                GUILayout.Label("No picture yet - pick this class once in the character creator and it is taken and kept.");
+                wrappedStyle = new GUIStyle(GUI.skin.label) { wordWrap = true, alignment = TextAnchor.UpperLeft };
+                wrappedStyle.normal.textColor = new Color(0.596f, 0.627f, 0.690f);
             }
 
-            GUILayout.EndVertical();
+            return wrappedStyle;
+        }
+
+        /// <summary>The dim small text used for hints beside a heading or a field.</summary>
+        internal static GUIStyle NoteStyle()
+        {
+            EnsureHeadingStyles();
+            return noteStyle;
+        }
+
+        /// <summary>A row in a long list: left aligned, and quiet until it is under the pointer.</summary>
+        internal static GUIStyle ListItemStyle()
+        {
+            if (listItemStyle == null)
+            {
+                listItemStyle = new GUIStyle(GUI.skin.label)
+                {
+                    alignment = TextAnchor.MiddleLeft,
+                    padding = new RectOffset(6, 6, 0, 0),
+                };
+                listItemStyle.hover.textColor = new Color(0.914f, 0.906f, 0.886f);
+                listItemStyle.hover.background = listItemStyle.normal.background;
+            }
+
+            return listItemStyle;
+        }
+
+        private static GUIStyle captionStyle;
+
+        private static GUIStyle CaptionStyle()
+        {
+            if (captionStyle == null)
+            {
+                captionStyle = new GUIStyle(GUI.skin.label)
+                {
+                    wordWrap = true,
+                    alignment = TextAnchor.UpperCenter,
+                    fontSize = Mathf.Max(11, (GUI.skin.label.fontSize > 0 ? GUI.skin.label.fontSize : 16) - 2),
+                };
+                captionStyle.normal.textColor = new Color(0.596f, 0.627f, 0.690f);
+            }
+
+            return captionStyle;
+        }
+
+        /// <summary>
+        /// Draws a render as large as its box allows, keeping its shape.
+        ///
+        /// Fitting rather than cropping, because the renders arrive trimmed to the figure - see
+        /// <see cref="Preview.Trim"/>. Untrimmed, they are square with the figure filling about a
+        /// quarter of the middle, and fitting one of those into a tall box wastes most of it.
+        /// </summary>
+        private static void DrawShot(Rect box, Texture2D texture)
+        {
+            if (texture == null)
+            {
+                Fill(box, new Color(1f, 1f, 1f, 0.03f));
+                return;
+            }
+
+            GUI.DrawTexture(box, texture, ScaleMode.ScaleToFit);
+        }
+
+        /// <summary>Remembers what a class's look was just taken from, for the preview above.</summary>
+        private static void RememberCopy(string classId, string label, Shot shot)
+        {
+            copiedForClass = classId;
+            copiedLabel = label;
+            copiedShot = shot;
         }
 
         private static bool IsMale(ClassDefinition definition)
@@ -428,6 +577,8 @@ namespace RoguelikeClassesMod
                 definition.Gender = preset.Gender == Gender.Male ? "Male" : "Female";
                 definition.AppearanceFrom = preset.PresetName;
                 ClassStore.Touch();
+                RememberCopy(definition.Id, preset.PresetName,
+                    Preview.ForKey(Preview.KeyForPreset(preset.PresetName)));
                 status = "Copied " + preset.PresetName + "'s look into " + definition.Name + ".";
             });
         }
@@ -466,6 +617,7 @@ namespace RoguelikeClassesMod
                 definition.Gender = character.IsMale ? "Male" : "Female";
                 definition.AppearanceFrom = null;
                 ClassStore.Touch();
+                RememberCopy(definition.Id, name, Preview.ForCharacterLarge(character));
                 status = problem == null
                     ? "Copied " + name + "'s look into " + definition.Name + "."
                     : "Copied " + name + "'s look, but " + problem + ".";
@@ -514,7 +666,7 @@ namespace RoguelikeClassesMod
 
             foreach (string name in names)
             {
-                if (GUILayout.Button(name, GUILayout.Width(290f)))
+                if (GUILayout.Button(name, GUILayout.Width(copyColumnWidth)))
                     onPick(name);
             }
         }
@@ -535,7 +687,9 @@ namespace RoguelikeClassesMod
             {
                 GUILayout.BeginHorizontal();
 
-                Texture2D portrait = Preview.ForCharacter(character);
+                // The face, not the body: at 34 pixels a full body is a smudge.
+                Shot shot = Preview.ForCharacter(character);
+                Texture2D portrait = shot == null ? null : (shot.Face ?? shot.Body);
                 Rect icon = GUILayoutUtility.GetRect(34f, 34f, GUILayout.Width(34f), GUILayout.Height(34f));
 
                 if (portrait != null)
@@ -543,7 +697,7 @@ namespace RoguelikeClassesMod
                 else
                     Fill(icon, new Color(1f, 1f, 1f, 0.04f));
 
-                if (GUILayout.Button(character.CharacterName, GUILayout.Width(250f), GUILayout.Height(34f)))
+                if (GUILayout.Button(character.CharacterName, GUILayout.Width(copyColumnWidth - 40f), GUILayout.Height(34f)))
                     onPick(character.CharacterName);
 
                 GUILayout.EndHorizontal();
@@ -595,6 +749,54 @@ namespace RoguelikeClassesMod
 
         private const float RowHeight = 26f;
 
+        private static GUIStyle headerStyle, noteStyle;
+
+        /// <summary>
+        /// A section heading, with room above it and a hairline under it.
+        ///
+        /// The manager hands panels a skin rather than named styles, so every label in here came
+        /// out at one weight and one colour - which is what made "Starting attributes" read as
+        /// just another field label and let the sections run together. These derive from the
+        /// skin's own label, so they keep its font and only change what separates a heading from
+        /// a row.
+        /// </summary>
+        private static void EnsureHeadingStyles()
+        {
+            if (headerStyle != null)
+                return;
+
+            GUIStyle label = GUI.skin.label;
+            int size = label.fontSize > 0 ? label.fontSize : 16;
+
+            headerStyle = new GUIStyle(label) { fontStyle = FontStyle.Bold, fontSize = size + 2 };
+            headerStyle.normal.textColor = new Color(0.914f, 0.906f, 0.886f);
+
+            noteStyle = new GUIStyle(label) { fontSize = Mathf.Max(11, size - 3) };
+            noteStyle.normal.textColor = new Color(0.420f, 0.451f, 0.522f);
+        }
+
+        private static void Header(string text, string note = null)
+        {
+            EnsureHeadingStyles();
+
+            GUILayout.Space(20f);
+
+            GUILayout.BeginHorizontal(GUILayout.Height(24f));
+            GUILayout.Label(text, headerStyle, GUILayout.Height(24f));
+
+            if (!string.IsNullOrEmpty(note))
+            {
+                GUILayout.Space(10f);
+                GUILayout.Label(note, noteStyle, GUILayout.Height(24f));
+            }
+
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+
+            Fill(GUILayoutUtility.GetRect(10f, 1f, GUILayout.Height(1f)), Divider);
+            GUILayout.Space(10f);
+        }
+
         private static string Field(string label, string value)
         {
             GUILayout.BeginHorizontal(GUILayout.Height(RowHeight));
@@ -627,32 +829,6 @@ namespace RoguelikeClassesMod
 
             ClassStore.Touch();
             return parsed;
-        }
-
-        /// <summary>
-        /// An item slot. Typed rather than picked from a list: there are 905 items, and a name that
-        /// does not resolve is worth saying so immediately rather than at save time.
-        /// </summary>
-        private static string ItemField(string label, string value)
-        {
-            GUILayout.BeginHorizontal(GUILayout.Height(RowHeight));
-            GUILayout.Label(label, GUILayout.Width(150f), GUILayout.Height(RowHeight));
-            string result = GUILayout.TextField(value ?? string.Empty, GUILayout.Width(260f), GUILayout.Height(RowHeight));
-
-            if (!string.IsNullOrEmpty(result))
-            {
-                bool known = GameData.Ready && GameData.FindItem(result, out _) != null;
-                GUILayout.Label(known ? "found" : "no item by that name", GUILayout.Height(RowHeight));
-            }
-
-            GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal();
-            GUILayout.Space(3f);
-
-            if (!string.Equals(result, value ?? string.Empty, StringComparison.Ordinal))
-                ClassStore.Touch();
-
-            return string.IsNullOrEmpty(result) ? null : result;
         }
 
         // ------------------------------------------------------------------- saving

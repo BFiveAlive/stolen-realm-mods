@@ -70,6 +70,18 @@ namespace RoguelikeClassesMod
 
         internal static void Touch() => Dirty = true;
 
+        /// <summary>Appends a class to the working copy. It reaches the game on the next Save.</summary>
+        internal static void Add(ClassDefinition definition)
+        {
+            EnsureLoaded();
+
+            if (library.Classes == null)
+                library.Classes = new List<ClassDefinition>();
+
+            library.Classes.Add(definition);
+            Dirty = true;
+        }
+
         /// <summary>Writes the working copy back to disk, formatted the way it ships.</summary>
         internal static bool Save()
         {

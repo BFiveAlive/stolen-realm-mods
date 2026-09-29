@@ -87,6 +87,9 @@ namespace ModManager
         public static GUIStyle MenuItem;
         public static GUIStyle MenuItemActive;
 
+        /// <summary>Handed to contributed panels; see <see cref="BuildPanelSkin"/>.</summary>
+        public static GUISkin PanelSkin;
+
         private static bool built;
         private static Texture2D white;
 
@@ -213,6 +216,37 @@ namespace ModManager
                 margin = new RectOffset(0, 0, 0, 6)
             };
             Row.normal.background = Solid(RowAlt);
+
+            BuildPanelSkin();
+        }
+
+        /// <summary>
+        /// A GUISkin handed to panels contributed by other mods.
+        ///
+        /// Those panels are found by reflection and cannot reference anything in this assembly, so
+        /// they have no way to ask for a style by name. Setting GUI.skin around the call instead
+        /// means an ordinary GUILayout.Label or GUILayout.Button in a contributed panel comes out
+        /// in the manager's font and colours without the panel knowing this skin exists.
+        /// </summary>
+        private static void BuildPanelSkin()
+        {
+            if (PanelSkin == null)
+                PanelSkin = ScriptableObject.CreateInstance<GUISkin>();
+
+            PanelSkin.label = new GUIStyle(RowName) { wordWrap = false };
+            PanelSkin.button = new GUIStyle(Button);
+            PanelSkin.textField = new GUIStyle(Field);
+            PanelSkin.textArea = new GUIStyle(Field) { wordWrap = true };
+            PanelSkin.toggle = new GUIStyle(Toggle);
+            PanelSkin.box = new GUIStyle(Row);
+            PanelSkin.horizontalSlider = new GUIStyle(Slider);
+            PanelSkin.horizontalSliderThumb = new GUIStyle(SliderThumb);
+            PanelSkin.scrollView = new GUIStyle(GUI.skin.scrollView);
+
+            PanelSkin.verticalScrollbar = new GUIStyle(GUI.skin.verticalScrollbar);
+            PanelSkin.verticalScrollbarThumb = new GUIStyle(GUI.skin.verticalScrollbarThumb);
+            PanelSkin.horizontalScrollbar = new GUIStyle(GUI.skin.horizontalScrollbar);
+            PanelSkin.horizontalScrollbarThumb = new GUIStyle(GUI.skin.horizontalScrollbarThumb);
         }
 
         private static GUIStyle Label(int size, FontStyle weight, Color colour,

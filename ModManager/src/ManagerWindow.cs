@@ -10,10 +10,7 @@ namespace ModManager
         Settings,
         Updates,
         Profiles,
-        About,
-
-        /// <summary>A tab contributed by another mod; which one is <see cref="ManagerWindow"/>'s external index.</summary>
-        External
+        About
     }
 
     /// <summary>
@@ -31,9 +28,6 @@ namespace ModManager
         private const int WindowId = 0x5A1E;
 
         private static Tab tab = Tab.Settings;
-
-        /// <summary>Which entry of <see cref="ExternalTabs.All"/> is shown when tab is External.</summary>
-        private static int externalIndex;
 
         /// <summary>
         /// Structural changes waiting for the next Layout event.
@@ -131,17 +125,6 @@ namespace ModManager
                     ProfilesTab.Draw(body);
                     break;
 
-                case Tab.External:
-                {
-                    var tabs = ExternalTabs.All;
-                    if (externalIndex >= 0 && externalIndex < tabs.Count)
-                        ExternalTabs.Draw(tabs[externalIndex], body);
-                    else
-                        DrawAbout(body);
-
-                    break;
-                }
-
                 default:
                     DrawAbout(body);
                     break;
@@ -180,27 +163,7 @@ namespace ModManager
             x = DrawTab(x, area, Tab.Profiles, "Profiles", 110f);
             x = DrawTab(x, area, Tab.Updates,
                 available > 0 ? "Updates (" + available + ")" : "Updates", 132f);
-            x = DrawTab(x, area, Tab.Settings, "Settings", 108f);
-
-            // Contributed tabs sit to the left of the built-in ones, widened to fit their own
-            // label since the manager has no say in what a mod calls itself.
-            var external = ExternalTabs.All;
-            for (int i = external.Count - 1; i >= 0; i--)
-            {
-                float width = Mathf.Max(110f, Skin.TabLabel.CalcSize(new GUIContent(external[i].Title)).x + 34f);
-                x = DrawExternalTab(x, area, i, external[i].Title, width);
-            }
-        }
-
-        private static float DrawExternalTab(float right, Rect bar, int index, string label, float width)
-        {
-            var rect = new Rect(right - width, bar.y + 10f, width, bar.height - 20f);
-            bool active = tab == Tab.External && externalIndex == index;
-
-            if (DrawTabButton(rect, label, active))
-                Defer(() => { tab = Tab.External; externalIndex = index; });
-
-            return rect.x - 4f;
+            DrawTab(x, area, Tab.Settings, "Settings", 108f);
         }
 
         private static float DrawTab(float right, Rect bar, Tab target, string label, float width)

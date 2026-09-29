@@ -11,6 +11,9 @@ namespace ModManager
     {
         public string Title;
         public string Owner;
+
+        /// <summary>The contributing plugin's GUID, so the panel shows under that mod's own entry.</summary>
+        public string OwnerGuid;
         public Action<Rect> Draw;
         public Action Refresh;
 
@@ -53,6 +56,21 @@ namespace ModManager
 
         public static IList<ExternalTab> All => Tabs;
 
+        /// <summary>The panel contributed by a given plugin, if it has one.</summary>
+        public static ExternalTab For(string guid)
+        {
+            if (string.IsNullOrEmpty(guid))
+                return null;
+
+            foreach (ExternalTab tab in Tabs)
+            {
+                if (string.Equals(tab.OwnerGuid, guid, StringComparison.OrdinalIgnoreCase))
+                    return tab;
+            }
+
+            return null;
+        }
+
         public static void Discover()
         {
             if (discovered)
@@ -76,6 +94,7 @@ namespace ModManager
                     ExternalTab tab = FromAssembly(instance.GetType().Assembly, info.Metadata.Name);
                     if (tab != null)
                     {
+                        tab.OwnerGuid = info.Metadata.GUID;
                         Tabs.Add(tab);
                         Plugin.Log.LogInfo("Added the '" + tab.Title + "' tab, contributed by " + tab.Owner + ".");
                     }
@@ -162,8 +181,26 @@ namespace ModManager
                 return;
             }
 
-            try { tab.Draw(body); }
-            catch (Exception e) { Disable(tab, "draw", e); }
+            // The panel cannot reference this assembly, so it cannot ask for a style. Handing it
+            // the skin instead means its plain GUILayout controls come out looking like the rest of
+            // the manager. Restored afterwards so nothing else inherits it.
+            GUISkin previous = GUI.skin;
+
+            try
+            {
+                if (Skin.PanelSkin != null)
+                    GUI.skin = Skin.PanelSkin;
+
+                tab.Draw(body);
+            }
+            catch (Exception e)
+            {
+                Disable(tab, "draw", e);
+            }
+            finally
+            {
+                GUI.skin = previous;
+            }
         }
 
         private static void Disable(ExternalTab tab, string what, Exception e)

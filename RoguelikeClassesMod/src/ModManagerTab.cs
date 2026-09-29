@@ -32,6 +32,7 @@ namespace RoguelikeClassesMod
         private static Vector2 listScroll, bodyScroll;
         private static string status = string.Empty;
         private static string skillSearch = string.Empty;
+        private static string lookSearch = string.Empty;
 
         public static void Refresh()
         {
@@ -59,10 +60,32 @@ namespace RoguelikeClassesMod
             DrawDetail(right, classes[selected]);
         }
 
+        /// <summary>A flat 1x1 texture, so a filled rect costs nothing to draw.</summary>
+        private static Texture2D fill;
+
+        private static void Fill(Rect rect, Color colour)
+        {
+            if (fill == null)
+            {
+                fill = new Texture2D(1, 1);
+                fill.SetPixel(0, 0, Color.white);
+                fill.Apply();
+                fill.hideFlags = HideFlags.HideAndDontSave;
+            }
+
+            Color previous = GUI.color;
+            GUI.color = colour;
+            GUI.DrawTexture(rect, fill);
+            GUI.color = previous;
+        }
+
+        // Taken from the manager's own palette so the selected row reads the same as its rail.
+        private static readonly Color RowSelected = new Color(0.169f, 0.196f, 0.259f);
+        private static readonly Color AccentBar = new Color(0.847f, 0.651f, 0.341f);
+        private static readonly Color Divider = new Color(1f, 1f, 1f, 0.06f);
+
         private static void DrawList(Rect area, IList<ClassDefinition> classes)
         {
-            GUI.Box(area, GUIContent.none);
-
             var view = new Rect(area.x, area.y, area.width, area.height - 40f);
             float rowHeight = 42f;
             var content = new Rect(0f, 0f, area.width - 20f, classes.Count * rowHeight);
@@ -75,12 +98,20 @@ namespace RoguelikeClassesMod
                 bool active = i == selected;
 
                 if (active)
-                    GUI.Box(row, GUIContent.none);
+                {
+                    Fill(row, RowSelected);
+                    Fill(new Rect(row.x, row.y, 3f, row.height), AccentBar);
+                }
 
                 string name = string.IsNullOrEmpty(classes[i].Name) ? classes[i].Id : classes[i].Name;
-                GUI.Label(new Rect(row.x + 12f, row.y + 4f, row.width - 20f, 20f), name);
-                GUI.Label(new Rect(row.x + 12f, row.y + 21f, row.width - 20f, 18f),
-                    UnlockLabel(classes[i]));
+                GUI.Label(new Rect(row.x + 14f, row.y + 3f, row.width - 22f, 20f), name);
+
+                Color previous = GUI.contentColor;
+                GUI.contentColor = new Color(1f, 1f, 1f, 0.55f);
+                GUI.Label(new Rect(row.x + 14f, row.y + 21f, row.width - 22f, 18f), UnlockLabel(classes[i]));
+                GUI.contentColor = previous;
+
+                Fill(new Rect(row.x, row.yMax - 1f, row.width, 1f), Divider);
 
                 var e = Event.current;
                 if (e != null && e.type == EventType.MouseDown && e.button == 0 && row.Contains(e.mousePosition))
@@ -299,21 +330,39 @@ namespace RoguelikeClassesMod
 
             GUILayout.EndHorizontal();
 
-            GUILayout.Space(10f);
-            GUILayout.Label("Start from an existing look");
-            GUILayout.Label("Copies that look's values in. Edit the numbers afterwards in classes.json, " +
-                            "or come back and copy a different one.");
+            GUILayout.Space(12f);
+            DrawCurrentAppearance(definition);
 
-            GUILayout.Space(4f);
-            GUILayout.Label("— one of the game's own classes —");
-            DrawPresetCopies(definition);
+            GUILayout.Space(14f);
+            GUILayout.Label("Start from an existing look");
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Filter", GUILayout.Width(50f));
+            lookSearch = GUILayout.TextField(lookSearch ?? string.Empty, GUILayout.Width(260f));
+            if (GUILayout.Button("Clear", GUILayout.Width(60f)))
+                lookSearch = string.Empty;
+
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
 
             GUILayout.Space(8f);
-            GUILayout.Label("— one of your characters —");
-            DrawCharacterCopies(definition);
 
-            GUILayout.Space(10f);
-            DrawCurrentAppearance(definition);
+            GUILayout.BeginHorizontal();
+
+            GUILayout.BeginVertical(GUILayout.Width(300f));
+            GUILayout.Label("The game's own classes");
+            DrawPresetCopies(definition);
+            GUILayout.EndVertical();
+
+            GUILayout.Space(24f);
+
+            GUILayout.BeginVertical(GUILayout.Width(300f));
+            GUILayout.Label("Your characters");
+            DrawCharacterCopies(definition);
+            GUILayout.EndVertical();
+
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
 
             GUILayout.EndScrollView();
             GUILayout.EndArea();
@@ -337,7 +386,7 @@ namespace RoguelikeClassesMod
                 .OrderBy(x => x.PresetName)
                 .ToList();
 
-            DrawGrid(presets.Select(p => p.PresetName).ToList(), name =>
+            DrawColumn(Filter(presets.Select(p => p.PresetName).Distinct().ToList()), name =>
             {
                 CharacterPresetFile preset = presets.First(p => p.PresetName == name);
                 definition.Appearance = AppearanceTables.FromPreset(preset);
@@ -361,7 +410,7 @@ namespace RoguelikeClassesMod
             if (!AppearanceTables.PartsKnown)
                 GUILayout.Label("Visit the character select screen once so the part lists can be read.");
 
-            DrawGrid(characters.Select(c => c.CharacterName).Distinct().ToList(), name =>
+            DrawColumn(Filter(characters.Select(c => c.CharacterName).Distinct().ToList()), name =>
             {
                 Character character = characters.First(c => c.CharacterName == name);
                 AppearanceBlock block = AppearanceTables.FromCharacter(character, out string problem);
@@ -399,29 +448,33 @@ namespace RoguelikeClassesMod
             }
         }
 
-        /// <summary>Buttons wrapped across the panel, so a long list does not become a long column.</summary>
-        private static void DrawGrid(List<string> names, Action<string> onPick)
+        private static List<string> Filter(List<string> names)
         {
-            const int columns = 4;
+            names.Sort(StringComparer.OrdinalIgnoreCase);
 
-            for (int i = 0; i < names.Count; i += columns)
+            if (string.IsNullOrEmpty(lookSearch))
+                return names;
+
+            return names.Where(n => n.IndexOf(lookSearch, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+        }
+
+        /// <summary>
+        /// One name per row rather than a four-wide grid of buttons. The old grid put unrelated
+        /// names side by side at wildly different widths, which made a list of 46 presets read as
+        /// a wall rather than as something to pick from.
+        /// </summary>
+        private static void DrawColumn(List<string> names, Action<string> onPick)
+        {
+            if (names.Count == 0)
             {
-                GUILayout.BeginHorizontal();
+                GUILayout.Label("    nothing matches that filter");
+                return;
+            }
 
-                for (int c = 0; c < columns; c++)
-                {
-                    int index = i + c;
-                    if (index >= names.Count)
-                    {
-                        GUILayout.Label(string.Empty);
-                        continue;
-                    }
-
-                    if (GUILayout.Button(names[index]))
-                        onPick(names[index]);
-                }
-
-                GUILayout.EndHorizontal();
+            foreach (string name in names)
+            {
+                if (GUILayout.Button(name, GUILayout.Width(290f)))
+                    onPick(name);
             }
         }
 
@@ -468,12 +521,15 @@ namespace RoguelikeClassesMod
 
         // ------------------------------------------------------------- small widgets
 
+        private const float RowHeight = 26f;
+
         private static string Field(string label, string value)
         {
-            GUILayout.BeginHorizontal();
-            GUILayout.Label(label, GUILayout.Width(150f));
-            string result = GUILayout.TextField(value ?? string.Empty);
+            GUILayout.BeginHorizontal(GUILayout.Height(RowHeight));
+            GUILayout.Label(label, GUILayout.Width(150f), GUILayout.Height(RowHeight));
+            string result = GUILayout.TextField(value ?? string.Empty, GUILayout.Height(RowHeight));
             GUILayout.EndHorizontal();
+            GUILayout.Space(3f);
 
             if (!string.Equals(result, value ?? string.Empty, StringComparison.Ordinal))
                 ClassStore.Touch();
@@ -483,14 +539,16 @@ namespace RoguelikeClassesMod
 
         private static int IntField(string label, int value, string help)
         {
-            GUILayout.BeginHorizontal();
-            GUILayout.Label(label, GUILayout.Width(150f));
-            string text = GUILayout.TextField(value.ToString(), GUILayout.Width(70f));
+            GUILayout.BeginHorizontal(GUILayout.Height(RowHeight));
+            GUILayout.Label(label, GUILayout.Width(150f), GUILayout.Height(RowHeight));
+            string text = GUILayout.TextField(value.ToString(), GUILayout.Width(70f), GUILayout.Height(RowHeight));
 
             if (!string.IsNullOrEmpty(help))
-                GUILayout.Label(help);
+                GUILayout.Label(help, GUILayout.Height(RowHeight));
 
+            GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
+            GUILayout.Space(3f);
 
             if (!int.TryParse(text, out int parsed) || parsed == value)
                 return value;
@@ -505,17 +563,19 @@ namespace RoguelikeClassesMod
         /// </summary>
         private static string ItemField(string label, string value)
         {
-            GUILayout.BeginHorizontal();
-            GUILayout.Label(label, GUILayout.Width(150f));
-            string result = GUILayout.TextField(value ?? string.Empty, GUILayout.Width(260f));
+            GUILayout.BeginHorizontal(GUILayout.Height(RowHeight));
+            GUILayout.Label(label, GUILayout.Width(150f), GUILayout.Height(RowHeight));
+            string result = GUILayout.TextField(value ?? string.Empty, GUILayout.Width(260f), GUILayout.Height(RowHeight));
 
             if (!string.IsNullOrEmpty(result))
             {
                 bool known = GameData.Ready && GameData.FindItem(result, out _) != null;
-                GUILayout.Label(known ? "found" : "no item by that name");
+                GUILayout.Label(known ? "found" : "no item by that name", GUILayout.Height(RowHeight));
             }
 
+            GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
+            GUILayout.Space(3f);
 
             if (!string.Equals(result, value ?? string.Empty, StringComparison.Ordinal))
                 ClassStore.Touch();

@@ -49,8 +49,9 @@ as `"Nature:Beast Master I"`.
 
 ## Editing classes in game
 
-The Mod Manager (F1) gains a **Roguelike Classes** tab: the classes down the left, and three
-sub-tabs for the one selected.
+Open the Mod Manager (F1), pick **Roguelike Classes Mod** in the Settings rail, and the editor is
+there: the classes down the left, three sub-tabs for the one selected, and a strip above to switch
+between the editor and the mod's ordinary settings.
 
 | Tab | What it holds |
 |---|---|

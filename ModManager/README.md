@@ -73,6 +73,16 @@ It is found by reflection on the name, so **neither assembly references the othe
 reason the structured-setting descriptor is read that way. `Draw` gets a window-relative rect and
 may use `GUI` or `GUILayout` inside it.
 
+The panel appears **under that mod's own entry in Settings**, not as another tab across the top: a
+strip above it switches between the panel and the mod's ordinary settings rows. A mod's editor
+belongs with its settings rather than competing with Settings, Updates and Profiles for the top
+bar.
+
+`GUI.skin` is set to the manager's own skin around the call and restored afterwards, so a plain
+`GUILayout.Label` or `GUILayout.Button` in a contributed panel comes out in the manager's font and
+colours. A panel cannot ask for a style by name - it has nothing to reference - so handing it the
+skin is the only way for it to match without one.
+
 A panel that throws is disabled for the rest of the session and reported once, with the inner
 exception rather than the reflection wrapper. The manager has to stay usable for every other mod,
 and an exception per frame inside `OnGUI` is unreadable.

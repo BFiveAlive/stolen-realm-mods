@@ -139,9 +139,71 @@ namespace ModManager
             RebuildRowsIfNeeded();
 
             DrawRail(rail);
-            DrawList(list);
-            DrawDetail(detail);
+
+            // A mod that contributes a panel gets the whole area to the right of the rail, because
+            // an editor needs the room and its own settings are still one click away on the strip
+            // above it. Mods without one are drawn exactly as before.
+            ExternalTab panel = ExternalTabs.For(plugins[selectedPlugin].Guid);
+
+            if (panel != null)
+            {
+                var content = new Rect(rail.xMax, body.y, body.xMax - rail.xMax, body.height);
+                DrawContributedPanel(content, panel);
+            }
+            else
+            {
+                DrawList(list);
+                DrawDetail(detail);
+            }
+
             DrawFooter(footer);
+        }
+
+        /// <summary>Which of the two views a contributed panel's mod is showing.</summary>
+        private static bool showPlainSettings;
+
+        private static void DrawContributedPanel(Rect area, ExternalTab panel)
+        {
+            var strip = new Rect(area.x + 22f, area.y + 12f, area.width - 44f, 30f);
+
+            float width = 150f;
+            var editorTab = new Rect(strip.x, strip.y, width, strip.height);
+            var settingsTab = new Rect(strip.x + width + 6f, strip.y, width, strip.height);
+
+            if (Pill(editorTab, panel.Title, !showPlainSettings))
+                showPlainSettings = false;
+
+            if (Pill(settingsTab, "Settings", showPlainSettings))
+                showPlainSettings = true;
+
+            var below = new Rect(area.x, strip.yMax + 10f, area.width, area.yMax - strip.yMax - 10f);
+
+            if (showPlainSettings)
+            {
+                var list = new Rect(below.x, below.y, below.width - Skin.DetailWidth, below.height);
+                var detail = new Rect(list.xMax, below.y, Skin.DetailWidth, below.height);
+                DrawList(list);
+                DrawDetail(detail);
+                return;
+            }
+
+            ExternalTabs.Draw(panel, below);
+        }
+
+        private static bool Pill(Rect rect, string label, bool active)
+        {
+            Skin.Fill(rect, active ? Skin.PanelHigh : Skin.Rail);
+            if (active)
+                Skin.Fill(new Rect(rect.x, rect.yMax - 2f, rect.width, 2f), Skin.Accent);
+
+            Skin.Text(rect, label, Skin.TabLabel, active ? Skin.Ink : Skin.InkMuted);
+
+            var e = Event.current;
+            if (e == null || e.type != EventType.MouseDown || e.button != 0 || !rect.Contains(e.mousePosition))
+                return false;
+
+            e.Use();
+            return true;
         }
 
         private static void EnsureSelection()

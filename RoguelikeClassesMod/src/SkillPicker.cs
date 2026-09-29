@@ -159,7 +159,10 @@ namespace RoguelikeClassesMod
                 return;
 
             selected = skill;
-            Toggle(definition, skill, touched);
+
+            // Deferred: the chosen list above this grid grows or shrinks by a row, and changing
+            // that while the panel is mid-draw is what crashes IMGUI.
+            ModManagerTab.Defer(() => Toggle(definition, skill, touched));
             e.Use();
         }
 
@@ -209,7 +212,10 @@ namespace RoguelikeClassesMod
 
             bool taken = Has(definition, selected);
             if (GUI.Button(new Rect(area.x, y, 150f, 26f), taken ? "Remove from class" : "Add to class"))
-                Toggle(definition, selected, touched);
+            {
+                SkillInfo skill = selected;
+                ModManagerTab.Defer(() => Toggle(definition, skill, touched));
+            }
 
             y += 34f;
 
@@ -284,8 +290,16 @@ namespace RoguelikeClassesMod
 
                 if (remove)
                 {
-                    definition.Skills.RemoveAt(i);
-                    touched();
+                    int at = i;
+                    ModManagerTab.Defer(() =>
+                    {
+                        if (at < definition.Skills.Count)
+                        {
+                            definition.Skills.RemoveAt(at);
+                            touched();
+                        }
+                    });
+
                     break;
                 }
             }

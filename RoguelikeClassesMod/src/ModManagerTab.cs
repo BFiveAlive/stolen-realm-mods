@@ -43,11 +43,22 @@ namespace RoguelikeClassesMod
         private static Shot copiedShot;
 
         /// <summary>
-        /// A class waiting to be removed. Deferred to the top of the next frame: dropping a row
-        /// from the list while the panel is being drawn leaves the rest of the frame laying out a
-        /// list that no longer matches the one it measured.
+        /// Work that changes the shape of the panel - adding, removing, reverting or importing a
+        /// class - held until the top of the next layout pass.
+        ///
+        /// IMGUI measures every control on the Layout event and expects to find exactly the same
+        /// ones on the passes that follow. Doing any of this the moment a button reports a click
+        /// hands those later passes a different panel, and a text field then reaches for editor
+        /// state that was never created for it and throws inside Unity's own code. Queueing the
+        /// work instead is the only way to change the panel from inside it.
         /// </summary>
-        private static ClassDefinition pendingDelete;
+        private static Action pending;
+
+        /// <summary>Runs <paramref name="work"/> at the start of the next layout pass.</summary>
+        internal static void Defer(Action work)
+        {
+            pending = work;
+        }
 
         /// <summary>Width of each "start from an existing look" column, set from the panel width.</summary>
         private static float copyColumnWidth = 280f;
@@ -76,13 +87,17 @@ namespace RoguelikeClassesMod
                 return;
             }
 
-            if (pendingDelete != null && Event.current != null && Event.current.type == EventType.Layout)
+            if (pending != null && Event.current != null && Event.current.type == EventType.Layout)
             {
-                string name = pendingDelete.Name ?? pendingDelete.Id;
-                ClassStore.Remove(pendingDelete);
-                pendingDelete = null;
-                selected = 0;
-                status = "Removed " + name + ". Save changes to keep that.";
+                Action work = pending;
+                pending = null;
+
+                try { work(); }
+                catch (Exception e)
+                {
+                    status = "That did not work: " + e.Message;
+                    Plugin.Log.LogError("Deferred editor work failed: " + e);
+                }
 
                 classes = ClassStore.Classes;
                 if (classes.Count == 0)
@@ -171,7 +186,7 @@ namespace RoguelikeClassesMod
             GUI.EndScrollView();
 
             if (GUI.Button(new Rect(area.x + 10f, area.yMax - 66f, area.width - 20f, 26f), "New class"))
-                NewClass();
+                Defer(NewClass);
 
             // Save sits with the list rather than in a sub-tab: it commits every class, not the
             // one being looked at.
@@ -181,8 +196,13 @@ namespace RoguelikeClassesMod
 
             if (GUI.Button(new Rect(area.xMax - 82f, save.y, 72f, 26f), "Revert"))
             {
-                ClassStore.Reload();
-                status = "Reloaded classes.json from disk.";
+                Defer(() =>
+                {
+                    ClassStore.Reload();
+                    selected = 0;
+                    SkillPicker.Forget();
+                    status = "Reloaded your classes from disk.";
+                });
             }
         }
 
@@ -400,12 +420,24 @@ namespace RoguelikeClassesMod
 
             if (edited && GUILayout.Button("Reset to shipped", GUILayout.Width(140f), GUILayout.Height(RowHeight)))
             {
-                ClassStore.ResetToShipped(definition);
-                status = definition.Name + " was put back the way it shipped. Save changes to keep that.";
+                Defer(() =>
+                {
+                    ClassStore.ResetToShipped(definition);
+                    status = (definition.Name ?? definition.Id)
+                             + " was put back the way it shipped. Save changes to keep that.";
+                });
             }
 
             if (!isShipped && GUILayout.Button("Delete", GUILayout.Width(80f), GUILayout.Height(RowHeight)))
-                pendingDelete = definition;
+            {
+                Defer(() =>
+                {
+                    string name = definition.Name ?? definition.Id;
+                    ClassStore.Remove(definition);
+                    selected = 0;
+                    status = "Removed " + name + ". Save changes to keep that.";
+                });
+            }
 
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
@@ -470,7 +502,10 @@ namespace RoguelikeClassesMod
                     GUILayout.Label(System.IO.Path.GetFileName(file), GUILayout.Width(400f), GUILayout.Height(26f));
 
                     if (GUILayout.Button("Import", GUILayout.Width(90f), GUILayout.Height(26f)))
-                        status = Sharing.Import(file);
+                    {
+                        string path = file;
+                        Defer(() => status = Sharing.Import(path));
+                    }
 
                     GUILayout.FlexibleSpace();
                     GUILayout.EndHorizontal();

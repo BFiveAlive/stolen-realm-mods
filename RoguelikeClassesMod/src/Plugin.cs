@@ -17,7 +17,7 @@ namespace RoguelikeClassesMod
     {
         public const string Guid = "bfivealive.stolenrealm.roguelikeclassesmod";
         public const string Name = "Roguelike Classes Mod";
-        public const string Version = "0.5.0";
+        public const string Version = "0.5.1";
 
         internal static ManualLogSource Log;
 

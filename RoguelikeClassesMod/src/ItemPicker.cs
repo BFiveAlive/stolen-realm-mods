@@ -69,20 +69,25 @@ namespace RoguelikeClassesMod
             if (GUILayout.Button(shown, GUILayout.Width(260f), GUILayout.Height(26f)))
                 slot = open ? GearSlot.None : which;
 
-            if (!string.IsNullOrEmpty(value) && GUILayout.Button("Clear", GUILayout.Width(60f), GUILayout.Height(26f)))
-            {
-                touched();
-                GUILayout.FlexibleSpace();
-                GUILayout.EndHorizontal();
-                GUILayout.Space(3f);
-                return null;
-            }
+            // Always drawn, disabled when there is nothing to clear, rather than appearing only
+            // when the slot is filled: a control that comes and goes changes the count IMGUI
+            // measured on the layout pass, which throws inside Unity's own text field code.
+            bool wasEnabled = GUI.enabled;
+            GUI.enabled = !string.IsNullOrEmpty(value);
+
+            bool clear = GUILayout.Button("Clear", GUILayout.Width(60f), GUILayout.Height(26f));
+
+            GUI.enabled = wasEnabled;
 
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
             GUILayout.Space(3f);
 
-            return value;
+            if (!clear)
+                return value;
+
+            touched();
+            return null;
         }
 
         // ------------------------------------------------------------- the side panel

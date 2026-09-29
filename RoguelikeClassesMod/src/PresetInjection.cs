@@ -29,6 +29,22 @@ namespace RoguelikeClassesMod
 
         internal static int Count => Injected.Count;
 
+        /// <summary>The live preset for a class id, or null if it has not been injected yet.</summary>
+        internal static CharacterPresetFile Find(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return null;
+
+            string name = PresetFactory.NamePrefix + id;
+            foreach (CharacterPresetFile preset in Injected)
+            {
+                if (preset != null && string.Equals(preset.name, name, StringComparison.Ordinal))
+                    return preset;
+            }
+
+            return null;
+        }
+
         internal static bool IsOurs(CharacterPresetFile preset)
         {
             return preset != null && preset.name != null && preset.name.StartsWith(PresetFactory.NamePrefix, StringComparison.Ordinal);

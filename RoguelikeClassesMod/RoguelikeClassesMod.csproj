@@ -5,7 +5,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>RoguelikeClassesMod</AssemblyName>
     <RootNamespace>RoguelikeClassesMod</RootNamespace>
-    <Version>0.1.1</Version>
+    <Version>0.2.0</Version>
     <Description>Adds new roguelike starting classes, slotted into the game's own unlock ladder.</Description>
     <!-- The class list is the mod: without it the plugin loads and adds nothing. -->
     <ModDataFiles>classes.json</ModDataFiles>
@@ -64,6 +64,11 @@
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>$(ManagedDir)\UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- The class editor is drawn with IMGUI, as a tab inside the Mod Manager. -->
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>$(ManagedDir)\UnityEngine.IMGUIModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">

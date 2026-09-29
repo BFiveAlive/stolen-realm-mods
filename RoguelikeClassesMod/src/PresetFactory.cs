@@ -38,6 +38,19 @@ namespace RoguelikeClassesMod
             preset.name = NamePrefix + definition.Id;
             preset.hideFlags = HideFlags.HideAndDontSave;
 
+            Populate(preset, definition, defaults, problems);
+            return preset;
+        }
+
+        /// <summary>
+        /// Writes a definition onto a preset that already exists.
+        ///
+        /// Editing in place rather than rebuilding matters: the array the game caches and the guid
+        /// dictionary both hold this object, and a saved character resolves to it by guid. Swapping
+        /// in a new instance would leave all three pointing at the old one.
+        /// </summary>
+        internal static void Populate(CharacterPresetFile preset, ClassDefinition definition, ClassDefaults defaults, List<string> problems)
+        {
             preset.Guid = GuidFor(definition.Id);
             preset.PresetName = definition.Name ?? definition.Id;
             preset.PresetDescription = definition.Description ?? string.Empty;
@@ -55,8 +68,6 @@ namespace RoguelikeClassesMod
 
             if (!string.IsNullOrEmpty(definition.GearNote))
                 Plugin.Log.LogInfo($"  {preset.PresetName} gear intent: {definition.GearNote}");
-
-            return preset;
         }
 
         /// <summary>
@@ -171,6 +182,10 @@ namespace RoguelikeClassesMod
                 preset.Gender = Gender.Female;
             else if (string.Equals(definition.Gender, "Male", StringComparison.OrdinalIgnoreCase))
                 preset.Gender = Gender.Male;
+
+            // Applied after the gender is settled: each part index means a different thing for a
+            // male and a female model, so writing them first would put them in the wrong list.
+            AppearanceTables.ApplyTo(preset, definition.Appearance);
         }
 
         private static void ApplySkills(CharacterPresetFile preset, ClassDefinition definition, List<string> problems)

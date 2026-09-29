@@ -85,6 +85,49 @@ namespace RoguelikeClassesMod
         /// <summary>"Male" or "Female"; omitted keeps whatever the donor preset uses.</summary>
         [JsonProperty("gender")]
         public string Gender { get; set; }
+
+        /// <summary>
+        /// Individual appearance values, applied on top of <see cref="AppearanceFrom"/>. Every
+        /// field is optional: what is absent keeps whatever the donor had, so a class can change
+        /// one thing without restating a whole look.
+        /// </summary>
+        [JsonProperty("appearance")]
+        public AppearanceBlock Appearance { get; set; }
+    }
+
+    /// <summary>
+    /// A character's look, as <c>CharacterPresetFile</c> stores it: an index into one of the
+    /// game's palettes or part lists for each feature.
+    ///
+    /// Written by the editor rather than by hand, normally - the indices mean nothing without the
+    /// tables they point into, which is why the editor offers copying from a shipped preset or
+    /// from a character you already made.
+    /// </summary>
+    internal sealed class AppearanceBlock
+    {
+        [JsonProperty("skinColor")]
+        public int? SkinColor { get; set; }
+
+        [JsonProperty("hairColor")]
+        public int? HairColor { get; set; }
+
+        [JsonProperty("eyeColor")]
+        public int? EyeColor { get; set; }
+
+        [JsonProperty("bodyArtColor")]
+        public int? BodyArtColor { get; set; }
+
+        [JsonProperty("hairType")]
+        public int? HairType { get; set; }
+
+        [JsonProperty("headType")]
+        public int? HeadType { get; set; }
+
+        [JsonProperty("eyebrowType")]
+        public int? EyebrowType { get; set; }
+
+        [JsonProperty("facialHair")]
+        public int? FacialHair { get; set; }
     }
 
     internal sealed class UnlockDefinition

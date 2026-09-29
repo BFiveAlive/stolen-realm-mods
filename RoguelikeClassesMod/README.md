@@ -47,6 +47,44 @@ it was chosen for is worse than no entry.
 A few skill names genuinely exist twice (Beast Master I is in both Ranger and Nature). Write those
 as `"Nature:Beast Master I"`.
 
+## Editing classes in game
+
+The Mod Manager (F1) gains a **Roguelike Classes** tab: the classes down the left, and three
+sub-tabs for the one selected.
+
+| Tab | What it holds |
+|---|---|
+| Character | Name, description, unlock gate, tile tier, the five attributes with a running total, and the six gear slots — each checked against the item table as you type, so a name that does not resolve says so immediately rather than at save time. |
+| Skills | The starting skills with their tree and tier, and a search over the game's own skill table to add more. |
+| Appearance | Gender, and "start from an existing look" — any of the game's classes, or **any character you have already made**. |
+
+**Save changes** writes `classes.json` and pushes the values onto the presets the game is already
+holding, so the next character created from a class uses them. No restart. Characters already made
+are left alone — an edit should not quietly rewrite a roster.
+
+### Copying a look from one of your characters
+
+This is the way to get an appearance you actually want: make a character with the game's own
+creator, then copy it onto a class.
+
+The two halves of the game store a look differently. A preset keeps indices — hair type 12, skin
+colour 3. A character keeps `ChosenColors` (hex strings) and `ActiveVisuals` (the names of the part
+objects switched on). `PresetManager.SyncModelToPreset` converts the first into the second, and
+copying from a character is that conversion run backwards: colours matched against the palettes,
+visual names matched against the part lists.
+
+Names are matched against every part list rather than read positionally, because a saved
+character's `ActiveVisuals` also carries parts that are not customisable and the order is not
+something to rely on.
+
+The part lists live on `PresetManager`, which only exists on the menu screens, so they are read the
+first time it is seen and kept for the session. Until then the panel says so and copying from a
+character is unavailable — copying from a preset still works, since that reads indices directly.
+
+There is no per-feature editing yet, and no 3D preview. The game's own customiser cannot be reused
+here: it drives a spawned model by switching GameObjects, keeps its own private indices, and never
+touches a preset.
+
 ## Unlocking
 
 Both gates write the same condition, because the game only has one stat to gate on.

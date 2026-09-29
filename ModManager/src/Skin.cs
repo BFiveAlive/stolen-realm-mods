@@ -227,11 +227,19 @@ namespace ModManager
         /// they have no way to ask for a style by name. Setting GUI.skin around the call instead
         /// means an ordinary GUILayout.Label or GUILayout.Button in a contributed panel comes out
         /// in the manager's font and colours without the panel knowing this skin exists.
+        ///
+        /// Copied from the skin already in force rather than created empty. A GUISkin from
+        /// CreateInstance has no font of its own, and neither do styles copied from the built-in
+        /// ones - they lean on the skin for that. Everything still draws, because drawing falls
+        /// back to the default font deeper down, but the moment a text field takes focus Unity
+        /// builds a TextEditor to place the cursor, that wants a real Font, finds null on both the
+        /// style and the skin, and throws inside its own code. Which reads, from the outside, as
+        /// the panel crashing the instant you click into a name box.
         /// </summary>
         private static void BuildPanelSkin()
         {
             if (PanelSkin == null)
-                PanelSkin = ScriptableObject.CreateInstance<GUISkin>();
+                PanelSkin = UnityEngine.Object.Instantiate(GUI.skin);
 
             PanelSkin.label = new GUIStyle(RowName) { wordWrap = false };
             PanelSkin.button = new GUIStyle(Button);
@@ -242,6 +250,14 @@ namespace ModManager
             PanelSkin.horizontalSlider = new GUIStyle(Slider);
             PanelSkin.horizontalSliderThumb = new GUIStyle(SliderThumb);
             PanelSkin.scrollView = new GUIStyle(GUI.skin.scrollView);
+
+            // The text styles get the font explicitly too: a panel is free to pass its own
+            // GUIStyle to GUILayout.TextField, and only the ones built from these inherit it.
+            if (PanelSkin.font == null)
+                PanelSkin.font = GUI.skin.font;
+
+            PanelSkin.textField.font = PanelSkin.textField.font ?? PanelSkin.font;
+            PanelSkin.textArea.font = PanelSkin.textArea.font ?? PanelSkin.font;
 
             PanelSkin.verticalScrollbar = new GUIStyle(GUI.skin.verticalScrollbar);
             PanelSkin.verticalScrollbarThumb = new GUIStyle(GUI.skin.verticalScrollbarThumb);

@@ -19,6 +19,14 @@ namespace RoguelikeClassesMod
 
         [JsonProperty("classes")]
         public List<ClassDefinition> Classes { get; set; } = new List<ClassDefinition>();
+
+        /// <summary>
+        /// Ids of shipped classes to leave out. Only meaningful in the user file: a shipped class
+        /// cannot be deleted from the file it lives in, because that file comes back with every
+        /// update.
+        /// </summary>
+        [JsonProperty("hidden")]
+        public List<string> Hidden { get; set; }
     }
 
     /// <summary>Values every class inherits unless it says otherwise.</summary>

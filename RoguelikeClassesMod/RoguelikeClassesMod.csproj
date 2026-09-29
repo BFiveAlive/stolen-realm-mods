@@ -5,10 +5,10 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>RoguelikeClassesMod</AssemblyName>
     <RootNamespace>RoguelikeClassesMod</RootNamespace>
-    <Version>0.4.0</Version>
+    <Version>0.5.0</Version>
     <Description>Adds new roguelike starting classes, slotted into the game's own unlock ladder.</Description>
     <!-- The class list is the mod: without it the plugin loads and adds nothing. -->
-    <ModDataFiles>classes.json;previews</ModDataFiles>
+    <ModDataFiles>classes.default.json;previews</ModDataFiles>
     <LangVersion>latest</LangVersion>
     <NoWarn>$(NoWarn);CS0436;MSB3277</NoWarn>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
@@ -90,8 +90,9 @@
   <Target Name="DeployToGame" AfterTargets="Build" Condition="Exists('$(BepInExDir)')">
     <MakeDir Directories="$(PluginsDir)" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PluginsDir)" />
-    <!-- The class list travels with the DLL: it is the mod's content, not its configuration. -->
-    <Copy SourceFiles="classes.json" DestinationFolder="$(PluginsDir)" />
+    <!-- The shipped classes travel with the DLL: the mod's content, not its configuration.
+         Edits live in BepInEx/config, where an update cannot reach them. -->
+    <Copy SourceFiles="classes.default.json" DestinationFolder="$(PluginsDir)" />
     <!-- Class pictures, so a fresh install shows them before anyone has opened the creator. -->
     <ItemGroup>
       <PreviewFiles Include="previews\**\*.png" />

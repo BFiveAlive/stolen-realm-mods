@@ -58,10 +58,45 @@ between the editor and the mod's ordinary settings.
 | Character | Name, description, unlock gate, tile tier, the five attributes with a running total, and the six gear slots. Clicking a slot lists what the game actually has for it, with the stats of what is in it beside the list. |
 | Skills | The starting skills, and the trees to add more from — one tree at a time, in rows by tier, as icons, with what a skill does shown beside them. |
 | Appearance | Gender, and "start from an existing look" — any of the game's classes, or **any character you have already made**. |
+| Share | Export a class to a file, and import one someone sent you. |
 
-**Save changes** writes `classes.json` and pushes the values onto the presets the game is already
+**Save changes** writes your edits and pushes the values onto the presets the game is already
 holding, so the next character created from a class uses them. No restart. Characters already made
 are left alone — an edit should not quietly rewrite a roster.
+
+### Two files, so updates cannot eat your work
+
+The shipped classes and your changes are kept apart, because they want opposite handling when the
+mod updates:
+
+| File | What | Updates |
+|---|---|---|
+| `BepInEx/plugins/RoguelikeClassesMod/classes.default.json` | The twenty shipped classes | Replaced every time |
+| `BepInEx/config/RoguelikeClassesMod/classes.user.json` | Your edits and your own classes | Never touched |
+
+They are merged at load: your entry replaces the shipped one with the same id, your own ids are
+added, and anything under `hidden` is dropped. Only what you actually changed is written to your
+file — a class you never touched keeps following the shipped version rather than freezing at
+whatever it was the day you installed the mod. **Reset to shipped** on the Character tab puts one
+back and takes it out of your file again.
+
+These were one file until 0.5.0, and every update silently overwrote it. On first run the old
+`classes.json` is read once, anything that differs from the shipped classes is carried across to
+the new location, and the file is renamed to `classes.json.migrated` rather than deleted.
+
+### Sharing a class
+
+A class is a small JSON file, so sending one is sending a file. Export writes it into
+`BepInEx/config/RoguelikeClassesMod/shared/`; drop a file someone sent you into that same folder
+and it appears on the Share tab to import.
+
+Importing never overwrites. A class whose id you already use comes in under a new one and the panel
+says so — two people who both kept the default id for their first class would otherwise clobber
+each other, and an id is not cosmetic: characters are tied to their class by a Guid derived from
+it.
+
+"Export everything of mine" sends your own classes and any shipped one you have changed. The
+untouched ones are the same twenty the other person already has.
 
 ### Choosing skills and gear
 

@@ -16,8 +16,6 @@ namespace RoguelikeClassesMod
     /// </summary>
     internal static class ClassLibrary
     {
-        private const string FileName = "classes.json";
-
         internal static IEnumerable<CharacterPresetFile> BuildAll()
         {
             var built = new List<CharacterPresetFile>();
@@ -64,31 +62,29 @@ namespace RoguelikeClassesMod
             return built;
         }
 
+        /// <summary>
+        /// The shipped classes with the player's changes laid over them. The same merge the editor
+        /// works from, so what the game builds and what the editor shows cannot drift apart.
+        /// </summary>
         private static ClassLibraryFile Read()
         {
-            string path = Path.Combine(
-                Path.GetDirectoryName(typeof(ClassLibrary).Assembly.Location) ?? ".", FileName);
+            ClassLibraryFile defaults = ClassSources.ReadDefaults(out string defaultsProblem);
+            ClassLibraryFile user = ClassSources.ReadUser(out string userProblem);
 
-            if (!File.Exists(path))
+            if (defaultsProblem != null)
+                Plugin.Log.LogWarning(defaultsProblem);
+
+            if (userProblem != null)
+                Plugin.Log.LogWarning(userProblem);
+
+            if ((defaults.Classes == null || defaults.Classes.Count == 0) && defaultsProblem == null
+                && !System.IO.File.Exists(ClassSources.DefaultsPath))
             {
-                Plugin.Log.LogWarning($"No {FileName} next to the plugin, so no classes were added. Expected it at {path}.");
-                return null;
+                Plugin.Log.LogWarning("No classes.default.json next to the plugin, so no classes were added. "
+                                      + "Expected it at " + ClassSources.DefaultsPath + ".");
             }
 
-            try
-            {
-                var library = JsonConvert.DeserializeObject<ClassLibraryFile>(File.ReadAllText(path, Encoding.UTF8));
-
-                if (library != null && library.Schema != 1)
-                    Plugin.Log.LogWarning($"{FileName} declares schema {library.Schema}; this build understands 1. Reading it anyway.");
-
-                return library;
-            }
-            catch (Exception e)
-            {
-                Plugin.Log.LogError($"{FileName} could not be read, so no classes were added: {e.Message}");
-                return null;
-            }
+            return ClassSources.Merge(defaults, user, out _);
         }
 
         private static void Report(List<CharacterPresetFile> built, List<string> skipped)

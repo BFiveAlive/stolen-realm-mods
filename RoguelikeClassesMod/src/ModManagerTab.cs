@@ -23,7 +23,7 @@ namespace RoguelikeClassesMod
     {
         public static string Title => "Roguelike Classes";
 
-        private enum Section { Character, Skills, Appearance }
+        private enum Section { Character, Skills, Appearance, Share }
 
         private const float ListWidth = 210f;
 
@@ -41,6 +41,13 @@ namespace RoguelikeClassesMod
         private static string copiedForClass;
         private static string copiedLabel;
         private static Shot copiedShot;
+
+        /// <summary>
+        /// A class waiting to be removed. Deferred to the top of the next frame: dropping a row
+        /// from the list while the panel is being drawn leaves the rest of the frame laying out a
+        /// list that no longer matches the one it measured.
+        /// </summary>
+        private static ClassDefinition pendingDelete;
 
         /// <summary>Width of each "start from an existing look" column, set from the panel width.</summary>
         private static float copyColumnWidth = 280f;
@@ -67,6 +74,19 @@ namespace RoguelikeClassesMod
                 GUI.Label(new Rect(body.x + 24f, body.y + 20f, body.width - 48f, 60f),
                     string.IsNullOrEmpty(status) ? "No classes are defined in classes.json." : status);
                 return;
+            }
+
+            if (pendingDelete != null && Event.current != null && Event.current.type == EventType.Layout)
+            {
+                string name = pendingDelete.Name ?? pendingDelete.Id;
+                ClassStore.Remove(pendingDelete);
+                pendingDelete = null;
+                selected = 0;
+                status = "Removed " + name + ". Save changes to keep that.";
+
+                classes = ClassStore.Classes;
+                if (classes.Count == 0)
+                    return;
             }
 
             selected = Mathf.Clamp(selected, 0, classes.Count - 1);
@@ -235,8 +255,8 @@ namespace RoguelikeClassesMod
                 string.IsNullOrEmpty(definition.Name) ? definition.Id : definition.Name);
             y += 28f;
 
-            float tabWidth = 130f;
-            foreach (Section value in new[] { Section.Character, Section.Skills, Section.Appearance })
+            float tabWidth = 118f;
+            foreach (Section value in new[] { Section.Character, Section.Skills, Section.Appearance, Section.Share })
             {
                 var rect = new Rect(x, y, tabWidth, 26f);
                 if (GUI.Toggle(rect, section == value, value.ToString(), GUI.skin.button) && section != value)
@@ -256,6 +276,7 @@ namespace RoguelikeClassesMod
             {
                 case Section.Skills: DrawSkills(panel, definition); break;
                 case Section.Appearance: DrawAppearance(panel, definition); break;
+                case Section.Share: DrawShare(panel, definition); break;
                 default: DrawCharacter(panel, definition); break;
             }
 
@@ -290,6 +311,8 @@ namespace RoguelikeClassesMod
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
             GUILayout.Space(3f);
+
+            DrawOrigin(definition);
 
             definition.Name = Field("Name", definition.Name);
             definition.Description = Field("Description", definition.Description);
@@ -353,6 +376,121 @@ namespace RoguelikeClassesMod
             Header("Add from a tree", "click to add or remove");
             SkillPicker.DrawTree(definition, ClassStore.Touch);
 
+            GUILayout.EndArea();
+        }
+
+        /// <summary>
+        /// Where a class came from, and what can be done about it: a shipped class you have changed
+        /// can be put back, and one of your own can be removed. Removing a shipped class hides it
+        /// rather than deleting it, since the file it lives in returns with every update.
+        /// </summary>
+        private static void DrawOrigin(ClassDefinition definition)
+        {
+            bool isShipped = ClassStore.IsShipped(definition.Id);
+            bool edited = ClassStore.IsEdited(definition);
+
+            GUILayout.BeginHorizontal(GUILayout.Height(RowHeight));
+            GUILayout.Label("Origin", GUILayout.Width(150f), GUILayout.Height(RowHeight));
+
+            string origin = !isShipped
+                ? "yours"
+                : edited ? "shipped with the mod, changed by you" : "shipped with the mod, unchanged";
+
+            GUILayout.Label(origin, NoteStyle(), GUILayout.Width(300f), GUILayout.Height(RowHeight));
+
+            if (edited && GUILayout.Button("Reset to shipped", GUILayout.Width(140f), GUILayout.Height(RowHeight)))
+            {
+                ClassStore.ResetToShipped(definition);
+                status = definition.Name + " was put back the way it shipped. Save changes to keep that.";
+            }
+
+            if (!isShipped && GUILayout.Button("Delete", GUILayout.Width(80f), GUILayout.Height(RowHeight)))
+                pendingDelete = definition;
+
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+            GUILayout.Space(3f);
+        }
+
+        // ----------------------------------------------------------------------- Share
+
+        private static Vector2 shareScroll;
+
+        private static void DrawShare(Rect area, ClassDefinition definition)
+        {
+            GUILayout.BeginArea(area);
+            shareScroll = GUILayout.BeginScrollView(shareScroll);
+
+            Header("Send a class to someone");
+
+            GUILayout.Label("A class is a small JSON file. Exporting writes one into the shared folder; "
+                            + "send that file on, and whoever gets it drops it into their own shared "
+                            + "folder and imports it.", WrappedStyle(), GUILayout.Width(640f));
+
+            GUILayout.Space(10f);
+
+            GUILayout.BeginHorizontal();
+
+            if (GUILayout.Button("Export " + (definition.Name ?? definition.Id), GUILayout.Width(240f), GUILayout.Height(26f)))
+                status = Sharing.Export(definition);
+
+            if (GUILayout.Button("Export everything of mine", GUILayout.Width(220f), GUILayout.Height(26f)))
+                status = Sharing.ExportAll();
+
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+
+            GUILayout.Space(6f);
+            GUILayout.Label("\"Everything of mine\" means your own classes and any shipped one you have "
+                            + "changed. The untouched ones are the same twenty the other person already has.",
+                            NoteStyle(), GUILayout.Width(640f));
+
+            Header("Bring a class in");
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(Sharing.Folder, NoteStyle(), GUILayout.Width(540f));
+            if (GUILayout.Button("Open folder", GUILayout.Width(110f), GUILayout.Height(24f)))
+                Sharing.Reveal();
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+
+            GUILayout.Space(8f);
+
+            List<string> files = Sharing.Available();
+            if (files.Count == 0)
+            {
+                GUILayout.Label("Nothing in the shared folder yet. Put a .json file there and it shows up here.",
+                    NoteStyle());
+            }
+            else
+            {
+                foreach (string file in files)
+                {
+                    GUILayout.BeginHorizontal(GUILayout.Height(26f));
+                    GUILayout.Label(System.IO.Path.GetFileName(file), GUILayout.Width(400f), GUILayout.Height(26f));
+
+                    if (GUILayout.Button("Import", GUILayout.Width(90f), GUILayout.Height(26f)))
+                        status = Sharing.Import(file);
+
+                    GUILayout.FlexibleSpace();
+                    GUILayout.EndHorizontal();
+                    GUILayout.Space(2f);
+                }
+            }
+
+            GUILayout.Space(6f);
+            GUILayout.Label("An import never overwrites: a class whose id you already use comes in under a "
+                            + "new one. Ids matter - characters are tied to their class by a Guid made from it.",
+                            NoteStyle(), GUILayout.Width(640f));
+
+            Header("Where your edits live");
+
+            GUILayout.Label(ClassStore.Path, NoteStyle(), GUILayout.Width(640f));
+            GUILayout.Label("Updates cannot reach this file. The shipped classes are a separate one beside "
+                            + "the plugin, and the two are merged when the game loads.",
+                            WrappedStyle(), GUILayout.Width(640f));
+
+            GUILayout.EndScrollView();
             GUILayout.EndArea();
         }
 

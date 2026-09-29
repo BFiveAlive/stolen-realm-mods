@@ -10,7 +10,10 @@ namespace ModManager
         Settings,
         Updates,
         Profiles,
-        About
+        About,
+
+        /// <summary>A tab contributed by another mod; which one is <see cref="ManagerWindow"/>'s external index.</summary>
+        External
     }
 
     /// <summary>
@@ -28,6 +31,9 @@ namespace ModManager
         private const int WindowId = 0x5A1E;
 
         private static Tab tab = Tab.Settings;
+
+        /// <summary>Which entry of <see cref="ExternalTabs.All"/> is shown when tab is External.</summary>
+        private static int externalIndex;
 
         /// <summary>
         /// Structural changes waiting for the next Layout event.
@@ -49,8 +55,10 @@ namespace ModManager
         /// <summary>Rebuilt on open rather than every frame; the loaded plugin set cannot change.</summary>
         public static void Refresh()
         {
+            ExternalTabs.Discover();
             SettingsBrowser.Refresh();
             ProfilesTab.Refresh();
+            ExternalTabs.RefreshAll();
         }
 
         public static void Draw()
@@ -123,6 +131,17 @@ namespace ModManager
                     ProfilesTab.Draw(body);
                     break;
 
+                case Tab.External:
+                {
+                    var tabs = ExternalTabs.All;
+                    if (externalIndex >= 0 && externalIndex < tabs.Count)
+                        ExternalTabs.Draw(tabs[externalIndex], body);
+                    else
+                        DrawAbout(body);
+
+                    break;
+                }
+
                 default:
                     DrawAbout(body);
                     break;
@@ -161,14 +180,42 @@ namespace ModManager
             x = DrawTab(x, area, Tab.Profiles, "Profiles", 110f);
             x = DrawTab(x, area, Tab.Updates,
                 available > 0 ? "Updates (" + available + ")" : "Updates", 132f);
-            DrawTab(x, area, Tab.Settings, "Settings", 108f);
+            x = DrawTab(x, area, Tab.Settings, "Settings", 108f);
+
+            // Contributed tabs sit to the left of the built-in ones, widened to fit their own
+            // label since the manager has no say in what a mod calls itself.
+            var external = ExternalTabs.All;
+            for (int i = external.Count - 1; i >= 0; i--)
+            {
+                float width = Mathf.Max(110f, Skin.TabLabel.CalcSize(new GUIContent(external[i].Title)).x + 34f);
+                x = DrawExternalTab(x, area, i, external[i].Title, width);
+            }
+        }
+
+        private static float DrawExternalTab(float right, Rect bar, int index, string label, float width)
+        {
+            var rect = new Rect(right - width, bar.y + 10f, width, bar.height - 20f);
+            bool active = tab == Tab.External && externalIndex == index;
+
+            if (DrawTabButton(rect, label, active))
+                Defer(() => { tab = Tab.External; externalIndex = index; });
+
+            return rect.x - 4f;
         }
 
         private static float DrawTab(float right, Rect bar, Tab target, string label, float width)
         {
             var rect = new Rect(right - width, bar.y + 10f, width, bar.height - 20f);
-            bool active = tab == target;
 
+            if (DrawTabButton(rect, label, tab == target))
+                Defer(() => tab = target);
+
+            return rect.x - 6f;
+        }
+
+        /// <summary>Draws one tab and reports whether it was clicked this frame.</summary>
+        private static bool DrawTabButton(Rect rect, string label, bool active)
+        {
             if (active)
             {
                 Skin.Fill(rect, Skin.Panel);
@@ -178,13 +225,11 @@ namespace ModManager
             Skin.Text(rect, label, Skin.TabLabel, active ? Skin.Ink : Skin.InkMuted);
 
             var e = Event.current;
-            if (e != null && e.type == EventType.MouseDown && e.button == 0 && rect.Contains(e.mousePosition))
-            {
-                Defer(() => tab = target);
-                e.Use();
-            }
+            if (e == null || e.type != EventType.MouseDown || e.button != 0 || !rect.Contains(e.mousePosition))
+                return false;
 
-            return rect.x - 6f;
+            e.Use();
+            return true;
         }
 
         private static string Summary()

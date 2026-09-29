@@ -55,6 +55,30 @@ Downloads are verified against the SHA-256 in the manifest and written to
 the next launch — see the root README for why a restart is unavoidable. A staged update can be
 cancelled from the Updates tab before then.
 
+## Tabs contributed by other mods
+
+Some mods need an editor rather than a list of key-value pairs. A mod can add its own top-level tab
+here by declaring, anywhere in its assembly:
+
+```csharp
+public static class ModManagerTab
+{
+    public static string Title => "Roguelike Classes";
+    public static void Draw(Rect body) { ... }
+    public static void Refresh() { }          // optional
+}
+```
+
+It is found by reflection on the name, so **neither assembly references the other** - the same
+reason the structured-setting descriptor is read that way. `Draw` gets a window-relative rect and
+may use `GUI` or `GUILayout` inside it.
+
+A panel that throws is disabled for the rest of the session and reported once, with the inner
+exception rather than the reflection wrapper. The manager has to stay usable for every other mod,
+and an exception per frame inside `OnGUI` is unreadable.
+
+`RoguelikeClassesMod` uses this for its class editor.
+
 ## Notes
 
 This mod references no game assembly. It uses BepInEx's registries and IMGUI, so there is no

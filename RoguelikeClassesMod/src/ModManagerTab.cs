@@ -331,7 +331,16 @@ namespace RoguelikeClassesMod
             GUILayout.EndHorizontal();
 
             GUILayout.Space(12f);
+
+            GUILayout.BeginHorizontal();
+            GUILayout.BeginVertical(GUILayout.Width(420f));
             DrawCurrentAppearance(definition);
+            GUILayout.EndVertical();
+
+            GUILayout.Space(20f);
+            DrawClassPreview(definition);
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
 
             GUILayout.Space(14f);
             GUILayout.Label("Start from an existing look");
@@ -366,6 +375,32 @@ namespace RoguelikeClassesMod
 
             GUILayout.EndScrollView();
             GUILayout.EndArea();
+        }
+
+        /// <summary>
+        /// The class as the game draws it, if it has ever been shown in the character creator.
+        /// There is no way to produce one without that: a class is a preset, and the game's
+        /// renderer photographs a live model rather than building one from data.
+        /// </summary>
+        private static void DrawClassPreview(ClassDefinition definition)
+        {
+            GUILayout.BeginVertical(GUILayout.Width(200f));
+
+            Texture2D shot = Preview.ForClass(definition.Id);
+            if (shot != null)
+            {
+                Rect rect = GUILayoutUtility.GetRect(180f, 180f, GUILayout.Width(180f), GUILayout.Height(180f));
+                GUI.DrawTexture(rect, shot, ScaleMode.ScaleToFit);
+                GUILayout.Label("As it looks in game");
+            }
+            else
+            {
+                Rect rect = GUILayoutUtility.GetRect(180f, 180f, GUILayout.Width(180f), GUILayout.Height(180f));
+                Fill(rect, new Color(1f, 1f, 1f, 0.03f));
+                GUILayout.Label("No picture yet - pick this class once in the character creator and it is taken and kept.");
+            }
+
+            GUILayout.EndVertical();
         }
 
         private static bool IsMale(ClassDefinition definition)
@@ -410,7 +445,13 @@ namespace RoguelikeClassesMod
             if (!AppearanceTables.PartsKnown)
                 GUILayout.Label("Visit the character select screen once so the part lists can be read.");
 
-            DrawColumn(Filter(characters.Select(c => c.CharacterName).Distinct().ToList()), name =>
+            List<string> shown = Filter(characters.Select(c => c.CharacterName).Distinct().ToList());
+
+            DrawCharacterColumn(
+                characters.Where(c => shown.Contains(c.CharacterName))
+                          .GroupBy(c => c.CharacterName).Select(g => g.First())
+                          .OrderBy(c => c.CharacterName, StringComparer.OrdinalIgnoreCase).ToList(),
+                name =>
             {
                 Character character = characters.First(c => c.CharacterName == name);
                 AppearanceBlock block = AppearanceTables.FromCharacter(character, out string problem);
@@ -475,6 +516,37 @@ namespace RoguelikeClassesMod
             {
                 if (GUILayout.Button(name, GUILayout.Width(290f)))
                     onPick(name);
+            }
+        }
+
+        /// <summary>
+        /// The same column, with each character's own portrait beside its name. Those already
+        /// exist - the game renders and caches one per character - so this costs a draw call.
+        /// </summary>
+        private static void DrawCharacterColumn(List<Character> characters, Action<string> onPick)
+        {
+            if (characters.Count == 0)
+            {
+                GUILayout.Label("    nothing matches that filter");
+                return;
+            }
+
+            foreach (Character character in characters)
+            {
+                GUILayout.BeginHorizontal();
+
+                Texture2D portrait = Preview.ForCharacter(character);
+                Rect icon = GUILayoutUtility.GetRect(34f, 34f, GUILayout.Width(34f), GUILayout.Height(34f));
+
+                if (portrait != null)
+                    GUI.DrawTexture(icon, portrait, ScaleMode.ScaleToFit);
+                else
+                    Fill(icon, new Color(1f, 1f, 1f, 0.04f));
+
+                if (GUILayout.Button(character.CharacterName, GUILayout.Width(250f), GUILayout.Height(34f)))
+                    onPick(character.CharacterName);
+
+                GUILayout.EndHorizontal();
             }
         }
 

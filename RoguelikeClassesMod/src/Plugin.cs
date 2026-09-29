@@ -17,7 +17,7 @@ namespace RoguelikeClassesMod
     {
         public const string Guid = "bfivealive.stolenrealm.roguelikeclassesmod";
         public const string Name = "Roguelike Classes Mod";
-        public const string Version = "0.2.0";
+        public const string Version = "0.3.0";
 
         internal static ManualLogSource Log;
 
@@ -48,7 +48,12 @@ namespace RoguelikeClassesMod
             var harmony = new Harmony(Guid);
 
             if (Enabled.Value)
+            {
                 harmony.PatchAll(typeof(PresetInjection));
+                harmony.PatchAll(typeof(PresetShownPatch));
+            }
+
+            Ticker.Install();
 
             if (DumpGameData.Value)
                 harmony.PatchAll(typeof(DumpTrigger));

@@ -78,9 +78,23 @@ Names are matched against every part list rather than read positionally, because
 character's `ActiveVisuals` also carries parts that are not customisable and the order is not
 something to rely on.
 
-The part lists live on `PresetManager`, which only exists on the menu screens, so they are read the
-first time it is seen and kept for the session. Until then the panel says so and copying from a
-character is unavailable — copying from a preset still works, since that reads indices directly.
+The part lists live on `PresetManager`, so they are read the first time it is seen and kept for the
+session. In practice that is the main menu, before the editor can be opened at all.
+
+### Pictures
+
+Each of your characters shows its own portrait beside its name. Those already exist: the game
+renders every character to `HeadshotIcon` and `FullBodyIcon` and caches them as PNGs, so showing
+one costs a `GUI.DrawTexture`.
+
+A class is harder, because a class is a preset rather than a character and the game's renderer
+photographs a live model rather than building one from data. The one moment a preset *does* have a
+model is while the game's own character creator is showing it — so that is when the picture is
+taken, from a postfix on `PresetManager.SyncModelToPreset`. Pick a class once in the creator and
+its picture is captured and kept on disk under the save folder, for good.
+
+Taking it ourselves would mean asking the creator to show a preset, which would change what the
+player is looking at. This only photographs something they chose to look at anyway.
 
 There is no per-feature editing yet, and no 3D preview. The game's own customiser cannot be reused
 here: it drives a spawned model by switching GameObjects, keeps its own private indices, and never

@@ -41,6 +41,23 @@ namespace CumulativeStatsMod
         private static Vector2 sourceSize = new Vector2(170f, 46f);
         private static Vector3 sourceScale = Vector3.one;
 
+        /// <summary>
+        /// Set while the stats window is up because this button opened it.
+        ///
+        /// It has to be tracked, for two reasons that were both bugs. The window is a plain
+        /// GameObject that something else switches on and off; opened from here it came up
+        /// *behind* the rewards screen, so it looked like nothing happened, and then nothing ever
+        /// closed it, so it was still sitting there over the character select screen when the next
+        /// game was started. Owning the window while it is ours fixes both.
+        /// </summary>
+        private static bool openedByUs;
+
+        /// <summary>The sorting state to put back when the window closes.</summary>
+        private static Canvas raised;
+        private static bool hadCanvas;
+        private static bool previousOverride;
+        private static int previousOrder;
+
         /// <summary>Called every frame. Does nothing until the rewards screen is actually up.</summary>
         public static void Tick()
         {
@@ -52,7 +69,15 @@ namespace CumulativeStatsMod
 
             AdventureRewards rewards = Resolve();
             if (rewards == null || rewards.Contents == null || !rewards.Contents.activeInHierarchy)
+            {
+                // The screen has gone. Anything this button opened goes with it, rather than
+                // surviving into whatever the game shows next.
+                if (openedByUs)
+                    CloseOurWindow();
+
+                RunRecorder.Reset();
                 return;
+            }
 
             Ensure(rewards);
             Refresh();
@@ -220,6 +245,82 @@ namespace CumulativeStatsMod
                 label.text = "Battle Stats";
         }
 
+        /// <summary>
+        /// Puts the window in front of the rewards screen.
+        ///
+        /// Both live on the same canvas, so whichever draws later wins, and the rewards screen is
+        /// built after the stats window. A Canvas of its own with overrideSorting lifts the window
+        /// clear without touching the game's own ordering; a raycaster comes with it or the window
+        /// would be visible but dead to the mouse.
+        /// </summary>
+        private static void RaiseAbove(StatManager manager, AdventureRewards rewards)
+        {
+            try
+            {
+                var target = manager.gameObject;
+
+                raised = target.GetComponent<Canvas>();
+                hadCanvas = raised != null;
+
+                if (!hadCanvas)
+                    raised = target.AddComponent<Canvas>();
+                else
+                {
+                    previousOverride = raised.overrideSorting;
+                    previousOrder = raised.sortingOrder;
+                }
+
+                Canvas above = rewards == null ? null : rewards.GetComponentInParent<Canvas>();
+
+                raised.overrideSorting = true;
+                raised.sortingOrder = (above == null ? 0 : above.sortingOrder) + 100;
+
+                if (target.GetComponent<UnityEngine.UI.GraphicRaycaster>() == null)
+                    target.AddComponent<UnityEngine.UI.GraphicRaycaster>();
+            }
+            catch (Exception e)
+            {
+                // Worst case it opens behind the rewards screen again, which is no worse than
+                // before and not worth losing the window over.
+                Plugin.Log.LogWarning("Could not raise the stats window: " + e.Message);
+            }
+        }
+
+        private static void CloseOurWindow()
+        {
+            openedByUs = false;
+
+            try
+            {
+                StatManager manager = StatManager.Instance;
+                if (manager != null)
+                    manager.CloseWindow();
+
+                if (raised != null)
+                {
+                    // Put the ordering back rather than leaving a canvas the game did not ask for
+                    // sitting on one of its windows for the rest of the session.
+                    if (hadCanvas)
+                    {
+                        raised.overrideSorting = previousOverride;
+                        raised.sortingOrder = previousOrder;
+                    }
+                    else
+                    {
+                        UnityEngine.Object.Destroy(raised);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogWarning("Could not close the stats window: " + e.Message);
+            }
+            finally
+            {
+                raised = null;
+            }
+        }
+
         private static void Hide()
         {
             if (button != null && button.gameObject.activeSelf)
@@ -253,6 +354,9 @@ namespace CumulativeStatsMod
                 StatTracker.Poll();
 
                 manager.OpenWindow();
+
+                openedByUs = true;
+                RaiseAbove(manager, cachedRewards);
             }
             catch (Exception e)
             {

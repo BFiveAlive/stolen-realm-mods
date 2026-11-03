@@ -34,6 +34,16 @@ namespace CumulativeStatsMod
         {
             public string Name = "";
             public long LastSeenUnix;
+
+            /// <summary>
+            /// Whether this battle was watched happening in this session.
+            ///
+            /// False for a snapshot restored from disk. On the next launch the first poll sees no
+            /// battle running, folds that restored snapshot, and without this the run archive
+            /// recorded it as a battle that had just been fought - producing a phantom run on
+            /// startup out of numbers from days ago.
+            /// </summary>
+            public bool Observed;
             public readonly Dictionary<int, float> Archive = new Dictionary<int, float>();
             public readonly Dictionary<int, float> Snapshot = new Dictionary<int, float>();
         }
@@ -146,6 +156,9 @@ namespace CumulativeStatsMod
         /// </summary>
         private static void Reconcile()
         {
+            // Everything folded in one pass is one battle; the recorder wants it as a batch.
+            folded.Clear();
+
             foreach (KeyValuePair<string, Dictionary<int, float>> pair in live)
             {
                 Record record = GetOrCreate(pair.Key);
@@ -158,6 +171,7 @@ namespace CumulativeStatsMod
                     FoldSnapshot(record);
 
                 CopyInto(pair.Value, record.Snapshot);
+                record.Observed = true;
                 dirty = true;
             }
 
@@ -175,12 +189,32 @@ namespace CumulativeStatsMod
                 FoldSnapshot(records[guid]);
                 dirty = true;
             }
+
+            if (folded.Count > 0)
+                RunRecorder.BattleFinished(folded);
         }
+
+        /// <summary>What folded in the current pass, as name -> that battle's stats.</summary>
+        private static readonly List<KeyValuePair<string, Dictionary<int, float>>> folded =
+            new List<KeyValuePair<string, Dictionary<int, float>>>();
 
         private static void FoldSnapshot(Record record)
         {
             if (record.Snapshot.Count == 0)
                 return;
+
+            // Copied before the snapshot is cleared: this is the only moment one battle's numbers
+            // exist on their own, before they are added into a total they can never be taken back
+            // out of.
+            // Only a battle this session actually saw is worth reporting; a restored one is
+            // bookkeeping, not an event.
+            if (record.Observed)
+            {
+                folded.Add(new KeyValuePair<string, Dictionary<int, float>>(
+                    record.Name, new Dictionary<int, float>(record.Snapshot)));
+            }
+
+            record.Observed = false;
 
             foreach (KeyValuePair<int, float> pair in record.Snapshot)
             {
@@ -192,6 +226,36 @@ namespace CumulativeStatsMod
                 Plugin.Log.LogInfo("Folded a finished battle into the run total for " + record.Name + ".");
 
             record.Snapshot.Clear();
+        }
+
+        /// <summary>
+        /// The battle in progress, per character name, keyed by BattleStat name.
+        ///
+        /// The snapshot rather than the archive: this is what is happening now, which is what the
+        /// live view wants. Empty between battles, because the snapshot folds away when one ends.
+        /// </summary>
+        public static Dictionary<string, Dictionary<string, float>> LiveByName()
+        {
+            var result = new Dictionary<string, Dictionary<string, float>>();
+
+            foreach (KeyValuePair<string, Record> pair in records)
+            {
+                if (pair.Value.Snapshot.Count == 0 || string.IsNullOrEmpty(pair.Value.Name))
+                    continue;
+
+                var values = new Dictionary<string, float>();
+
+                foreach (KeyValuePair<int, float> stat in pair.Value.Snapshot)
+                {
+                    if (Math.Abs(stat.Value) > 0.001f)
+                        values[((BattleStat)stat.Key).ToString()] = stat.Value;
+                }
+
+                if (values.Count > 0)
+                    result[pair.Value.Name] = values;
+            }
+
+            return result;
         }
 
         /// <summary>Run total for one stat: finished battles plus whatever is live right now.</summary>

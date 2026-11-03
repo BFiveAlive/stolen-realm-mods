@@ -21,6 +21,12 @@ namespace CumulativeStatsMod
         public static ConfigEntry<int> SubtextScale;
 
         public static ConfigEntry<bool> ShowOnRewardsScreen;
+
+        public static ConfigEntry<bool> ArchiveRuns;
+
+        public static ConfigEntry<bool> TrackRecords;
+
+        public static ConfigEntry<float> ActionWindowSeconds;
         public static ConfigEntry<float> RewardsButtonMarginX;
         public static ConfigEntry<float> RewardsButtonMarginY;
 
@@ -80,6 +86,21 @@ namespace CumulativeStatsMod
 
             RewardsButtonMarginY = cfg.Bind("Button", "RewardsButtonMarginY", 16f,
                 "Distance from the top edge of the rewards screen to the Battle Stats button.");
+
+            ArchiveRuns = cfg.Bind("Data", "ArchiveRuns", true,
+                "Keep a record of every roguelike run - party, build, and the stats of each "
+                + "battle - under BepInEx/config/CumulativeStatsMod/runs. Browsable from the Mod "
+                + "Manager's Run Archive tab.");
+
+            TrackRecords = cfg.Bind("Data", "TrackRecords", true,
+                "Track biggest-hit records (largest attack dealt, received, healed, and largest "
+                + "single action) by watching each damage event. Host only - these are worked out "
+                + "from the damage calculation, which only runs on the host.");
+
+            ActionWindowSeconds = cfg.Bind("Data", "ActionWindowSeconds", 1.0f,
+                "How long after a hit another hit still counts as the same action, for the "
+                + "largest-single-action record. Chains and pierces arrive spread over time, so "
+                + "too small a value splits one chain into several.");
 
             CompactNumberThreshold = cfg.Bind("Display", "CompactNumberThreshold", 1000000f,
                 "In the run-total view only, values at or above this are abbreviated (1.2M, " +

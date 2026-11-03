@@ -12,7 +12,7 @@ namespace CumulativeStatsMod
     {
         public const string Guid = "bfivealive.stolenrealm.cumulativestatsmod";
         public const string Name = "Cumulative Stats Mod";
-        public const string Version = "0.2.1";
+        public const string Version = "0.3.0";
 
         internal static ManualLogSource Log;
 
@@ -48,7 +48,10 @@ namespace CumulativeStatsMod
 
             // PatchAll throws if a target method cannot be resolved, so logging *after* it makes
             // the log line itself proof that every patch bound successfully.
-            new Harmony(Guid).PatchAll(typeof(StatManagerPatches));
+            var harmony = new Harmony(Guid);
+            harmony.PatchAll(typeof(StatManagerPatches));
+            harmony.PatchAll(typeof(RunEndPatch));
+            harmony.PatchAll(typeof(ModifyBattleStatPatch));
 
             Ticker.Install();
 

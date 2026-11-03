@@ -69,6 +69,63 @@ and `RemoveAllListeners` does not clear listeners wired up in the inspector.
 
 Turn it off with `ShowOnRewardsScreen = false`.
 
+## The run archive
+
+Every roguelike run is written to `BepInEx/config/CumulativeStatsMod/runs`, one JSON file each,
+and browsable from the Mod Manager's **Run Archive** tab. Four views:
+
+| View | What |
+|---|---|
+| Party | Each member: starting class, level, trees removed, attributes, skills, equipment |
+| Battles | Every fight, per character |
+| Totals | The whole run added up |
+| Live | The battle being fought right now |
+
+Files are written **as the run goes**, after each battle, not at the end — so a crash or an
+alt-F4 still leaves everything up to that point, and the run you are in the middle of is
+browsable while you play it. A run in progress is listed as `unfinished`.
+
+The outcome comes from a patch on `OpenAdventureRewards(quest, victory, ...)`, which is handed the
+answer directly, rather than from matching the title against localised text.
+
+### Stats beyond the game's own
+
+The game records running totals and nothing else, so "the hardest you were ever hit" cannot be
+recovered from them afterwards — by the time you read a total, that hit is indistinguishable
+from every other. These are noticed as they happen, from a postfix on
+`StatManager.ModifyBattleStat`, which the damage code calls once per damage instance:
+
+| Record | Notes |
+|---|---|
+| Largest Single Attack Dealt | One damage instance |
+| Largest Attack Received | One damage instance |
+| Largest Single Heal | One healing instance |
+| Largest Single Action | All damage from one action, chains included — see below |
+
+A run's record is the largest of its battles, not their sum.
+
+**"One action" is a judgement.** Chains and pierces do not arrive as one call into the damage
+code; some are deliberately delayed by the game so the hits land one after another on screen. So
+damage that keeps arriving is treated as the same action until it stops for `ActionWindowSeconds`
+(default 1 second). The trade-off: two genuinely separate actions less than a second apart would
+be counted as one. In a turn-based game where actions are chosen one at a time that is rare, and a
+window short enough never to merge them would split every chain lightning into five records.
+
+**Host only.** These come off the damage calculation, which is host-authoritative. The ordinary
+totals reach clients because `Root.BattleStats` is a synced list; these are worked out locally, so
+on a client they stay empty.
+
+### Worked out, not recorded
+
+No hook needed — arithmetic over numbers already in hand, computed when shown:
+
+- **Damage Blocked (total)**, plus each kind separately: armour, magic armour, damage reduction,
+  resistance and shields. The game records all five and never adds them up.
+- **Blocked Share of Incoming** — against what *would* have landed, which is damage taken plus
+  damage stopped. Measuring against damage taken alone would read over 100% for a good tank.
+- **Share of Party Damage**
+- **Damage Dealt per Taken**
+
 ## Scope: one run, not all runs
 
 Totals are keyed by `Character.Guid`, which is generated per character and saved in the

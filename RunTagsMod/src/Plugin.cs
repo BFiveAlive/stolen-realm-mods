@@ -12,6 +12,8 @@ namespace RunTagsMod
         public static ConfigEntry<bool> Enabled;
         public static ConfigEntry<int> LabelBudget;
         public static ConfigEntry<bool> ItalicHost;
+        public static ConfigEntry<bool> MarkSavedRun;
+        public static ConfigEntry<string> SavedRunLabel;
 
         public static void Bind(ConfigFile cfg)
         {
@@ -24,6 +26,14 @@ namespace RunTagsMod
 
             ItalicHost = cfg.Bind("Display", "ItalicHost", true,
                 "Show the host's name in italics. The tags do not count against the budget.");
+
+            MarkSavedRun = cfg.Bind("Difficulty", "MarkSavedRun", true,
+                "On the difficulty picker, mark the tile your saved roguelike run is actually at. "
+                + "A new run defaults to the host's highest unlock, which differs per player, so "
+                + "this is how a difficulty change shows up before you start rather than after.");
+
+            SavedRunLabel = cfg.Bind("Difficulty", "SavedRunLabel", "Your run",
+                "What the marker says on that tile.");
         }
     }
 
@@ -42,7 +52,9 @@ namespace RunTagsMod
             try
             {
                 ModConfig.Bind(Config);
-                new Harmony(Guid).PatchAll(typeof(CardLabel));
+                var harmony = new Harmony(Guid);
+                harmony.PatchAll(typeof(CardLabel));
+                harmony.PatchAll(typeof(SavedRunMarker));
                 Ticker.Install();
 
                 Log.LogInfo("Run Tags Mod " + Version + " loaded.");

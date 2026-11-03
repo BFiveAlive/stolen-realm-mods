@@ -46,6 +46,23 @@ Below three characters a name is unreadable, so rather than shave everyone to in
 becomes a count. The host is shown in italics; the rich-text tags do not render, so they are not
 counted against the budget.
 
+## Marking the saved run's difficulty
+
+A **new** roguelike run does not ask what difficulty you want. `MainMenu.InitPlayer` does this:
+
+```csharp
+if (Root.PlayingRoguelike && !loadingSavedGame)
+    Root.CurrentDifficultyIndex = GlobalSaveData.Instance.HighestRoguelikeDifficultyIndexUnlocked;
+```
+
+It defaults to the host's highest unlock — and unlocks are local to each player. So when a
+different person hosts, the difficulty can change without anyone choosing it, and the first sign is
+the fight being harder or easier than last week.
+
+The mod marks the tile your saved run is actually at, on the difficulty picker. It does not argue
+with the default; it just says which tile the run belongs to. If the selected tile and the marked
+tile are not the same one, the mismatch is visible before starting rather than after.
+
 ## Settings
 
 | Setting | Default | What |
@@ -53,6 +70,8 @@ counted against the budget.
 | `Enabled` | `true` | Replace the label at all |
 | `LabelBudget` | `23` | Characters the label may use |
 | `ItalicHost` | `true` | Italicise the host's name |
+| `MarkSavedRun` | `true` | Mark the saved run's tile on the difficulty picker |
+| `SavedRunLabel` | `Your run` | What that marker says |
 
 ## Building
 

@@ -34,6 +34,7 @@ Windows only. The installer is unsigned, so SmartScreen will ask before running 
 | [AutoEquipMod](AutoEquipMod/) | Offers to equip a better item as soon as you pick one up, from any source |
 | [SummonerMod](SummonerMod/) | Tunes summon damage, health, dodge and the summon limit |
 | [RoguelikeClassesMod](RoguelikeClassesMod/) | Adds roguelike starting classes, written in JSON and slotted into the game's own unlock ladder |
+| [RunTagsMod](RunTagsMod/) | Shows the difficulty, host and party on each roguelike character in the selection screen |
 | [GentleFoesMod](GentleFoesMod/) | Swaps what animal enemies look like and are called, for players who would rather not fight them |
 | [CharacterViewerMod](CharacterViewerMod/) | View a character's stats, inventory, skills and fortunes from the character selection screen, campaign or roguelike |
 

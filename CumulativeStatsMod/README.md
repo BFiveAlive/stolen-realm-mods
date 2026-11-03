@@ -88,6 +88,22 @@ browsable while you play it. A run in progress is listed as `unfinished`.
 The outcome comes from a patch on `OpenAdventureRewards(quest, victory, ...)`, which is handed the
 answer directly, rather than from matching the title against localised text.
 
+### When a battle is recorded
+
+The tracker finds battle boundaries by noticing the stats *drop*, which is reliable but late: the
+drop only happens when the **next** battle clears them. So a finished fight did not reach the
+archive until another one started, or until leaving the run emptied the list.
+
+`Root.SendGameCompleteFromServer` is the game's own announcement that a battle is over, and it is
+declared `NetworkMethodType.All`, so it arrives on every client rather than only the host. The
+battle is closed there instead, and reaches the archive immediately.
+
+The numbers stay in `Root.BattleStats` afterwards, because the post-battle screen is still showing
+them. A closed battle is therefore marked, and its leftovers ignored until the game really does
+clear them — otherwise the next poll would read the same fight back in and count it twice. One
+line per battle goes to the log (`Battle ended; recorded N character(s).`), which is the quickest
+way to check that is behaving.
+
 ### Stats beyond the game's own
 
 The game records running totals and nothing else, so "the hardest you were ever hit" cannot be

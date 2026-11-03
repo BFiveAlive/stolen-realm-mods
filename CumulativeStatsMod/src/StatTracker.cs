@@ -44,6 +44,20 @@ namespace CumulativeStatsMod
             /// startup out of numbers from days ago.
             /// </summary>
             public bool Observed;
+
+            /// <summary>
+            /// Set when the battle was closed on the game's own end-of-battle signal rather than
+            /// by the stats dropping.
+            ///
+            /// The numbers stay in Root.BattleStats after that - the post-battle screen is still
+            /// showing them - so without this the next poll would read the same battle back into
+            /// a fresh snapshot and count it a second time when the next battle finally cleared
+            /// it.
+            /// </summary>
+            public bool Closed;
+
+            /// <summary>What the totals were at that moment, to recognise them as leftovers.</summary>
+            public float ClosedTotal;
             public readonly Dictionary<int, float> Archive = new Dictionary<int, float>();
             public readonly Dictionary<int, float> Snapshot = new Dictionary<int, float>();
         }
@@ -165,6 +179,16 @@ namespace CumulativeStatsMod
                 record.Name = liveNames[pair.Key];
                 record.LastSeenUnix = NowUnix();
 
+                if (record.Closed)
+                {
+                    // Still the battle that was closed. It is released only once the game clears
+                    // the list, which is the same drop that would have ended it anyway.
+                    if (Total(pair.Value) + 0.5f >= record.ClosedTotal)
+                        continue;
+
+                    record.Closed = false;
+                }
+
                 // Half a point of slack: these are all whole numbers by the time they are
                 // displayed, and float accumulation should never decide a battle boundary.
                 if (Total(pair.Value) + 0.5f < Total(record.Snapshot))
@@ -197,6 +221,41 @@ namespace CumulativeStatsMod
         /// <summary>What folded in the current pass, as name -> that battle's stats.</summary>
         private static readonly List<KeyValuePair<string, Dictionary<int, float>>> folded =
             new List<KeyValuePair<string, Dictionary<int, float>>>();
+
+        /// <summary>
+        /// Ends the current battle now, because the game has just said it ended.
+        ///
+        /// Inferring the boundary from the stats dropping is reliable but late: the drop only
+        /// happens when the *next* battle starts, so a finished battle did not reach the archive
+        /// until another one began - or until leaving the run emptied the list. Both are a long
+        /// wait when what you want is to look at the fight you just had.
+        /// </summary>
+        public static void CloseBattle()
+        {
+            Poll();
+
+            folded.Clear();
+
+            foreach (KeyValuePair<string, Record> pair in records)
+            {
+                Record record = pair.Value;
+                if (record.Snapshot.Count == 0)
+                    continue;
+
+                record.ClosedTotal = Total(record.Snapshot);
+                record.Closed = true;
+
+                FoldSnapshot(record);
+                dirty = true;
+            }
+
+            // Logged every battle, not only when tracking is verbose: this is the one place a
+            // battle can be counted twice, and one line per fight is cheap enough to leave on.
+            Plugin.Log.LogInfo("Battle ended; recorded " + folded.Count + " character(s).");
+
+            if (folded.Count > 0)
+                RunRecorder.BattleFinished(folded);
+        }
 
         private static void FoldSnapshot(Record record)
         {

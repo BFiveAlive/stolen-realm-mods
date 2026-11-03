@@ -12,7 +12,7 @@ namespace CumulativeStatsMod
     {
         public const string Guid = "bfivealive.stolenrealm.cumulativestatsmod";
         public const string Name = "Cumulative Stats Mod";
-        public const string Version = "0.3.0";
+        public const string Version = "0.3.1";
 
         internal static ManualLogSource Log;
 
@@ -52,6 +52,7 @@ namespace CumulativeStatsMod
             harmony.PatchAll(typeof(StatManagerPatches));
             harmony.PatchAll(typeof(RunEndPatch));
             harmony.PatchAll(typeof(ModifyBattleStatPatch));
+            harmony.PatchAll(typeof(BattleEndPatch));
 
             Ticker.Install();
 
